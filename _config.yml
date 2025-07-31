@@ -9,7 +9,7 @@
 # Basic Site Settings
 locale                   : "en-US"
 site_theme               : "default"
-title                    : "Vignesh Ragupathy / Portfolio"
+title                    : "Vignesh Ragupathy"
 title_separator          : "-"
 name                     : &name "Vignesh Ragupathy"
 description              : &description "personal description"
@@ -26,8 +26,8 @@ author:
   name             : "Vignesh Ragupathy"
   pronouns         : # example: "she/her"  
   bio              : "Short biography for the left-hand sidebar"
-  location         : "Earth"
-  employer         : "Red Brick University"
+  location         : "Chennai, India"
+  employer         : "Sage"
   uri              : # URL
   email            : "r.vignesh88@gmail.com" 
 
@@ -153,7 +153,7 @@ social:
 analytics:
   provider               :  "google" # false (default), "google", "google-universal", "google-analytics-4", "custom"
   google:
-    tracking_id          : "GTM-T6L6KW6Z"
+    tracking_id          : "G-9F817WV8S6"
 
 
 # Reading Files
