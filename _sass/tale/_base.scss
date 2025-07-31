@@ -1,0 +1,99 @@
+* {
+  @include box-sizing;
+  line-height: 1.5;
+}
+
+html,
+/*
+body {
+  color: $default-color;
+  margin: 0;
+  padding: 0;
+  background-color: $vikki-light-bg;
+}
+*/
+body {
+  color: $vikki-light-default-color;
+  margin: 0;
+  padding: 0;
+  background-color: $vikki-light-bg;
+}
+@media (prefers-color-scheme: dark) {
+  body {
+    color: $vikki-dark-default-color;
+    margin: 0;
+    padding: 0;
+    background-color: $vikki-dark-bg;
+  }
+}
+
+html {
+  font-family: $serif-primary;
+  //font-size: 14px;
+  font-size: 100%;
+  overflow-y: scroll;
+
+  @media (min-width: 600px) {
+    //font-size: 16px;
+    font-size: 100%;
+  }
+}
+
+body {
+  -webkit-text-size-adjust: 100%;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: $vikki-shade2-light;
+  font-family: $sans-serif;
+  line-height: normal;
+}
+
+@media (prefers-color-scheme: dark) {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: $vikki-shade2-dark;
+    font-family: $sans-serif;
+    line-height: normal;
+  }
+}
+
+a {
+  color: $blue;
+  text-decoration: none;
+}
+
+blockquote {
+  //border-left: .25rem solid $grey-2;
+  border-left: .25rem solid $blue;
+  color: $grey-1;
+  margin: .8rem 0;
+  padding: .5rem 1rem;
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+
+  @media (min-width: 600px) {
+    padding: 0 5rem 0 1.25rem;
+  }
+}
+
+img {
+  display: block;
+  margin: 0 0 1rem;
+  max-width: 100%;
+}
+
+td {
+  vertical-align: top;
+}

@@ -1,0 +1,303 @@
+[
+  
+    {
+
+      "title"    : "Kubernetes monitoring in Zabbix via Prometheus backend",
+      "url"      : "/kubernetes-monitoring-in-zabbix-via-prometheus-backend/",
+      "category" : "",
+      "tags"     : "kubernetes, opensource, observability",
+      "date"     : "2022-07-01 10:00:00 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "My life at SBI",
+      "url"      : "/lifeatsbi/",
+      "category" : "",
+      "tags"     : "linux, opensource",
+      "date"     : "2021-09-16 12:15:00 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "Plotly4Nagios - A Graph plugin for nagios monitoring",
+      "url"      : "/plotly4nagios-graph-plugin-for-nagios-monitoring/",
+      "category" : "",
+      "tags"     : "linux, opensource, observability",
+      "date"     : "2021-03-24 12:15:00 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "Publish package in NPM and serve the static content from CDN",
+      "url"      : "/publish-package-in-npm-and-serve-the-static-content-from-cdn/",
+      "category" : "",
+      "tags"     : "linux, opensource",
+      "date"     : "2020-06-12 12:15:00 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "Backup of etcd database in kubernetes",
+      "url"      : "/backup-of-etcd-database-in-kubernetes/",
+      "category" : "",
+      "tags"     : "kubernetes, linux, opensource",
+      "date"     : "2019-11-28 16:37:26 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "RBAC in kubernetes",
+      "url"      : "/rbac-in-kubernetes/",
+      "category" : "",
+      "tags"     : "kubernetes, linux, opensource",
+      "date"     : "2019-11-28 16:26:19 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "Upgrading kubernetes cluster master and worker nodes",
+      "url"      : "/upgrading-kubernetes-cluster-master-and-worker-nodes/",
+      "category" : "",
+      "tags"     : "kubernetes, linux, opensource",
+      "date"     : "2019-11-26 15:07:58 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "Running kubernetes custom scheduler",
+      "url"      : "/running-kubernetes-custom-scheduler/",
+      "category" : "",
+      "tags"     : "kubernetes, linux, opensource",
+      "date"     : "2019-11-25 17:28:55 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "Creating static pod in kubernetes",
+      "url"      : "/creating-static-pod-in-kubernetes/",
+      "category" : "",
+      "tags"     : "kubernetes, linux, opensource",
+      "date"     : "2019-11-24 15:55:52 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "Pod scheduling in kubernetes - detailed step by step",
+      "url"      : "/pod-scheduling-in-kubernetes-detailed-step-by-step/",
+      "category" : "",
+      "tags"     : "kubernetes, linux, opensource",
+      "date"     : "2019-11-24 14:42:51 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "Kubernetes stateful set with local-storage persistent volume",
+      "url"      : "/kubernetes-stateful-set-with-local-storage-persistent-volume/",
+      "category" : "",
+      "tags"     : "kubernetes, linux, opensource",
+      "date"     : "2019-11-24 08:03:14 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "Creating persistent local-storage volume in Kubernetes",
+      "url"      : "/creating-persistent-local-storage-volume-in-kubernetes/",
+      "category" : "",
+      "tags"     : "kubernetes, linux, opensource",
+      "date"     : "2019-11-23 14:12:38 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "Rolling updates and update strategy in Kubernetes daemonsets",
+      "url"      : "/rolling-updates-and-rollbacks-in-kubernetes/",
+      "category" : "",
+      "tags"     : "kubernetes, linux, opensource",
+      "date"     : "2019-11-23 08:54:21 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "Rolling updates and Rollbacks in Kubernetes deployment",
+      "url"      : "/rolling-updates-and-rollbacks-in-kubernetes-deployment/",
+      "category" : "",
+      "tags"     : "kubernetes, linux, opensource",
+      "date"     : "2019-11-23 06:18:21 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "Resource limiting CPU and Memory in Kubernetes",
+      "url"      : "/resource-limiting-cpu-and-memory-in-kubernetes/",
+      "category" : "",
+      "tags"     : "linux, opensource, kubernetes",
+      "date"     : "2018-10-08 12:16:00 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "Kubernetes - Growing the cluster with Centos 7 node",
+      "url"      : "/kubernetes-growing-the-cluster-with-centos-7-node/",
+      "category" : "",
+      "tags"     : "linux, opensource, kubernetes",
+      "date"     : "2018-06-15 12:14:00 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "Kubernetes on Ubuntu 18.04 - Master and Dashboard setup",
+      "url"      : "/kubernetes-on-ubuntu-18-04-with-dashbaoard/",
+      "category" : "",
+      "tags"     : "linux, opensource, kubernetes",
+      "date"     : "2018-06-14 12:11:00 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "எங்கள் ஊர்த் திருவிழா",
+      "url"      : "/thiruvizha-madukkur-2018/",
+      "category" : "",
+      "tags"     : "photography",
+      "date"     : "2018-05-22 12:09:00 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "Lepakshi - The land of history &amp; mystery",
+      "url"      : "/lepakshi-the-land-of-history-mystery/",
+      "category" : "",
+      "tags"     : "photography",
+      "date"     : "2018-03-03 12:07:00 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "Coracle ride in river Cauvery - an adventurous car trip to Hogenakkal",
+      "url"      : "/car_trip_to_hogenakkal/",
+      "category" : "",
+      "tags"     : "photography",
+      "date"     : "2018-02-23 12:03:00 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "FreeIPA Installation and configuration",
+      "url"      : "/freeipa_installation_configuration/",
+      "category" : "",
+      "tags"     : "linux, opensource",
+      "date"     : "2017-10-07 11:58:00 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "Raspberry pi – blinking led in morse",
+      "url"      : "/raspberry-pi-blinking-led-in-morse/",
+      "category" : "",
+      "tags"     : "linux, electronics, opensource",
+      "date"     : "2017-10-07 11:54:00 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "Machine learning – Network traffic classification using weka",
+      "url"      : "/machine-learning-network-traffic-classification-using-weka/",
+      "category" : "",
+      "tags"     : "linux, data-science, opensource",
+      "date"     : "2017-10-07 11:52:00 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "Trip to wild – Bannerghatta National Park",
+      "url"      : "/trip-to-wild-bannerghatta-national-park/",
+      "category" : "",
+      "tags"     : "photography",
+      "date"     : "2017-10-07 11:49:00 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "bike trip to ooty",
+      "url"      : "/bike-trip-to-ooty/",
+      "category" : "",
+      "tags"     : "photography",
+      "date"     : "2017-10-07 11:44:00 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "Bike trip to Goa",
+      "url"      : "/bike-trip-to-goa/",
+      "category" : "",
+      "tags"     : "photography",
+      "date"     : "2017-10-07 11:38:00 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "Network teaming – RHEL7",
+      "url"      : "/network-teaming-rhel7/",
+      "category" : "",
+      "tags"     : "linux, opensource",
+      "date"     : "2017-10-07 11:35:00 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "Beautiful Budapest",
+      "url"      : "/beautiful-budapest/",
+      "category" : "",
+      "tags"     : "photography",
+      "date"     : "2017-10-07 11:26:00 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "Systemd – Introduction to system admin",
+      "url"      : "/systemd-introduction-to-system-admin/",
+      "category" : "",
+      "tags"     : "linux, opensource",
+      "date"     : "2017-10-02 11:22:00 +0000"
+
+    } ,
+  
+    {
+
+      "title"    : "Glusterfs -high available redundant storage with Raspberry pi/Centos server",
+      "url"      : "/glusterfs-ha-storage-with-raspberrypi/",
+      "category" : "",
+      "tags"     : "linux, opensource, electronics",
+      "date"     : "2017-10-01 10:30:00 +0000"
+
+    } 
+  
+]
