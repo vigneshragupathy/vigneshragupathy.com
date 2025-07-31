@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: Creating persistent local-storage volume in Kubernetes
 date: '2019-11-23 14:12:38'
 tags:

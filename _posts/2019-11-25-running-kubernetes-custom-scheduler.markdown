@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: Running kubernetes custom scheduler
 date: '2019-11-25 17:28:55'
 tags:

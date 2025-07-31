@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: Creating static pod in kubernetes
 date: '2019-11-24 15:55:52'
 tags:

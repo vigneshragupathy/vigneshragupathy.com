@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: Upgrading kubernetes cluster master and worker nodes
 date: '2019-11-26 15:07:58'
 tags:

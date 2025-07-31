@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: Machine learning – Network traffic classification using weka
 date: '2017-10-07 11:52:00'
 tags:

@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: எங்கள் ஊர்த் திருவிழா
 date: '2018-05-22 12:09:00'
 tags:

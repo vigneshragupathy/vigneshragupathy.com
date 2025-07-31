@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: Publish package in NPM and serve the static content from CDN
 date: '2020-06-12 12:15:00'
 tags:

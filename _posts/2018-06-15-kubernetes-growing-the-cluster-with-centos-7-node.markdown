@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: Kubernetes - Growing the cluster with Centos 7 node
 date: '2018-06-15 12:14:00'
 tags:

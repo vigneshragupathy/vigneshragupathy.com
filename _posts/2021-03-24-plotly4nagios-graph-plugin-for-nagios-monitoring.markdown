@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: Plotly4Nagios - A Graph plugin for nagios monitoring
 date: '2021-03-24 12:15:00'
 tags:

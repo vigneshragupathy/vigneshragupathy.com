@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: Systemd – Introduction to system admin
 date: '2017-10-02 11:22:00'
 tags:
