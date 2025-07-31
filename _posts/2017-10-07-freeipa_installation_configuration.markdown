@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: FreeIPA Installation and configuration
 date: '2017-10-07 11:58:00'
 tags:

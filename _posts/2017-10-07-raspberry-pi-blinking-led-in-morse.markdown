@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: Raspberry pi – blinking led in morse
 date: '2017-10-07 11:54:00'
 tags:

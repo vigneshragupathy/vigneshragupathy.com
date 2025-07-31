@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: Lepakshi - The land of history & mystery
 date: '2018-03-03 12:07:00'
 tags:

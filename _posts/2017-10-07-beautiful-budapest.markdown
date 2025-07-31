@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: Beautiful Budapest
 featured: true
 date: '2017-10-07 11:26:00'

@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: Bike trip to Goa
 date: '2017-10-07 11:38:00'
 tags:

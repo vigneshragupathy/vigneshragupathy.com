@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: RBAC in kubernetes
 date: '2019-11-28 16:26:19'
 tags:

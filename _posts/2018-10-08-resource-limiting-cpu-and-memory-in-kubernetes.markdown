@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: Resource limiting CPU and Memory in Kubernetes
 date: '2018-10-08 12:16:00'
 tags:

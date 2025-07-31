@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: Pod scheduling in kubernetes - detailed step by step
 date: '2019-11-24 14:42:51'
 tags:

@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: Rolling updates and update strategy in Kubernetes daemonsets
 date: '2019-11-23 08:54:21'
 tags:

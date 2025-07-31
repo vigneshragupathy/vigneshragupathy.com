@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: Backup of etcd database in kubernetes
 date: '2019-11-28 16:37:26'
 tags:

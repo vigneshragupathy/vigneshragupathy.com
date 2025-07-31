@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: Kubernetes on Ubuntu 18.04 - Master and Dashboard setup
 featured: true
 date: '2018-06-14 12:11:00'

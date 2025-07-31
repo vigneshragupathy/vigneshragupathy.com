@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: My life at SBI 
 date: '2021-09-16 12:15:00'
 tags:

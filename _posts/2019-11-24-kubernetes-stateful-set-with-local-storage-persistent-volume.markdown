@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: Kubernetes stateful set with local-storage persistent volume
 date: '2019-11-24 08:03:14'
 tags:

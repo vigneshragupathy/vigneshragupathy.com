@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: Rolling updates and Rollbacks in Kubernetes deployment
 date: '2019-11-23 06:18:21'
 tags:

@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: Coracle ride in river Cauvery - an adventurous car trip to Hogenakkal
 featured: true
 date: '2018-02-23 12:03:00'

@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: Trip to wild – Bannerghatta National Park
 date: '2017-10-07 11:49:00'
 tags:

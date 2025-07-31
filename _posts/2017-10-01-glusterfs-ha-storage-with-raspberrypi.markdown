@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: Glusterfs -high available redundant storage with Raspberry pi/Centos server
 date: '2017-10-01 10:30:00'
 tags:

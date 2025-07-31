@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: Network teaming – RHEL7
 date: '2017-10-07 11:35:00'
 tags:
