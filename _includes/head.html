@@ -1,49 +1,21 @@
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% include base_path %}
 
-  {% seo %}
+<meta charset="utf-8">
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="{{ "/assets/main.css" | relative_url }}">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i,700">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
-  <link href="/css/github.css" rel="stylesheet">
+{% include seo.html %}
 
+<link href="{% if site.atom_feed.path %}{{ site.atom_feed.path }}{% else %}{{ base_path }}/feed.xml{% endif %}" type="application/atom+xml" rel="alternate" title="{{ site.title }} Feed">
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" sizes="32x32" href="{{ "/content/images/favicon/favicon.png" | relative_url }}">
-  <link rel="icon" type="image/png" sizes="16x16" href="{{ "/content/images/favicon/favicon.png" | relative_url }}">
-  <link rel="apple-touch-icon" sizes="180x180" href="{{ "/content/images/favicon/touch-icon-iphone.png" | relative_url }}">
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- RSS -->
-  {% feed_meta %}
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
 
-  <!-- Google Analytics-->
-  {% if site.google_analytics and site.environment == 'production' %}
-  {% include google-analytics.html %}
-  {% endif %}
-  {% if site.tags != "" %}
-  {% include collecttags.html %}
-  {% endif %}
+<!-- For all browsers -->
+<link rel="stylesheet" href="{{ base_path }}/assets/css/main.css">
 
-  <!-- Twitter cards -->
-<meta name="twitter:site"    content="@{{ site.twitter_username }}">
-<meta name="twitter:creator" content="@{{ page.author }}">
-<meta name="twitter:title"   content="{{ page.title }}">
-
-{% if page.summary %}
-<meta name="twitter:description" content="{{ page.summary }}">
-{% else %}
-<meta name="twitter:description" content="{{ site.description }}">
-{% endif %}
-
-{% if page.image %}
-<meta name="twitter:card"  content="summary_large_image">
-<meta name="twitter:image" content="{{ site.url }}{{ page.image }}">
-{% else %}
-<meta name="twitter:card"  content="summary">
-<meta name="twitter:image" content="{{ site.title_image }}">
-{% endif %}
-<!-- end of Twitter cards -->
-</head>
+<meta http-equiv="cleartype" content="on">

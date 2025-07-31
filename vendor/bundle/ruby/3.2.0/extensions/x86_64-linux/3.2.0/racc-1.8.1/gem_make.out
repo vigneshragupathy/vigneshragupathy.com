@@ -1,0 +1,18 @@
+current directory: /opt/vigneshragupathy.com/vendor/bundle/ruby/3.2.0/gems/racc-1.8.1/ext/racc/cparse
+/home/vikki/.rvm/rubies/ruby-3.2.0/bin/ruby -I /home/vikki/.rvm/rubies/ruby-3.2.0/lib/ruby/3.2.0 extconf.rb
+creating Makefile
+
+current directory: /opt/vigneshragupathy.com/vendor/bundle/ruby/3.2.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20250731-73971-9jevxd sitelibdir\=./.gem.20250731-73971-9jevxd clean
+
+current directory: /opt/vigneshragupathy.com/vendor/bundle/ruby/3.2.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20250731-73971-9jevxd sitelibdir\=./.gem.20250731-73971-9jevxd
+compiling cparse.c
+linking shared-object racc/cparse.so
+
+current directory: /opt/vigneshragupathy.com/vendor/bundle/ruby/3.2.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20250731-73971-9jevxd sitelibdir\=./.gem.20250731-73971-9jevxd install
+/usr/bin/install -m 0755 cparse.so ./.gem.20250731-73971-9jevxd/racc
+
+current directory: /opt/vigneshragupathy.com/vendor/bundle/ruby/3.2.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20250731-73971-9jevxd sitelibdir\=./.gem.20250731-73971-9jevxd clean
