@@ -1,5 +1,5 @@
 ---
-layout: post
+#layout: post
 title: Kubernetes monitoring in Zabbix via Prometheus backend
 date: '2022-07-01 10:00:00'
 tags:
