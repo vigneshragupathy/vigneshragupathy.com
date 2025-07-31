@@ -1,0 +1,51 @@
+---
+layout: default
+---
+
+<div class="post">
+  <div class="post-info">
+    <span>Written by</span>
+    {% if page.author %}
+        {{ page.author }}
+    {% else %}
+        {{ site.author.name }}
+    {% endif %}
+
+    {% if page.date %}
+          <br>
+      <span>on&nbsp;</span><time datetime="{{ page.date }}">{{ page.date | date: "%B %d, %Y" }}</time>
+    {% endif %}
+  </div>
+  <div style="text-align: center;">
+    <span>[
+      {% for tag in page.tags %}
+        {% capture tag_name %}{{ tag }}{% endcapture %}
+        <!--<a href="/tag/{{ tag_name }}"><code class="highligher-rouge"><nobr>{{ tag_name }}</nobr></code>&nbsp;</a>-->
+        <a href="/tag/{{ tag_name }}"><mark style="border-radius: .25em;   padding:.2em .6em .3em;font-size: 75%;"><nobr>{{ tag_name }}</nobr></mark>&nbsp;</a>
+      {% endfor %}
+    ]</span> 
+  </div>
+  
+  <h1 class="post-title">{{ page.title }}</h1>
+  <div class="post-line"></div>
+
+
+  {{ content }}
+</div>
+{% include share-buttons.html %}
+{% include mailchimp.html %}
+
+{% if page.comments %}
+  {% include disqus_comments.html %}
+{% endif %}
+
+<div class="pagination">
+  {% if page.next.url %}
+    <a href="{{ page.next.url | prepend: site.baseurl }}" class="left arrow">&#8592;</a>
+  {% endif %}
+  {% if page.previous.url %}
+    <a href="{{ page.previous.url | prepend: site.baseurl }}" class="right arrow">&#8594;</a>
+  {% endif %}
+
+  <a href="#" class="top">Top</a>
+</div>

@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Plotly4Nagios - A Graph plugin for nagios monitoring | Vignesh Ragupathy</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Plotly4Nagios - A Graph plugin for nagios monitoring" />
+<meta name="author" content="Vignesh Ragupathy" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Plotly4Nagios is a nagios plugin to display the performance data in Graph. It uses the RRD database provided by pnp4nagios and visualize it in interactive graph format using plotly javascript. The first pre-release is published today in github and here is the installation document. You can experiment it and report the issue/feedback for further enhancement." />
+<meta property="og:description" content="Plotly4Nagios is a nagios plugin to display the performance data in Graph. It uses the RRD database provided by pnp4nagios and visualize it in interactive graph format using plotly javascript. The first pre-release is published today in github and here is the installation document. You can experiment it and report the issue/feedback for further enhancement." />
+<link rel="canonical" href="http://0.0.0.0:4000/plotly4nagios-graph-plugin-for-nagios-monitoring/" />
+<meta property="og:url" content="http://0.0.0.0:4000/plotly4nagios-graph-plugin-for-nagios-monitoring/" />
+<meta property="og:site_name" content="Vignesh Ragupathy" />
+<meta property="og:image" content="http://0.0.0.0:4000/content/images/2021/plotly4nagios_dark.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-03-24T12:15:00+00:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="http://0.0.0.0:4000/content/images/2021/plotly4nagios_dark.png" />
+<meta property="twitter:title" content="Plotly4Nagios - A Graph plugin for nagios monitoring" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Vignesh Ragupathy"},"@type":"BlogPosting","description":"Plotly4Nagios is a nagios plugin to display the performance data in Graph. It uses the RRD database provided by pnp4nagios and visualize it in interactive graph format using plotly javascript. The first pre-release is published today in github and here is the installation document. You can experiment it and report the issue/feedback for further enhancement.","image":"http://0.0.0.0:4000/content/images/2021/plotly4nagios_dark.png","headline":"Plotly4Nagios - A Graph plugin for nagios monitoring","url":"http://0.0.0.0:4000/plotly4nagios-graph-plugin-for-nagios-monitoring/","datePublished":"2021-03-24T12:15:00+00:00","dateModified":"2021-03-24T12:15:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://0.0.0.0:4000/plotly4nagios-graph-plugin-for-nagios-monitoring/"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i,700">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+  <link href="/css/github.css" rel="stylesheet">
+
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/content/images/favicon/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/content/images/favicon/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/content/images/favicon/touch-icon-iphone.png">
+
+  <!-- RSS -->
+  <link type="application/atom+xml" rel="alternate" href="http://0.0.0.0:4000/feed.xml" title="Vignesh Ragupathy" />
+
+  <!-- Google Analytics-->
+  
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-YL89JLMQRY"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-YL89JLMQRY');
+</script>
+  
+  
+  
+
+
+
+
+
+  
+
+  <!-- Twitter cards -->
+<meta name="twitter:site"    content="@vikkiintweet">
+<meta name="twitter:creator" content="@Vignesh Ragupathy">
+<meta name="twitter:title"   content="Plotly4Nagios - A Graph plugin for nagios monitoring">
+
+
+<meta name="twitter:description" content="Vignesh Ragupathy's blog">
+
+
+
+<meta name="twitter:card"  content="summary_large_image">
+<meta name="twitter:image" content="http://0.0.0.0:4000/content/images/2021/plotly4nagios_dark.png">
+
+<!-- end of Twitter cards -->
+</head>
+
+
+  <body>
+
+    <!--
+<nav class="nav">
+  <div class="nav-container">
+    <a href="/">
+      <h2 class="nav-title">Vignesh Ragupathy</h2>
+    </a>
+    <ul>
+      <li><a href="/tools">Tools developed</a></li>
+      <li><a href="/videos">Videos</a></li>
+      <li><a href="/about-me">About me</a></li>
+    </ul>
+  </div>
+</nav>
+-->
+
+<div id="navbar">
+  <nav class="nav">
+  <div class="nav-container">
+  <a href="/">
+    <h2 class="nav-title ">Vignesh Ragupathy</h2>
+  </a>
+  <input class="menu-btn" type="checkbox" id="menu-btn" />
+  <label class="menu-icon" for="menu-btn"><span class="navicon"></span></label>
+  <ul class="menu">
+    <li><a href="/about-me">About</a></li>
+    <li><a href="/search">Search</a></li>
+  </ul>
+</div>
+</div>
+</nav>
+
+  <script>
+    var prevScrollpos = window.pageYOffset;
+    window.onscroll = function() {
+    var currentScrollPos = window.pageYOffset;
+      if (prevScrollpos > currentScrollPos) {
+        document.getElementById("navbar").style.top = "0";
+      } else {
+        document.getElementById("navbar").style.top = "-100px";
+      }
+      prevScrollpos = currentScrollPos;
+    }
+    </script>
+
+    <main>
+      <div class="post">
+  <div class="post-info">
+    <span>Written by</span>
+    
+        Vignesh Ragupathy
+    
+
+    
+          <br>
+      <span>on&nbsp;</span><time datetime="2021-03-24 12:15:00 +0000">March 24, 2021</time>
+    
+  </div>
+  <div style="text-align: center;">
+    <span>[
+      
+        
+        <!--<a href="/tag/linux"><code class="highligher-rouge"><nobr>linux</nobr></code>&nbsp;</a>-->
+        <a href="/tag/linux"><mark style="border-radius: .25em;   padding:.2em .6em .3em;font-size: 75%;"><nobr>linux</nobr></mark>&nbsp;</a>
+      
+        
+        <!--<a href="/tag/opensource"><code class="highligher-rouge"><nobr>opensource</nobr></code>&nbsp;</a>-->
+        <a href="/tag/opensource"><mark style="border-radius: .25em;   padding:.2em .6em .3em;font-size: 75%;"><nobr>opensource</nobr></mark>&nbsp;</a>
+      
+        
+        <!--<a href="/tag/observability"><code class="highligher-rouge"><nobr>observability</nobr></code>&nbsp;</a>-->
+        <a href="/tag/observability"><mark style="border-radius: .25em;   padding:.2em .6em .3em;font-size: 75%;"><nobr>observability</nobr></mark>&nbsp;</a>
+      
+    ]</span> 
+  </div>
+  
+  <h1 class="post-title">Plotly4Nagios - A Graph plugin for nagios monitoring</h1>
+  <div class="post-line"></div>
+
+
+  <p><a href="https://github.com/vigneshragupathy/plotly4nagios">Plotly4Nagios</a> is a nagios plugin to display the performance data in Graph. It uses the RRD database provided by pnp4nagios and visualize it in interactive graph format using plotly javascript. The first pre-release is published today in <a href="https://github.com/vigneshragupathy/plotly4nagios">github</a> and here is the installation document. You can experiment it and report the issue/feedback for further enhancement.</p>
+
+<blockquote>
+  <p>Plotly4Nagios is accepted and listed under official <a href="https://exchange.nagios.org/directory/Addons/Graphing-and-Trending/Plotly4Nagios/details">nagios addons</a></p>
+</blockquote>
+
+<h2 id="git-badges">GIT badges</h2>
+
+<p><img src="https://img.shields.io/github/license/vigneshragupathy/plotly4nagios" alt="GitHub" />
+<a href="https://travis-ci.com/vigneshragupathy/plotly4nagios"><img src="https://travis-ci.com/vigneshragupathy/plotly4nagios.svg?branch=main" alt="Build Status" /></a></p>
+
+<h2 id="features">Features</h2>
+
+<ul>
+  <li>Easy integration with nagios <code class="language-html highlighter-rouge">notes_url</code>.</li>
+  <li>Single page view for all performance metrics.</li>
+  <li>Easy template change using configuration variable.</li>
+  <li>Docker container based deploy and run.</li>
+</ul>
+
+<h2 id="prerequisite">Prerequisite</h2>
+
+<ul>
+  <li><a href="https://support.nagios.com/kb/article/nagios-core-performance-graphs-using-pnp4nagios-801.html">pnp4nagios</a></li>
+</ul>
+
+<h2 id="installation">Installation</h2>
+
+<ul>
+  <li>Download plotly4nagios.tar.gz and extract it under /usr/local/plotly4nagios</li>
+  <li>Modify the config.json variables according to the environment</li>
+  <li>Copy the plotly4nagios/plotly4nagios.conf to /etc/http/conf.d/ folder and restart httpd</li>
+  <li>Add the follwing with  notes_url to templates.cfg.</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="syntax"><code>    notes_url /plotly4nagios/plotly4nagios.html?host<span class="o">=</span><span class="se">\$</span>HOSTNAME<span class="se">\$</span>&amp;srv<span class="o">=</span>_HOST_
+    notes_url /plotly4nagios/plotly4nagios.html?host<span class="o">=</span><span class="se">\$</span>HOSTNAME<span class="nv">$&amp;srv</span><span class="o">=</span><span class="se">\$</span>SERVICEDESC<span class="err">$</span>
+</code></pre></div></div>
+
+<ul>
+  <li>Restart httpd and nagios.</li>
+</ul>
+
+<h2 id="installation-with-dockerubuntu-image">Installation with docker(Ubuntu image)</h2>
+
+<ul>
+  <li>Build the docker image using the below command</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="syntax"><code>git clone https://github.com/vigneshragupathy/plotly4nagios.git
+<span class="nb">cd </span>plotly4nagios
+docker build <span class="nt">-t</span> plotly4nagios <span class="nb">.</span>
+</code></pre></div></div>
+
+<ul>
+  <li>Run the docker container using the below command</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="syntax"><code>docker run <span class="nt">-it</span> <span class="nt">--name</span> plotly4nagios <span class="nt">-p</span> 80:80 plotly4nagios
+</code></pre></div></div>
+
+<p>Alternatively direct pull and run from docker hub.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="syntax"><code>docker run <span class="nt">-d</span> <span class="nt">-p</span> 80:80 <span class="nt">--name</span> plotly4nagios vigneshragupathy/plotly4nagios
+</code></pre></div></div>
+
+<blockquote>
+  <p>Open from the browser and view the application at http://localhost/nagios</p>
+</blockquote>
+
+<h3 id="login-details">Login details</h3>
+
+<ul>
+  <li>Username : nagiosadmin</li>
+  <li>Password : nagios</li>
+</ul>
+
+<h2 id="demo">Demo</h2>
+
+<p><img src="https://raw.githubusercontent.com/vigneshragupathy/plotly4nagios/main/img/plotly4nagios.gif" alt="'demo'" /></p>
+
+<h2 id="screenshot">Screenshot</h2>
+
+<h3 id="dark-mode">Dark mode</h3>
+
+<p><img src="https://raw.githubusercontent.com/vigneshragupathy/plotly4nagios/main/img/screenshot_darkmode.png" alt="'Dark mode'" /></p>
+
+<h2 id="license">License</h2>
+
+<p>Copyright 2020-2021 © Vignesh Ragupathy. All rights reserved.</p>
+
+<p>Licensed under the <a href="https://github.com/vigneshragupathy/plotly4nagios/blob/ed09f8d687014107c8002d92acbc7acd2f62468a/LICENSE">MIT License</a></p>
+
+</div>
+
+
+<style>
+    #share-buttons {
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    #share-buttons:after {
+        content: "";
+        display: block;
+        clear: both;
+    }
+
+    #share-buttons>div {
+        position: relative;
+        text-align: left;
+        height: 36px;
+        width: 32px;
+        float: left;
+        text-align: center;
+    }
+
+    #share-buttons>div>svg {
+        height: 16px;
+        fill: #d5d5d5;
+        margin-top: 10px;
+    }
+
+    #share-buttons>div:hover {
+        cursor: pointer;
+    }
+
+    #share-buttons>div.facebook:hover>svg {
+        fill: #3B5998;
+    }
+
+    #share-buttons>div.twitter:hover>svg {
+        fill: #55ACEE;
+    }
+
+    #share-buttons>div.linkedin:hover>svg {
+        fill: #0077b5;
+    }
+
+    #share-buttons>div.pinterest:hover>svg {
+        fill: #CB2027;
+    }
+
+    #share-buttons>div.gplus:hover>svg {
+        fill: #dd4b39;
+    }
+
+    #share-buttons>div.mail:hover>svg {
+        fill: #7D7D7D;
+    }
+
+    #share-buttons>div.instagram:hover>svg {
+        fill: #C73B92;
+    }
+
+    #share-buttons>div.facebook>svg {
+        height: 18px;
+        margin-top: 9px;
+    }
+
+    #share-buttons>div.twitter>svg {
+        height: 20px;
+        margin-top: 8px;
+    }
+
+    #share-buttons>div.linkedin>svg {
+        height: 19px;
+        margin-top: 7px;
+    }
+
+    #share-buttons>div.pinterest>svg {
+        height: 20px;
+        margin-top: 9px;
+    }
+
+    #share-buttons>div.gplus>svg {
+        height: 17px;
+        margin-top: 9px;
+        position: relative;
+        left: 1px;
+    }
+
+    #share-buttons>div.mail>svg {
+        height: 14px;
+        margin-top: 11px;
+    }
+</style>
+
+<span style="color: #353535;">Share on: </span>
+<div id="share-buttons">
+    
+    <div class="facebook" title="Share this on Facebook" onclick="window.open('http://www.facebook.com/share.php?u=http://0.0.0.0:4000/plotly4nagios-graph-plugin-for-nagios-monitoring/');"><svg viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1343 12v264h-157q-86 0-116 36t-30 108v189h293l-39 296h-254v759h-306v-759h-255v-296h255v-218q0-186 104-288.5t277-102.5q147 0 228 12z"/></svg></div>
+    <!--<div class="twitter" title="Share this on Twitter" onclick="window.open('http://twitter.com/home?status=http://0.0.0.0:4000/plotly4nagios-graph-plugin-for-nagios-monitoring/');"><svg viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1684 408q-67 98-162 167 1 14 1 42 0 130-38 259.5t-115.5 248.5-184.5 210.5-258 146-323 54.5q-271 0-496-145 35 4 78 4 225 0 401-138-105-2-188-64.5t-114-159.5q33 5 61 5 43 0 85-11-112-23-185.5-111.5t-73.5-205.5v-4q68 38 146 41-66-44-105-115t-39-154q0-88 44-163 121 149 294.5 238.5t371.5 99.5q-8-38-8-74 0-134 94.5-228.5t228.5-94.5q140 0 236 102 109-21 205-78-37 115-142 178 93-10 186-50z"/></svg></div>-->
+    <div class="twitter" title="Share this on Twitter" onclick="window.open('https://twitter.com/intent/tweet?text=Plotly4Nagios - A Graph plugin for nagios monitoring&url=http://0.0.0.0:4000/plotly4nagios-graph-plugin-for-nagios-monitoring/');"><svg viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1684 408q-67 98-162 167 1 14 1 42 0 130-38 259.5t-115.5 248.5-184.5 210.5-258 146-323 54.5q-271 0-496-145 35 4 78 4 225 0 401-138-105-2-188-64.5t-114-159.5q33 5 61 5 43 0 85-11-112-23-185.5-111.5t-73.5-205.5v-4q68 38 146 41-66-44-105-115t-39-154q0-88 44-163 121 149 294.5 238.5t371.5 99.5q-8-38-8-74 0-134 94.5-228.5t228.5-94.5q140 0 236 102 109-21 205-78-37 115-142 178 93-10 186-50z"/></svg></div>
+    <div class="linkedin" title="Share this on Linkedin" onclick="window.open('https://www.linkedin.com/shareArticle?mini=true&url=http://0.0.0.0:4000/plotly4nagios-graph-plugin-for-nagios-monitoring/&title=&summary=&source=');"><svg viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M477 625v991h-330v-991h330zm21-306q1 73-50.5 122t-135.5 49h-2q-82 0-132-49t-50-122q0-74 51.5-122.5t134.5-48.5 133 48.5 51 122.5zm1166 729v568h-329v-530q0-105-40.5-164.5t-126.5-59.5q-63 0-105.5 34.5t-63.5 85.5q-11 30-11 81v553h-329q2-399 2-647t-1-296l-1-48h329v144h-2q20-32 41-56t56.5-52 87-43.5 114.5-15.5q171 0 275 113.5t104 332.5z"/></svg></div>
+    <!--
+    <div class="pinterest" title="Share this on Pinterest" onclick="window.open('https://pinterest.com/pin/create/button/?url=&media=http://0.0.0.0:4000/content/images/2021/plotly4nagios_dark.png&description=');"><svg viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M256 597q0-108 37.5-203.5t103.5-166.5 152-123 185-78 202-26q158 0 294 66.5t221 193.5 85 287q0 96-19 188t-60 177-100 149.5-145 103-189 38.5q-68 0-135-32t-96-88q-10 39-28 112.5t-23.5 95-20.5 71-26 71-32 62.5-46 77.5-62 86.5l-14 5-9-10q-15-157-15-188 0-92 21.5-206.5t66.5-287.5 52-203q-32-65-32-169 0-83 52-156t132-73q61 0 95 40.5t34 102.5q0 66-44 191t-44 187q0 63 45 104.5t109 41.5q55 0 102-25t78.5-68 56-95 38-110.5 20-111 6.5-99.5q0-173-109.5-269.5t-285.5-96.5q-200 0-334 129.5t-134 328.5q0 44 12.5 85t27 65 27 45.5 12.5 30.5q0 28-15 73t-37 45q-2 0-17-3-51-15-90.5-56t-61-94.5-32.5-108-11-106.5z"/></svg></div>
+    <div class="gplus" title="Share this on Google Plus" onclick="window.open('https://plus.google.com/share?url=http://0.0.0.0:4000/plotly4nagios-graph-plugin-for-nagios-monitoring/');"><svg viewBox="0 0 2304 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1437 913q0 208-87 370.5t-248 254-369 91.5q-149 0-285-58t-234-156-156-234-58-285 58-285 156-234 234-156 285-58q286 0 491 192l-199 191q-117-113-292-113-123 0-227.5 62t-165.5 168.5-61 232.5 61 232.5 165.5 168.5 227.5 62q83 0 152.5-23t114.5-57.5 78.5-78.5 49-83 21.5-74h-416v-252h692q12 63 12 122zm867-122v210h-209v209h-210v-209h-209v-210h209v-209h210v209h209z"/></svg></div>
+    <div class="mail" title="Share this through Email" onclick="window.open('mailto:?&body=http://0.0.0.0:4000/plotly4nagios-graph-plugin-for-nagios-monitoring/');"><svg viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1792 710v794q0 66-47 113t-113 47h-1472q-66 0-113-47t-47-113v-794q44 49 101 87 362 246 497 345 57 42 92.5 65.5t94.5 48 110 24.5h2q51 0 110-24.5t94.5-48 92.5-65.5q170-123 498-345 57-39 100-87zm0-294q0 79-49 151t-122 123q-376 261-468 325-10 7-42.5 30.5t-54 38-52 32.5-57.5 27-50 9h-2q-23 0-50-9t-57.5-27-52-32.5-54-38-42.5-30.5q-91-64-262-182.5t-205-142.5q-62-42-117-115.5t-55-136.5q0-78 41.5-130t118.5-52h1472q65 0 112.5 47t47.5 113z"/></svg></div>
+    -->
+    
+
+</div>
+<!-- Begin Mailchimp Signup Form -->
+<link href="//cdn-images.mailchimp.com/embedcode/horizontal-slim-10_7.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+	/* #mc_embed_signup{background:#fff; clear:left; font:14px Helvetica,Arial,sans-serif; width:100%;} */
+    #mc_embed_signup{clear:left; font:14px Helvetica,Arial,sans-serif; width:100%;}
+	/* Add your own Mailchimp form style overrides in your site stylesheet or in this style block.
+	   We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+</style>
+<div id="mc_embed_signup">
+<form action="https://vikki.us10.list-manage.com/subscribe/post?u=95b2d364576fdf5e25e704170&amp;id=905f0eae6d" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+    <div id="mc_embed_signup_scroll">
+	<label for="mce-EMAIL">Subscribe to Vikki's blog</label>
+	<input type="email" value="" name="EMAIL" class="email" id="mce-EMAIL" placeholder="email address" required>
+    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_95b2d364576fdf5e25e704170_905f0eae6d" tabindex="-1" value=""></div>
+    <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button"></div>
+    </div>
+</form>
+</div>
+
+<!--End mc_embed_signup-->
+
+
+  <!-- Start disqus -->
+<script src="/assets/js/disqusLoader.js" /></script>
+<div id="disqus_thread"><h3>Discussion and feedback</h3></div>
+<div class="disqus"></div>
+<script>
+    disqusLoader('.disqus', {
+        scriptUrl: 'https://vikkiblog.disqus.com/embed.js'
+    });
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<!-- End disqus -->
+
+
+<div class="pagination">
+  
+    <a href="/lifeatsbi/" class="left arrow">&#8592;</a>
+  
+  
+    <a href="/publish-package-in-npm-and-serve-the-static-content-from-cdn/" class="right arrow">&#8594;</a>
+  
+
+  <a href="#" class="top">Top</a>
+</div>
+    </main>
+
+    <!--<footer >
+  <span>
+        &copy; <time datetime="2025-07-31 10:44:18 +0000">2025</time> . Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+  </span>
+</footer>-->
+
+<footer class="footer">
+    <div class="footer--section">
+        <!--
+      
+      <a href=https://twitter.com/vikkiintweet> <svg viewBox="0 0 64 64" class="footer--icon">
+           <path data-name="layer1"
+  d="M64 13.194a23.1 23.1 0 0 1-7.3 2.1 14.119 14.119 0 0 0 5.5-7.2c-1.9 1.2-6.1 2.9-8.2 2.9a13.782 13.782 0 0 0-9.6-4 13.187 13.187 0 0 0-13.2 13.2 13.576 13.576 0 0 0 .3 2.9c-9.9-.3-21.5-5.2-28-13.7a13.206 13.206 0 0 0 4 17.4c-1.5.2-4.4-.1-5.7-1.4-.1 4.6 2.1 10.7 10.2 12.9-1.6.8-4.3.6-5.5.4.4 3.9 5.9 9 11.8 9-2.1 2.4-9.3 6.9-18.3 5.5a39.825 39.825 0 0 0 20.7 5.8 36.8 36.8 0 0 0 37-38.6v-.5a22.861 22.861 0 0 0 6.3-6.7z"
+  fill="#4f80ff"></path>
+          </svg>
+      </a>
+  </div>
+  <div class="footer--section">
+      
+      <a href=https://github.com/vigneshragupathy> <svg class="footer--icon" viewBox="0 0 64 64"
+          xmlns="http://www.w3.org/2000/svg">
+          <path data-name="layer2"
+  d="M32 0a32.021 32.021 0 0 0-10.1 62.4c1.6.3 2.2-.7 2.2-1.5v-6c-8.9 1.9-10.8-3.8-10.8-3.8-1.5-3.7-3.6-4.7-3.6-4.7-2.9-2 .2-1.9.2-1.9 3.2.2 4.9 3.3 4.9 3.3 2.9 4.9 7.5 3.5 9.3 2.7a6.93 6.93 0 0 1 2-4.3c-7.1-.8-14.6-3.6-14.6-15.8a12.27 12.27 0 0 1 3.3-8.6 11.965 11.965 0 0 1 .3-8.5s2.7-.9 8.8 3.3a30.873 30.873 0 0 1 8-1.1 30.292 30.292 0 0 1 8 1.1c6.1-4.1 8.8-3.3 8.8-3.3a11.965 11.965 0 0 1 .3 8.5 12.1 12.1 0 0 1 3.3 8.6c0 12.3-7.5 15-14.6 15.8a7.746 7.746 0 0 1 2.2 5.9v8.8c0 .9.6 1.8 2.2 1.5A32.021 32.021 0 0 0 32 0z"
+  fill="#2d2d2d"></path>
+  <path data-name="layer1" d="M12.1 45.9c-.1.2-.3.2-.5.1s-.4-.3-.3-.5.3-.2.6-.1c.2.2.3.4.2.5zm1.3 1.5a.589.589 0 0 1-.8-.8.631.631 0 0 1 .7.1.494.494 0 0 1 .1.7zm1.3 1.8a.585.585 0 0 1-.7-.3.6.6 0 0 1 0-.8.585.585 0 0 1 .7.3c.2.3.2.7 0 .8zm1.7 1.8c-.2.2-.5.1-.8-.1-.3-.3-.4-.6-.2-.8a.619.619 0 0 1 .8.1.554.554 0 0 1 .2.8zm2.4 1c-.1.3-.4.4-.8.3s-.6-.4-.5-.7.4-.4.8-.3c.3.2.6.5.5.7zm2.6.2c0 .3-.3.5-.7.5s-.7-.2-.7-.5.3-.5.7-.5c.4.1.7.3.7.5zm2.4-.4q0 .45-.6.6a.691.691 0 0 1-.8-.3q0-.45.6-.6c.5-.1.8.1.8.3z"></path>
+          </svg>
+      </a>
+  </div>
+  <div class="footer--section">
+      
+      <a href=https://www.youtube.com/c/vigneshragupathy> <svg class="footer--icon"
+          viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+          <path data-name="layer1"
+  d="M50.708 9H13.292A13.25 13.25 0 0 0 0 22.207v18.586A13.25 13.25 0 0 0 13.292 54h37.416A13.25 13.25 0 0 0 64 40.793V22.207A13.25 13.25 0 0 0 50.708 9zm-8.989 23.4l-17.501 8.3a.7.7 0 0 1-1.005-.63V22.962a.7.7 0 0 1 1.02-.623l17.5 8.812a.7.7 0 0 1-.015 1.253zm0 0"
+  fill="#f61c0d"></path>
+          </svg>
+      </a>
+  </div>
+
+  <div class="footer--section">
+    
+    <a href=https://www.linkedin.com/in/vigneshragupathy> <svg class="footer--icon"
+        viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <path data-name="layer1"
+  fill="#0077b7" d="M1.15 21.7h13V61h-13zm46.55-1.3c-5.7 0-9.1 2.1-12.7 6.7v-5.4H22V61h13.1V39.7c0-4.5 2.3-8.9 7.5-8.9s8.3 4.4 8.3 8.8V61H64V38.7c0-15.5-10.5-18.3-16.3-18.3zM7.7 2.6C3.4 2.6 0 5.7 0 9.5s3.4 6.9 7.7 6.9 7.7-3.1 7.7-6.9S12 2.6 7.7 2.6z"></path>
+        </svg>
+          </a>
+</div>
+  <div class="footer--section">
+      
+      <a href="http://0.0.0.0:4000/feed.xml">
+          <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+              y="0px" viewBox="0 0 64 64" class="footer--icon" xml:space="preserve">
+              <path data-name="layer1"
+  d="M8.6 46.746a8.627 8.627 0 1 0 8.6 8.627 8.678 8.678 0 0 0-8.6-8.627zM.7 21.567H.2V33.5h.5a29.836 29.836 0 0 1 29.8 29.8v.7h11.9v-.7A41.719 41.719 0 0 0 .7 21.567z"
+  fill="#ff8900"></path>
+  <path data-name="layer1" d="M.7 0H.2v11.937h.5A51.4 51.4 0 0 1 52 63.3v.7h12v-.7A63.369 63.369 0 0 0 .7 0z"
+  fill="#ff8900"></path>
+          </svg>
+      </a>
+      -->
+        
+        <a href=https://twitter.com/vikkiintweet> <svg viewBox="0 0 64 64" class="footer--icon">
+            <path data-name="layer1"
+                d="M64 13.194a23.1 23.1 0 0 1-7.3 2.1 14.119 14.119 0 0 0 5.5-7.2c-1.9 1.2-6.1 2.9-8.2 2.9a13.782 13.782 0 0 0-9.6-4 13.187 13.187 0 0 0-13.2 13.2 13.576 13.576 0 0 0 .3 2.9c-9.9-.3-21.5-5.2-28-13.7a13.206 13.206 0 0 0 4 17.4c-1.5.2-4.4-.1-5.7-1.4-.1 4.6 2.1 10.7 10.2 12.9-1.6.8-4.3.6-5.5.4.4 3.9 5.9 9 11.8 9-2.1 2.4-9.3 6.9-18.3 5.5a39.825 39.825 0 0 0 20.7 5.8 36.8 36.8 0 0 0 37-38.6v-.5a22.861 22.861 0 0 0 6.3-6.7z"
+                fill="#202020"></path>
+            </svg>
+        </a>
+    </div>
+    <div class="footer--section">
+        
+        <a href=https://github.com/vigneshragupathy> <svg class="footer--icon" viewBox="0 0 64 64"
+            xmlns="http://www.w3.org/2000/svg">
+            <path data-name="layer2"
+                d="M32 0a32.021 32.021 0 0 0-10.1 62.4c1.6.3 2.2-.7 2.2-1.5v-6c-8.9 1.9-10.8-3.8-10.8-3.8-1.5-3.7-3.6-4.7-3.6-4.7-2.9-2 .2-1.9.2-1.9 3.2.2 4.9 3.3 4.9 3.3 2.9 4.9 7.5 3.5 9.3 2.7a6.93 6.93 0 0 1 2-4.3c-7.1-.8-14.6-3.6-14.6-15.8a12.27 12.27 0 0 1 3.3-8.6 11.965 11.965 0 0 1 .3-8.5s2.7-.9 8.8 3.3a30.873 30.873 0 0 1 8-1.1 30.292 30.292 0 0 1 8 1.1c6.1-4.1 8.8-3.3 8.8-3.3a11.965 11.965 0 0 1 .3 8.5 12.1 12.1 0 0 1 3.3 8.6c0 12.3-7.5 15-14.6 15.8a7.746 7.746 0 0 1 2.2 5.9v8.8c0 .9.6 1.8 2.2 1.5A32.021 32.021 0 0 0 32 0z"
+                fill="#202020"></path>
+            <path data-name="layer1"
+                d="M12.1 45.9c-.1.2-.3.2-.5.1s-.4-.3-.3-.5.3-.2.6-.1c.2.2.3.4.2.5zm1.3 1.5a.589.589 0 0 1-.8-.8.631.631 0 0 1 .7.1.494.494 0 0 1 .1.7zm1.3 1.8a.585.585 0 0 1-.7-.3.6.6 0 0 1 0-.8.585.585 0 0 1 .7.3c.2.3.2.7 0 .8zm1.7 1.8c-.2.2-.5.1-.8-.1-.3-.3-.4-.6-.2-.8a.619.619 0 0 1 .8.1.554.554 0 0 1 .2.8zm2.4 1c-.1.3-.4.4-.8.3s-.6-.4-.5-.7.4-.4.8-.3c.3.2.6.5.5.7zm2.6.2c0 .3-.3.5-.7.5s-.7-.2-.7-.5.3-.5.7-.5c.4.1.7.3.7.5zm2.4-.4q0 .45-.6.6a.691.691 0 0 1-.8-.3q0-.45.6-.6c.5-.1.8.1.8.3z">
+            </path>
+            </svg>
+        </a>
+    </div>
+    <div class="footer--section">
+        
+        <a href=https://www.youtube.com/c/vigneshragupathy> <svg class="footer--icon" viewBox="0 0 64 64"
+            xmlns="http://www.w3.org/2000/svg">
+            <path data-name="layer1"
+                d="M50.708 9H13.292A13.25 13.25 0 0 0 0 22.207v18.586A13.25 13.25 0 0 0 13.292 54h37.416A13.25 13.25 0 0 0 64 40.793V22.207A13.25 13.25 0 0 0 50.708 9zm-8.989 23.4l-17.501 8.3a.7.7 0 0 1-1.005-.63V22.962a.7.7 0 0 1 1.02-.623l17.5 8.812a.7.7 0 0 1-.015 1.253zm0 0"
+                fill="#202020"></path>
+            </svg>
+        </a>
+    </div>
+
+    <div class="footer--section">
+        
+        <a href=https://www.linkedin.com/in/vigneshragupathy> <svg class="footer--icon" viewBox="0 0 64 64"
+            xmlns="http://www.w3.org/2000/svg">
+            <path data-name="layer1" fill="#202020"
+                d="M1.15 21.7h13V61h-13zm46.55-1.3c-5.7 0-9.1 2.1-12.7 6.7v-5.4H22V61h13.1V39.7c0-4.5 2.3-8.9 7.5-8.9s8.3 4.4 8.3 8.8V61H64V38.7c0-15.5-10.5-18.3-16.3-18.3zM7.7 2.6C3.4 2.6 0 5.7 0 9.5s3.4 6.9 7.7 6.9 7.7-3.1 7.7-6.9S12 2.6 7.7 2.6z">
+            </path>
+            </svg>
+        </a>
+    </div>
+    <div class="footer--section">
+        
+        <a href="http://0.0.0.0:4000/feed.xml">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+                y="0px" viewBox="0 0 64 64" class="footer--icon" xml:space="preserve">
+                <path data-name="layer1"
+                    d="M8.6 46.746a8.627 8.627 0 1 0 8.6 8.627 8.678 8.678 0 0 0-8.6-8.627zM.7 21.567H.2V33.5h.5a29.836 29.836 0 0 1 29.8 29.8v.7h11.9v-.7A41.719 41.719 0 0 0 .7 21.567z"
+                    fill="#202020"></path>
+                <path data-name="layer1"
+                    d="M.7 0H.2v11.937h.5A51.4 51.4 0 0 1 52 63.3v.7h12v-.7A63.369 63.369 0 0 0 .7 0z" fill="#202020">
+                </path>
+            </svg>
+        </a>
+    </div>
+</footer>
+  </body>
+</html>

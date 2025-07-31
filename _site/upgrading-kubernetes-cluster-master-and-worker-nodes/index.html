@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Upgrading kubernetes cluster master and worker nodes | Vignesh Ragupathy</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Upgrading kubernetes cluster master and worker nodes" />
+<meta name="author" content="Vignesh Ragupathy" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This post we are going to discuss how to upgrade the kubernetes cluster, both master and worker nodes. We are going to upgrade a older version v1.15 to v.1.16." />
+<meta property="og:description" content="This post we are going to discuss how to upgrade the kubernetes cluster, both master and worker nodes. We are going to upgrade a older version v1.15 to v.1.16." />
+<link rel="canonical" href="http://0.0.0.0:4000/upgrading-kubernetes-cluster-master-and-worker-nodes/" />
+<meta property="og:url" content="http://0.0.0.0:4000/upgrading-kubernetes-cluster-master-and-worker-nodes/" />
+<meta property="og:site_name" content="Vignesh Ragupathy" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-11-26T15:07:58+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Upgrading kubernetes cluster master and worker nodes" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Vignesh Ragupathy"},"@type":"BlogPosting","description":"This post we are going to discuss how to upgrade the kubernetes cluster, both master and worker nodes. We are going to upgrade a older version v1.15 to v.1.16.","headline":"Upgrading kubernetes cluster master and worker nodes","url":"http://0.0.0.0:4000/upgrading-kubernetes-cluster-master-and-worker-nodes/","datePublished":"2019-11-26T15:07:58+00:00","dateModified":"2019-11-26T15:07:58+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://0.0.0.0:4000/upgrading-kubernetes-cluster-master-and-worker-nodes/"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i,700">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+  <link href="/css/github.css" rel="stylesheet">
+
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/content/images/favicon/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/content/images/favicon/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/content/images/favicon/touch-icon-iphone.png">
+
+  <!-- RSS -->
+  <link type="application/atom+xml" rel="alternate" href="http://0.0.0.0:4000/feed.xml" title="Vignesh Ragupathy" />
+
+  <!-- Google Analytics-->
+  
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-YL89JLMQRY"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-YL89JLMQRY');
+</script>
+  
+  
+  
+
+
+
+
+
+  
+
+  <!-- Twitter cards -->
+<meta name="twitter:site"    content="@vikkiintweet">
+<meta name="twitter:creator" content="@Vignesh Ragupathy">
+<meta name="twitter:title"   content="Upgrading kubernetes cluster master and worker nodes">
+
+
+<meta name="twitter:description" content="Vignesh Ragupathy's blog">
+
+
+
+<meta name="twitter:card"  content="summary">
+<meta name="twitter:image" content="">
+
+<!-- end of Twitter cards -->
+</head>
+
+
+  <body>
+
+    <!--
+<nav class="nav">
+  <div class="nav-container">
+    <a href="/">
+      <h2 class="nav-title">Vignesh Ragupathy</h2>
+    </a>
+    <ul>
+      <li><a href="/tools">Tools developed</a></li>
+      <li><a href="/videos">Videos</a></li>
+      <li><a href="/about-me">About me</a></li>
+    </ul>
+  </div>
+</nav>
+-->
+
+<div id="navbar">
+  <nav class="nav">
+  <div class="nav-container">
+  <a href="/">
+    <h2 class="nav-title ">Vignesh Ragupathy</h2>
+  </a>
+  <input class="menu-btn" type="checkbox" id="menu-btn" />
+  <label class="menu-icon" for="menu-btn"><span class="navicon"></span></label>
+  <ul class="menu">
+    <li><a href="/about-me">About</a></li>
+    <li><a href="/search">Search</a></li>
+  </ul>
+</div>
+</div>
+</nav>
+
+  <script>
+    var prevScrollpos = window.pageYOffset;
+    window.onscroll = function() {
+    var currentScrollPos = window.pageYOffset;
+      if (prevScrollpos > currentScrollPos) {
+        document.getElementById("navbar").style.top = "0";
+      } else {
+        document.getElementById("navbar").style.top = "-100px";
+      }
+      prevScrollpos = currentScrollPos;
+    }
+    </script>
+
+    <main>
+      <div class="post">
+  <div class="post-info">
+    <span>Written by</span>
+    
+        Vignesh Ragupathy
+    
+
+    
+          <br>
+      <span>on&nbsp;</span><time datetime="2019-11-26 15:07:58 +0000">November 26, 2019</time>
+    
+  </div>
+  <div style="text-align: center;">
+    <span>[
+      
+        
+        <!--<a href="/tag/kubernetes"><code class="highligher-rouge"><nobr>kubernetes</nobr></code>&nbsp;</a>-->
+        <a href="/tag/kubernetes"><mark style="border-radius: .25em;   padding:.2em .6em .3em;font-size: 75%;"><nobr>kubernetes</nobr></mark>&nbsp;</a>
+      
+        
+        <!--<a href="/tag/linux"><code class="highligher-rouge"><nobr>linux</nobr></code>&nbsp;</a>-->
+        <a href="/tag/linux"><mark style="border-radius: .25em;   padding:.2em .6em .3em;font-size: 75%;"><nobr>linux</nobr></mark>&nbsp;</a>
+      
+        
+        <!--<a href="/tag/opensource"><code class="highligher-rouge"><nobr>opensource</nobr></code>&nbsp;</a>-->
+        <a href="/tag/opensource"><mark style="border-radius: .25em;   padding:.2em .6em .3em;font-size: 75%;"><nobr>opensource</nobr></mark>&nbsp;</a>
+      
+    ]</span> 
+  </div>
+  
+  <h1 class="post-title">Upgrading kubernetes cluster master and worker nodes</h1>
+  <div class="post-line"></div>
+
+
+  <p>This post we are going to discuss how to upgrade the kubernetes cluster, both master and worker nodes. We are going to upgrade a older version v1.15 to v.1.16.</p>
+
+<h3 id="setup"><strong>Setup</strong></h3>
+
+<p>I am using the Virtualbox(running in Ubuntu 18.04 physical machine) for this entire setup . The physical machine is Dell inspiron laptop with 12GB RAM , Intel® Core™ i7-6500U CPU @ 2.50GHz × 4 and 512GB SSD hardisk.</p>
+
+<!--kg-card-begin: image-->
+<figure class="kg-card kg-image-card"><img src="/content/images/2019/11/setup-5.jpg" class="kg-image" /></figure>
+<!--kg-card-end: image-->
+<h3 id="master-node">Master node</h3>
+
+<h5 id="step-1-verify-the-current-version-of-kubelet-and-kubeadm-running-in-all-nodes">Step 1: Verify the current version of kubelet and kubeadm running in all nodes</h5>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl get nodes
+<span class="go">NAME STATUS ROLES AGE VERSION
+kubernetes1 Ready master 41d v1.15.5
+</span><span class="gp">kubernetes2 Ready &lt;none&gt;</span><span class="w"> </span>41d v1.15.5</code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubeadm version
+<span class="go">kubeadm version: &amp;version.Info{Major:"1", Minor:"15", GitVersion:"v1.15.5", GitCommit:"20c265fef0741dd71a66480e35bd69f18351daea", GitTreeState:"clean", BuildDate:"2019-10-15T19:14:19Z", GoVersion:"go1.12.10", Compiler:"gc", Platform:"linux/amd64"}</span></code></pre></figure>
+
+<blockquote>
+  <p>We can see kubelet and kubeadm is running in version v1.15.5</p>
+</blockquote>
+
+<h5 id="step-2-verify-the-lastest-stable-availble-version">Step 2: Verify the lastest stable availble version</h5>
+
+<p>Run the update in kubernetes master node</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@kubernetes1:~#</span><span class="w"> </span>apt update</code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@kubernetes1:~#</span><span class="w"> </span>apt-cache policy kubeadm
+<span class="go">kubeadm:
+    Installed: 1.15.5-00
+    Candidate: 1.16.3-00
+    Version table:
+</span><span class="c">    .....</span></code></pre></figure>
+
+<blockquote>
+  <p>We can see from this output that current version is 1.15.5 and the latest available is 1.16.3</p>
+</blockquote>
+
+<h5 id="step-3-upgrade-the-kubeadm-to-latest-version">Step 3: Upgrade the kubeadm to latest version</h5>
+
+<p>Upgrade the kubeadm in master to the latest version 1.16.3</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@kubernetes1:~#</span><span class="w"> </span>apt-mark unhold kubeadm <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="gp">&gt;</span><span class="w"> </span>apt-get update <span class="o">&amp;&amp;</span> apt-get <span class="nb">install</span> <span class="nt">-y</span> <span class="nv">kubeadm</span><span class="o">=</span>1.16.3-00 <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="gp">&gt;</span><span class="w"> </span>apt-mark hold kubeadm
+<span class="go">kubeadm was already not hold.
+Hit:1 http://us.archive.ubuntu.com/ubuntu xenial InRelease                  
+Hit:2 http://security.ubuntu.com/ubuntu xenial-security InRelease
+Hit:3 http://us.archive.ubuntu.com/ubuntu xenial-updates InRelease
+Hit:4 http://us.archive.ubuntu.com/ubuntu xenial-backports InRelease
+Hit:5 https://apt.kubernetes.io kubernetes-xenial InRelease
+Reading package lists... Done
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+The following packages will be upgraded:
+    kubeadm
+1 upgraded, 0 newly installed, 0 to remove and 142 not upgraded.
+Need to get 8,762 kB of archives.
+After this operation, 4,062 kB of additional disk space will be used.
+Get:1 https://apt.kubernetes.io kubernetes-xenial/main amd64 kubeadm amd64 1.16.3-00 [8,762 kB]
+Fetched 8,762 kB in 7s (1,117 kB/s)                                                                                                                          
+(Reading database ... 60808 files and directories currently installed.)
+Preparing to unpack .../kubeadm_1.16.3-00_amd64.deb ...
+Unpacking kubeadm (1.16.3-00) over (1.15.5-00) ...
+Setting up kubeadm (1.16.3-00) ...
+kubeadm set on hold.</span></code></pre></figure>
+
+<h5 id="step-4-run-the-upgrade-plan">Step 4: Run the upgrade plan</h5>
+
+<p>Now in the previous step we already updated the kubeadm to latest version. Now lets run the upgrade plan and see the available options.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@kubernetes1:~#</span><span class="w"> </span><span class="nb">sudo </span>kubeadm upgrade plan
+<span class="go">[upgrade/config] Making sure the configuration is correct:
+[upgrade/config] Reading configuration from the cluster...
+[upgrade/config] FYI: You can look at this config file with 'kubectl -n kube-system get cm kubeadm-config -oyaml'
+[preflight] Running pre-flight checks.
+[upgrade] Making sure the cluster is healthy:
+[upgrade] Fetching available versions to upgrade to
+[upgrade/versions] Cluster version: v1.15.5
+[upgrade/versions] kubeadm version: v1.16.3
+[upgrade/versions] Latest stable version: v1.16.3
+[upgrade/versions] Latest version in the v1.15 series: v1.15.6
+
+Components that must be upgraded manually after you have upgraded the control plane with 'kubeadm upgrade apply':
+COMPONENT CURRENT AVAILABLE
+Kubelet 2 x v1.15.5 v1.15.6
+
+Upgrade to the latest version in the v1.15 series:
+
+COMPONENT CURRENT AVAILABLE
+API Server v1.15.5 v1.15.6
+Controller Manager v1.15.5 v1.15.6
+Scheduler v1.15.5 v1.15.6
+Kube Proxy v1.15.5 v1.15.6
+CoreDNS 1.3.1 1.6.2
+Etcd 3.3.10 3.3.10
+
+You can now apply the upgrade by executing the following command:
+
+    kubeadm upgrade apply v1.15.6
+
+_____________________________________________________________________
+
+Components that must be upgraded manually after you have upgraded the control plane with 'kubeadm upgrade apply':
+COMPONENT CURRENT AVAILABLE
+Kubelet 2 x v1.15.5 v1.16.3
+
+Upgrade to the latest stable version:
+
+COMPONENT CURRENT AVAILABLE
+API Server v1.15.5 v1.16.3
+Controller Manager v1.15.5 v1.16.3
+Scheduler v1.15.5 v1.16.3
+Kube Proxy v1.15.5 v1.16.3
+CoreDNS 1.3.1 1.6.2
+Etcd 3.3.10 3.3.15-0
+
+You can now apply the upgrade by executing the following command:
+
+    kubeadm upgrade apply v1.16.3
+
+_____________________________________________________________________</span></code></pre></figure>
+
+<blockquote>
+  <p>We can see that we can upgrade the cluster to v1.16.3 from the above output</p>
+</blockquote>
+
+<h5 id="step-5-drain-the-pods-in-master-node">Step 5: Drain the pods in master node</h5>
+
+<p>Now drain all the pods execpt daemonsets in the master node</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl drain kubernetes1 <span class="nt">--ignore-daemonsets</span>
+<span class="go">node/kubernetes1 cordoned
+WARNING: ignoring DaemonSet-managed Pods: kube-system/kube-flannel-ds-amd64-bfr9j, kube-system/kube-proxy-8267n
+evicting pod "coredns-5c98db65d4-v4cms"
+evicting pod "coredns-5c98db65d4-g4gv4"
+pod/coredns-5c98db65d4-v4cms evicted
+pod/coredns-5c98db65d4-g4gv4 evicted
+node/kubernetes1 evicted</span></code></pre></figure>
+
+<h5 id="step-6-run-the-upgrade">Step 6: Run the upgrade</h5>
+
+<p>Now run the upgrade to the lastest version 1.16.3</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span><span class="nb">sudo </span>kubeadm upgrade apply v1.16.3
+<span class="go">[upgrade/config] Making sure the configuration is correct:
+[upgrade/config] Reading configuration from the cluster...
+[upgrade/config] FYI: You can look at this config file with 'kubectl -n kube-system get cm kubeadm-config -oyaml'
+[preflight] Running pre-flight checks.
+[upgrade] Making sure the cluster is healthy:
+[upgrade/version] You have chosen to change the cluster version to "v1.16.3"
+[upgrade/versions] Cluster version: v1.15.5
+[upgrade/versions] kubeadm version: v1.16.3
+[upgrade/confirm] Are you sure you want to proceed with the upgrade? [y/N]: y
+[upgrade/prepull] Will prepull images for components [kube-apiserver kube-controller-manager kube-scheduler etcd]
+[upgrade/prepull] Prepulling image for component etcd.
+[upgrade/prepull] Prepulling image for component kube-apiserver.
+[upgrade/prepull] Prepulling image for component kube-controller-manager.
+[upgrade/prepull] Prepulling image for component kube-scheduler.
+[apiclient] Found 0 Pods for label selector k8s-app=upgrade-prepull-etcd
+[apiclient] Found 0 Pods for label selector k8s-app=upgrade-prepull-kube-scheduler
+[apiclient] Found 1 Pods for label selector k8s-app=upgrade-prepull-kube-controller-manager
+[apiclient] Found 1 Pods for label selector k8s-app=upgrade-prepull-kube-apiserver
+[apiclient] Found 1 Pods for label selector k8s-app=upgrade-prepull-etcd
+[apiclient] Found 1 Pods for label selector k8s-app=upgrade-prepull-kube-scheduler
+[upgrade/prepull] Prepulled image for component etcd.
+[upgrade/prepull] Prepulled image for component kube-apiserver.
+[upgrade/prepull] Prepulled image for component kube-controller-manager.
+[upgrade/prepull] Prepulled image for component kube-scheduler.
+[upgrade/prepull] Successfully prepulled the images for all the control plane components
+[upgrade/apply] Upgrading your Static Pod-hosted control plane to version "v1.16.3"...
+Static pod: kube-apiserver-kubernetes1 hash: b9d225e73ea8b0b21921bdd78ea5415e
+Static pod: kube-controller-manager-kubernetes1 hash: f106f0d94b93b77e4db974b1c477d277
+Static pod: kube-scheduler-kubernetes1 hash: 131c3f63daec7c0750818f64a2f75d20
+[upgrade/etcd] Upgrading to TLS for etcd
+Static pod: etcd-kubernetes1 hash: 352a2620657e49493504dc8f27c83195
+[upgrade/staticpods] Preparing for "etcd" upgrade
+[upgrade/staticpods] Renewing etcd-server certificate
+[upgrade/staticpods] Renewing etcd-peer certificate
+[upgrade/staticpods] Renewing etcd-healthcheck-client certificate
+[upgrade/staticpods] Moved new manifest to "/etc/kubernetes/manifests/etcd.yaml" and backed up old manifest to "/etc/kubernetes/tmp/kubeadm-backup-manifests-2019-11-26-18-04-49/etcd.yaml"
+[upgrade/staticpods] Waiting for the kubelet to restart the component
+[upgrade/staticpods] This might take a minute or longer depending on the component/version gap (timeout 5m0s)
+Static pod: etcd-kubernetes1 hash: 352a2620657e49493504dc8f27c83195
+Static pod: etcd-kubernetes1 hash: 3ce412f7cfe0c06939809c93f738e798
+[apiclient] Found 1 Pods for label selector component=etcd
+[upgrade/staticpods] Component "etcd" upgraded successfully!
+[upgrade/etcd] Waiting for etcd to become available
+[upgrade/staticpods] Writing new Static Pod manifests to "/etc/kubernetes/tmp/kubeadm-upgraded-manifests001214141"
+[upgrade/staticpods] Preparing for "kube-apiserver" upgrade
+[upgrade/staticpods] Renewing apiserver certificate
+[upgrade/staticpods] Renewing apiserver-kubelet-client certificate
+[upgrade/staticpods] Renewing front-proxy-client certificate
+[upgrade/staticpods] Renewing apiserver-etcd-client certificate
+[upgrade/staticpods] Moved new manifest to "/etc/kubernetes/manifests/kube-apiserver.yaml" and backed up old manifest to "/etc/kubernetes/tmp/kubeadm-backup-manifests-2019-11-26-18-04-49/kube-apiserver.yaml"
+[upgrade/staticpods] Waiting for the kubelet to restart the component
+[upgrade/staticpods] This might take a minute or longer depending on the component/version gap (timeout 5m0s)
+Static pod: kube-apiserver-kubernetes1 hash: b9d225e73ea8b0b21921bdd78ea5415e
+Static pod: kube-apiserver-kubernetes1 hash: b9d225e73ea8b0b21921bdd78ea5415e
+Static pod: kube-apiserver-kubernetes1 hash: b9d225e73ea8b0b21921bdd78ea5415e
+Static pod: kube-apiserver-kubernetes1 hash: d8708cb2f25dd11bbb41dd9729149325
+[apiclient] Found 1 Pods for label selector component=kube-apiserver
+[upgrade/staticpods] Component "kube-apiserver" upgraded successfully!
+[upgrade/staticpods] Preparing for "kube-controller-manager" upgrade
+[upgrade/staticpods] Renewing controller-manager.conf certificate
+[upgrade/staticpods] Moved new manifest to "/etc/kubernetes/manifests/kube-controller-manager.yaml" and backed up old manifest to "/etc/kubernetes/tmp/kubeadm-backup-manifests-2019-11-26-18-04-49/kube-controller-manager.yaml"
+[upgrade/staticpods] Waiting for the kubelet to restart the component
+[upgrade/staticpods] This might take a minute or longer depending on the component/version gap (timeout 5m0s)
+Static pod: kube-controller-manager-kubernetes1 hash: f106f0d94b93b77e4db974b1c477d277
+Static pod: kube-controller-manager-kubernetes1 hash: e6e76bb8264f2e84070efada35e93e71
+[apiclient] Found 1 Pods for label selector component=kube-controller-manager
+[upgrade/staticpods] Component "kube-controller-manager" upgraded successfully!
+[upgrade/staticpods] Preparing for "kube-scheduler" upgrade
+[upgrade/staticpods] Renewing scheduler.conf certificate
+[upgrade/staticpods] Moved new manifest to "/etc/kubernetes/manifests/kube-scheduler.yaml" and backed up old manifest to "/etc/kubernetes/tmp/kubeadm-backup-manifests-2019-11-26-18-04-49/kube-scheduler.yaml"
+[upgrade/staticpods] Waiting for the kubelet to restart the component
+[upgrade/staticpods] This might take a minute or longer depending on the component/version gap (timeout 5m0s)
+Static pod: kube-scheduler-kubernetes1 hash: 131c3f63daec7c0750818f64a2f75d20
+Static pod: kube-scheduler-kubernetes1 hash: 8c5e33e50bb56e8adacd1cc99c56b2cb
+[apiclient] Found 1 Pods for label selector component=kube-scheduler
+[upgrade/staticpods] Component "kube-scheduler" upgraded successfully!
+[upload-config] Storing the configuration used in ConfigMap "kubeadm-config" in the "kube-system" Namespace
+[kubelet] Creating a ConfigMap "kubelet-config-1.16" in namespace kube-system with the configuration for the kubelets in the cluster
+[kubelet-start] Downloading configuration for the kubelet from the "kubelet-config-1.16" ConfigMap in the kube-system namespace
+[kubelet-start] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml"
+[bootstrap-token] configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order for nodes to get long term certificate credentials
+[bootstrap-token] configured RBAC rules to allow the csrapprover controller automatically approve CSRs from a Node Bootstrap Token
+[bootstrap-token] configured RBAC rules to allow certificate rotation for all node client certificates in the cluster
+[addons] Applied essential addon: CoreDNS
+[addons] Applied essential addon: kube-proxy
+
+[upgrade/successful] SUCCESS! Your cluster was upgraded to "v1.16.3". Enjoy!
+
+[upgrade/kubelet] Now that your control plane is upgraded, please proceed with upgrading your kubelets if you haven't already done so.</span></code></pre></figure>
+
+<blockquote>
+  <p>We can see the cluster is upgraded to lastest version v1.16.3</p>
+</blockquote>
+
+<h5 id="step-7-uncordon-the-master-node">Step 7: Uncordon the master node</h5>
+
+<p>Now ucordon the master node</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl uncordon kubernetes1 
+<span class="go">node/kubernetes1 uncordoned</span></code></pre></figure>
+
+<h5 id="step-8-upgrade-the-kubelet">Step 8: Upgrade the kubelet</h5>
+
+<p>Now in the previous steps we have upgraded the kubeadm and cluster , next we need to upgrade the kubelet and kubectl</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@kubernetes1:~#</span><span class="w"> </span>apt-mark unhold kubelet kubectl <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="gp">&gt;</span><span class="w"> </span>apt-get update <span class="o">&amp;&amp;</span> apt-get <span class="nb">install</span> <span class="nt">-y</span> <span class="nv">kubelet</span><span class="o">=</span>1.16.3-00 <span class="nv">kubectl</span><span class="o">=</span>1.16.3-00 <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="gp">&gt;</span><span class="w"> </span>apt-mark hold kubelet kubectl
+<span class="go">kubelet was already not hold.
+kubectl was already not hold.
+Hit:1 http://security.ubuntu.com/ubuntu xenial-security InRelease           
+Hit:2 http://us.archive.ubuntu.com/ubuntu xenial InRelease
+Hit:3 http://us.archive.ubuntu.com/ubuntu xenial-updates InRelease
+Hit:4 http://us.archive.ubuntu.com/ubuntu xenial-backports InRelease
+Hit:5 https://apt.kubernetes.io kubernetes-xenial InRelease
+Reading package lists... Done
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+The following packages will be upgraded:
+    kubectl kubelet
+2 upgraded, 0 newly installed, 0 to remove and 140 not upgraded.
+Need to get 29.9 MB of archives.
+After this operation, 7,134 kB of additional disk space will be used.
+Get:1 https://apt.kubernetes.io kubernetes-xenial/main amd64 kubectl amd64 1.16.3-00 [9,233 kB]
+Get:2 https://apt.kubernetes.io kubernetes-xenial/main amd64 kubelet amd64 1.16.3-00 [20.7 MB]                                                               
+Fetched 29.9 MB in 8s (3,436 kB/s)                                                                                                                           
+(Reading database ... 60808 files and directories currently installed.)
+Preparing to unpack .../kubectl_1.16.3-00_amd64.deb ...
+Unpacking kubectl (1.16.3-00) over (1.15.5-00) ...
+Preparing to unpack .../kubelet_1.16.3-00_amd64.deb ...
+Unpacking kubelet (1.16.3-00) over (1.15.5-00) ...
+Setting up kubectl (1.16.3-00) ...
+Setting up kubelet (1.16.3-00) ...
+kubelet set on hold.
+kubectl set on hold.</span></code></pre></figure>
+
+<p>Restart the kubelet service</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@kubernetes1:~#</span><span class="w"> </span><span class="nb">sudo </span>systemctl restart kubelet</code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl get nodes
+<span class="go">NAME STATUS ROLES AGE VERSION
+kubernetes1 Ready master 41d v1.16.3
+</span><span class="gp">kubernetes2 Ready &lt;none&gt;</span><span class="w"> </span>41d v1.15.5</code></pre></figure>
+
+<blockquote>
+  <p>Now we can see the master node kubernetes1 is upgraded to v1.16.3</p>
+</blockquote>
+
+<h3 id="worker-node">Worker node</h3>
+
+<h5 id="step-1-upgrade-the-kubeadm-to-version-1163">Step 1: Upgrade the kubeadm to version 1.16.3</h5>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@kubernetes2:~#</span><span class="w"> </span>apt-mark unhold kubeadm <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="gp">&gt;</span><span class="w"> </span>apt-get update <span class="o">&amp;&amp;</span> apt-get <span class="nb">install</span> <span class="nt">-y</span> <span class="nv">kubeadm</span><span class="o">=</span>1.16.3-00 <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="gp">&gt;</span><span class="w"> </span>apt-mark hold kubeadm
+<span class="go">kubeadm was already not hold.
+Get:1 http://security.ubuntu.com/ubuntu xenial-security InRelease [109 kB]                 
+Get:2 http://security.ubuntu.com/ubuntu xenial-security/main amd64 Packages [785 kB]       
+Hit:3 http://us.archive.ubuntu.com/ubuntu xenial InRelease
+Get:4 http://us.archive.ubuntu.com/ubuntu xenial-updates InRelease [109 kB]      
+Get:5 https://apt.kubernetes.io kubernetes-xenial InRelease [161 B]
+Get:6 https://apt.kubernetes.io kubernetes-xenial/main amd64 Packages [31.3 kB]                      
+Get:7 http://us.archive.ubuntu.com/ubuntu xenial-backports InRelease [107 kB]        
+Get:8 http://us.archive.ubuntu.com/ubuntu xenial-updates/main amd64 Packages [1,071 kB]             
+Get:9 http://security.ubuntu.com/ubuntu xenial-security/main i386 Packages [617 kB]     
+Get:10 http://security.ubuntu.com/ubuntu xenial-security/main Translation-en [302 kB]                                                                        
+Get:11 http://security.ubuntu.com/ubuntu xenial-security/universe amd64 Packages [466 kB]                                                                    
+Get:12 http://us.archive.ubuntu.com/ubuntu xenial-updates/main i386 Packages [882 kB]                                                                        
+Get:13 http://security.ubuntu.com/ubuntu xenial-security/universe i386 Packages [401 kB]                                                                     
+Get:14 http://security.ubuntu.com/ubuntu xenial-security/universe Translation-en [191 kB]                                                                    
+Get:15 http://security.ubuntu.com/ubuntu xenial-security/multiverse amd64 Packages [5,724 B]                                                                 
+Get:16 http://security.ubuntu.com/ubuntu xenial-security/multiverse i386 Packages [5,888 B]                                                                  
+Get:17 http://us.archive.ubuntu.com/ubuntu xenial-updates/main Translation-en [413 kB]                                                                       
+Get:18 http://us.archive.ubuntu.com/ubuntu xenial-updates/universe amd64 Packages [771 kB]                                                                   
+Get:19 http://us.archive.ubuntu.com/ubuntu xenial-updates/universe i386 Packages [700 kB]                                                                    
+Get:20 http://us.archive.ubuntu.com/ubuntu xenial-updates/universe Translation-en [324 kB]                                                                   
+Get:21 http://us.archive.ubuntu.com/ubuntu xenial-updates/multiverse amd64 Packages [16.8 kB]                                                                
+Get:22 http://us.archive.ubuntu.com/ubuntu xenial-updates/multiverse i386 Packages [15.9 kB]                                                                 
+Fetched 7,333 kB in 23s (315 kB/s)                                                                                                                           
+Reading package lists... Done
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+The following packages will be upgraded:
+    kubeadm
+1 upgraded, 0 newly installed, 0 to remove and 139 not upgraded.
+Need to get 8,762 kB of archives.
+After this operation, 4,062 kB of additional disk space will be used.
+Get:1 https://apt.kubernetes.io kubernetes-xenial/main amd64 kubeadm amd64 1.16.3-00 [8,762 kB]
+Fetched 8,762 kB in 7s (1,122 kB/s)                                                                                                                          
+(Reading database ... 60808 files and directories currently installed.)
+Preparing to unpack .../kubeadm_1.16.3-00_amd64.deb ...
+Unpacking kubeadm (1.16.3-00) over (1.15.5-00) ...
+Setting up kubeadm (1.16.3-00) ...
+kubeadm set on hold.</span></code></pre></figure>
+
+<h5 id="step-2-drain-the-pods-in-worker-node">Step 2: Drain the pods in worker node</h5>
+
+<p>Now drain all the pods , except daemonsets from the worker node kubernetes2. <em>This command should be run in master node in case the kubenetes config is not mapped in worker</em>.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl drain kubernetes2 <span class="nt">--ignore-daemonsets</span>
+<span class="go">node/kubernetes2 cordoned
+WARNING: ignoring DaemonSet-managed Pods: kube-system/kube-flannel-ds-amd64-8v6lb, kube-system/kube-proxy-877b2
+evicting pod "coredns-5644d7b6d9-t8qw5"
+evicting pod "httpd-7765f5994-gvlj6"
+evicting pod "nginx-7bffc778db-phdb5"
+evicting pod "coredns-5644d7b6d9-frz4v"
+pod/coredns-5644d7b6d9-frz4v evicted
+pod/coredns-5644d7b6d9-t8qw5 evicted
+pod/httpd-7765f5994-gvlj6 evicted
+pod/nginx-7bffc778db-phdb5 evicted
+node/kubernetes2 evicted</span></code></pre></figure>
+
+<h5 id="step-3-upgrade-the-worker-node">Step 3: Upgrade the worker node</h5>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@kubernetes2:~#</span><span class="w"> </span><span class="nb">sudo </span>kubeadm upgrade node
+<span class="go">[upgrade] Reading configuration from the cluster...
+[upgrade] FYI: You can look at this config file with 'kubectl -n kube-system get cm kubeadm-config -oyaml'
+[upgrade] Skipping phase. Not a control plane node[kubelet-start] Downloading configuration for the kubelet from the "kubelet-config-1.16" ConfigMap in the kube-system namespace
+[kubelet-start] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml"
+[upgrade] The configuration for this node was successfully updated!
+[upgrade] Now you should go ahead and upgrade the kubelet package using your package manager.</span></code></pre></figure>
+
+<h5 id="step-4-upgrade-the-kubelet-and-kubectl">Step 4: Upgrade the kubelet and kubectl</h5>
+
+<p>In previous steps we upgraded the kubeadm and cluster. Now we need to upgrade the kubelet and kubectl.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@kubernetes2:~#</span><span class="w"> </span>apt-mark unhold kubelet kubectl <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="gp">&gt;</span><span class="w"> </span>apt-get update <span class="o">&amp;&amp;</span> apt-get <span class="nb">install</span> <span class="nt">-y</span> <span class="nv">kubelet</span><span class="o">=</span>1.16.3-00 <span class="nv">kubectl</span><span class="o">=</span>1.16.3-00 <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="gp">&gt;</span><span class="w"> </span>apt-mark hold kubelet kubectl
+<span class="go">kubelet was already not hold.
+kubectl was already not hold.
+Hit:1 http://security.ubuntu.com/ubuntu xenial-security InRelease
+Hit:2 http://us.archive.ubuntu.com/ubuntu xenial InRelease                       
+Hit:3 http://us.archive.ubuntu.com/ubuntu xenial-updates InRelease
+Hit:4 http://us.archive.ubuntu.com/ubuntu xenial-backports InRelease
+Hit:5 https://apt.kubernetes.io kubernetes-xenial InRelease
+Reading package lists... Done
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+The following packages will be upgraded:
+    kubectl kubelet
+2 upgraded, 0 newly installed, 0 to remove and 137 not upgraded.
+Need to get 29.9 MB of archives.
+After this operation, 3,447 kB of additional disk space will be used.
+Get:1 https://apt.kubernetes.io kubernetes-xenial/main amd64 kubectl amd64 1.16.3-00 [9,233 kB]
+Get:2 https://apt.kubernetes.io kubernetes-xenial/main amd64 kubelet amd64 1.16.3-00 [20.7 MB]                                                               
+Fetched 29.9 MB in 32s (934 kB/s)                                                                                                                            
+(Reading database ... 60808 files and directories currently installed.)
+Preparing to unpack .../kubectl_1.16.3-00_amd64.deb ...
+Unpacking kubectl (1.16.3-00) over (1.16.2-00) ...
+Preparing to unpack .../kubelet_1.16.3-00_amd64.deb ...
+Unpacking kubelet (1.16.3-00) over (1.15.5-00) ...
+Setting up kubectl (1.16.3-00) ...
+Setting up kubelet (1.16.3-00) ...
+kubelet set on hold.
+kubectl set on hold.</span></code></pre></figure>
+
+<p>Restart the kubelet service in worker node</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@kubernetes2:~#</span><span class="w"> </span><span class="nb">sudo </span>systemctl restart kubelet</code></pre></figure>
+
+<h5 id="step-5-uncordon-the-worker-node">Step 5: Uncordon the worker node</h5>
+
+<p>Now uncordon all the pods in kubernetes2 worker onde</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl uncordon kubernetes2
+<span class="go">node/kubernetes2 uncordoned</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl get nodes
+<span class="go">NAME STATUS ROLES AGE VERSION
+kubernetes1 Ready master 41d v1.16.3
+</span><span class="gp">kubernetes2 Ready &lt;none&gt;</span><span class="w"> </span>41d v1.16.3</code></pre></figure>
+
+<blockquote>
+  <p>We can see now both the master and worker nodes are upgraded from v1.15.5 to v1.16.3</p>
+</blockquote>
+
+
+</div>
+
+
+<style>
+    #share-buttons {
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    #share-buttons:after {
+        content: "";
+        display: block;
+        clear: both;
+    }
+
+    #share-buttons>div {
+        position: relative;
+        text-align: left;
+        height: 36px;
+        width: 32px;
+        float: left;
+        text-align: center;
+    }
+
+    #share-buttons>div>svg {
+        height: 16px;
+        fill: #d5d5d5;
+        margin-top: 10px;
+    }
+
+    #share-buttons>div:hover {
+        cursor: pointer;
+    }
+
+    #share-buttons>div.facebook:hover>svg {
+        fill: #3B5998;
+    }
+
+    #share-buttons>div.twitter:hover>svg {
+        fill: #55ACEE;
+    }
+
+    #share-buttons>div.linkedin:hover>svg {
+        fill: #0077b5;
+    }
+
+    #share-buttons>div.pinterest:hover>svg {
+        fill: #CB2027;
+    }
+
+    #share-buttons>div.gplus:hover>svg {
+        fill: #dd4b39;
+    }
+
+    #share-buttons>div.mail:hover>svg {
+        fill: #7D7D7D;
+    }
+
+    #share-buttons>div.instagram:hover>svg {
+        fill: #C73B92;
+    }
+
+    #share-buttons>div.facebook>svg {
+        height: 18px;
+        margin-top: 9px;
+    }
+
+    #share-buttons>div.twitter>svg {
+        height: 20px;
+        margin-top: 8px;
+    }
+
+    #share-buttons>div.linkedin>svg {
+        height: 19px;
+        margin-top: 7px;
+    }
+
+    #share-buttons>div.pinterest>svg {
+        height: 20px;
+        margin-top: 9px;
+    }
+
+    #share-buttons>div.gplus>svg {
+        height: 17px;
+        margin-top: 9px;
+        position: relative;
+        left: 1px;
+    }
+
+    #share-buttons>div.mail>svg {
+        height: 14px;
+        margin-top: 11px;
+    }
+</style>
+
+<span style="color: #353535;">Share on: </span>
+<div id="share-buttons">
+    
+    <div class="facebook" title="Share this on Facebook" onclick="window.open('http://www.facebook.com/share.php?u=http://0.0.0.0:4000/upgrading-kubernetes-cluster-master-and-worker-nodes/');"><svg viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1343 12v264h-157q-86 0-116 36t-30 108v189h293l-39 296h-254v759h-306v-759h-255v-296h255v-218q0-186 104-288.5t277-102.5q147 0 228 12z"/></svg></div>
+    <!--<div class="twitter" title="Share this on Twitter" onclick="window.open('http://twitter.com/home?status=http://0.0.0.0:4000/upgrading-kubernetes-cluster-master-and-worker-nodes/');"><svg viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1684 408q-67 98-162 167 1 14 1 42 0 130-38 259.5t-115.5 248.5-184.5 210.5-258 146-323 54.5q-271 0-496-145 35 4 78 4 225 0 401-138-105-2-188-64.5t-114-159.5q33 5 61 5 43 0 85-11-112-23-185.5-111.5t-73.5-205.5v-4q68 38 146 41-66-44-105-115t-39-154q0-88 44-163 121 149 294.5 238.5t371.5 99.5q-8-38-8-74 0-134 94.5-228.5t228.5-94.5q140 0 236 102 109-21 205-78-37 115-142 178 93-10 186-50z"/></svg></div>-->
+    <div class="twitter" title="Share this on Twitter" onclick="window.open('https://twitter.com/intent/tweet?text=Upgrading kubernetes cluster master and worker nodes&url=http://0.0.0.0:4000/upgrading-kubernetes-cluster-master-and-worker-nodes/');"><svg viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1684 408q-67 98-162 167 1 14 1 42 0 130-38 259.5t-115.5 248.5-184.5 210.5-258 146-323 54.5q-271 0-496-145 35 4 78 4 225 0 401-138-105-2-188-64.5t-114-159.5q33 5 61 5 43 0 85-11-112-23-185.5-111.5t-73.5-205.5v-4q68 38 146 41-66-44-105-115t-39-154q0-88 44-163 121 149 294.5 238.5t371.5 99.5q-8-38-8-74 0-134 94.5-228.5t228.5-94.5q140 0 236 102 109-21 205-78-37 115-142 178 93-10 186-50z"/></svg></div>
+    <div class="linkedin" title="Share this on Linkedin" onclick="window.open('https://www.linkedin.com/shareArticle?mini=true&url=http://0.0.0.0:4000/upgrading-kubernetes-cluster-master-and-worker-nodes/&title=&summary=&source=');"><svg viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M477 625v991h-330v-991h330zm21-306q1 73-50.5 122t-135.5 49h-2q-82 0-132-49t-50-122q0-74 51.5-122.5t134.5-48.5 133 48.5 51 122.5zm1166 729v568h-329v-530q0-105-40.5-164.5t-126.5-59.5q-63 0-105.5 34.5t-63.5 85.5q-11 30-11 81v553h-329q2-399 2-647t-1-296l-1-48h329v144h-2q20-32 41-56t56.5-52 87-43.5 114.5-15.5q171 0 275 113.5t104 332.5z"/></svg></div>
+    <!--
+    
+    <div class="gplus" title="Share this on Google Plus" onclick="window.open('https://plus.google.com/share?url=http://0.0.0.0:4000/upgrading-kubernetes-cluster-master-and-worker-nodes/');"><svg viewBox="0 0 2304 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1437 913q0 208-87 370.5t-248 254-369 91.5q-149 0-285-58t-234-156-156-234-58-285 58-285 156-234 234-156 285-58q286 0 491 192l-199 191q-117-113-292-113-123 0-227.5 62t-165.5 168.5-61 232.5 61 232.5 165.5 168.5 227.5 62q83 0 152.5-23t114.5-57.5 78.5-78.5 49-83 21.5-74h-416v-252h692q12 63 12 122zm867-122v210h-209v209h-210v-209h-209v-210h209v-209h210v209h209z"/></svg></div>
+    <div class="mail" title="Share this through Email" onclick="window.open('mailto:?&body=http://0.0.0.0:4000/upgrading-kubernetes-cluster-master-and-worker-nodes/');"><svg viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1792 710v794q0 66-47 113t-113 47h-1472q-66 0-113-47t-47-113v-794q44 49 101 87 362 246 497 345 57 42 92.5 65.5t94.5 48 110 24.5h2q51 0 110-24.5t94.5-48 92.5-65.5q170-123 498-345 57-39 100-87zm0-294q0 79-49 151t-122 123q-376 261-468 325-10 7-42.5 30.5t-54 38-52 32.5-57.5 27-50 9h-2q-23 0-50-9t-57.5-27-52-32.5-54-38-42.5-30.5q-91-64-262-182.5t-205-142.5q-62-42-117-115.5t-55-136.5q0-78 41.5-130t118.5-52h1472q65 0 112.5 47t47.5 113z"/></svg></div>
+    -->
+    
+
+</div>
+<!-- Begin Mailchimp Signup Form -->
+<link href="//cdn-images.mailchimp.com/embedcode/horizontal-slim-10_7.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+	/* #mc_embed_signup{background:#fff; clear:left; font:14px Helvetica,Arial,sans-serif; width:100%;} */
+    #mc_embed_signup{clear:left; font:14px Helvetica,Arial,sans-serif; width:100%;}
+	/* Add your own Mailchimp form style overrides in your site stylesheet or in this style block.
+	   We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+</style>
+<div id="mc_embed_signup">
+<form action="https://vikki.us10.list-manage.com/subscribe/post?u=95b2d364576fdf5e25e704170&amp;id=905f0eae6d" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+    <div id="mc_embed_signup_scroll">
+	<label for="mce-EMAIL">Subscribe to Vikki's blog</label>
+	<input type="email" value="" name="EMAIL" class="email" id="mce-EMAIL" placeholder="email address" required>
+    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_95b2d364576fdf5e25e704170_905f0eae6d" tabindex="-1" value=""></div>
+    <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button"></div>
+    </div>
+</form>
+</div>
+
+<!--End mc_embed_signup-->
+
+
+  <!-- Start disqus -->
+<script src="/assets/js/disqusLoader.js" /></script>
+<div id="disqus_thread"><h3>Discussion and feedback</h3></div>
+<div class="disqus"></div>
+<script>
+    disqusLoader('.disqus', {
+        scriptUrl: 'https://vikkiblog.disqus.com/embed.js'
+    });
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<!-- End disqus -->
+
+
+<div class="pagination">
+  
+    <a href="/rbac-in-kubernetes/" class="left arrow">&#8592;</a>
+  
+  
+    <a href="/running-kubernetes-custom-scheduler/" class="right arrow">&#8594;</a>
+  
+
+  <a href="#" class="top">Top</a>
+</div>
+    </main>
+
+    <!--<footer >
+  <span>
+        &copy; <time datetime="2025-07-31 10:44:18 +0000">2025</time> . Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+  </span>
+</footer>-->
+
+<footer class="footer">
+    <div class="footer--section">
+        <!--
+      
+      <a href=https://twitter.com/vikkiintweet> <svg viewBox="0 0 64 64" class="footer--icon">
+           <path data-name="layer1"
+  d="M64 13.194a23.1 23.1 0 0 1-7.3 2.1 14.119 14.119 0 0 0 5.5-7.2c-1.9 1.2-6.1 2.9-8.2 2.9a13.782 13.782 0 0 0-9.6-4 13.187 13.187 0 0 0-13.2 13.2 13.576 13.576 0 0 0 .3 2.9c-9.9-.3-21.5-5.2-28-13.7a13.206 13.206 0 0 0 4 17.4c-1.5.2-4.4-.1-5.7-1.4-.1 4.6 2.1 10.7 10.2 12.9-1.6.8-4.3.6-5.5.4.4 3.9 5.9 9 11.8 9-2.1 2.4-9.3 6.9-18.3 5.5a39.825 39.825 0 0 0 20.7 5.8 36.8 36.8 0 0 0 37-38.6v-.5a22.861 22.861 0 0 0 6.3-6.7z"
+  fill="#4f80ff"></path>
+          </svg>
+      </a>
+  </div>
+  <div class="footer--section">
+      
+      <a href=https://github.com/vigneshragupathy> <svg class="footer--icon" viewBox="0 0 64 64"
+          xmlns="http://www.w3.org/2000/svg">
+          <path data-name="layer2"
+  d="M32 0a32.021 32.021 0 0 0-10.1 62.4c1.6.3 2.2-.7 2.2-1.5v-6c-8.9 1.9-10.8-3.8-10.8-3.8-1.5-3.7-3.6-4.7-3.6-4.7-2.9-2 .2-1.9.2-1.9 3.2.2 4.9 3.3 4.9 3.3 2.9 4.9 7.5 3.5 9.3 2.7a6.93 6.93 0 0 1 2-4.3c-7.1-.8-14.6-3.6-14.6-15.8a12.27 12.27 0 0 1 3.3-8.6 11.965 11.965 0 0 1 .3-8.5s2.7-.9 8.8 3.3a30.873 30.873 0 0 1 8-1.1 30.292 30.292 0 0 1 8 1.1c6.1-4.1 8.8-3.3 8.8-3.3a11.965 11.965 0 0 1 .3 8.5 12.1 12.1 0 0 1 3.3 8.6c0 12.3-7.5 15-14.6 15.8a7.746 7.746 0 0 1 2.2 5.9v8.8c0 .9.6 1.8 2.2 1.5A32.021 32.021 0 0 0 32 0z"
+  fill="#2d2d2d"></path>
+  <path data-name="layer1" d="M12.1 45.9c-.1.2-.3.2-.5.1s-.4-.3-.3-.5.3-.2.6-.1c.2.2.3.4.2.5zm1.3 1.5a.589.589 0 0 1-.8-.8.631.631 0 0 1 .7.1.494.494 0 0 1 .1.7zm1.3 1.8a.585.585 0 0 1-.7-.3.6.6 0 0 1 0-.8.585.585 0 0 1 .7.3c.2.3.2.7 0 .8zm1.7 1.8c-.2.2-.5.1-.8-.1-.3-.3-.4-.6-.2-.8a.619.619 0 0 1 .8.1.554.554 0 0 1 .2.8zm2.4 1c-.1.3-.4.4-.8.3s-.6-.4-.5-.7.4-.4.8-.3c.3.2.6.5.5.7zm2.6.2c0 .3-.3.5-.7.5s-.7-.2-.7-.5.3-.5.7-.5c.4.1.7.3.7.5zm2.4-.4q0 .45-.6.6a.691.691 0 0 1-.8-.3q0-.45.6-.6c.5-.1.8.1.8.3z"></path>
+          </svg>
+      </a>
+  </div>
+  <div class="footer--section">
+      
+      <a href=https://www.youtube.com/c/vigneshragupathy> <svg class="footer--icon"
+          viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+          <path data-name="layer1"
+  d="M50.708 9H13.292A13.25 13.25 0 0 0 0 22.207v18.586A13.25 13.25 0 0 0 13.292 54h37.416A13.25 13.25 0 0 0 64 40.793V22.207A13.25 13.25 0 0 0 50.708 9zm-8.989 23.4l-17.501 8.3a.7.7 0 0 1-1.005-.63V22.962a.7.7 0 0 1 1.02-.623l17.5 8.812a.7.7 0 0 1-.015 1.253zm0 0"
+  fill="#f61c0d"></path>
+          </svg>
+      </a>
+  </div>
+
+  <div class="footer--section">
+    
+    <a href=https://www.linkedin.com/in/vigneshragupathy> <svg class="footer--icon"
+        viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <path data-name="layer1"
+  fill="#0077b7" d="M1.15 21.7h13V61h-13zm46.55-1.3c-5.7 0-9.1 2.1-12.7 6.7v-5.4H22V61h13.1V39.7c0-4.5 2.3-8.9 7.5-8.9s8.3 4.4 8.3 8.8V61H64V38.7c0-15.5-10.5-18.3-16.3-18.3zM7.7 2.6C3.4 2.6 0 5.7 0 9.5s3.4 6.9 7.7 6.9 7.7-3.1 7.7-6.9S12 2.6 7.7 2.6z"></path>
+        </svg>
+          </a>
+</div>
+  <div class="footer--section">
+      
+      <a href="http://0.0.0.0:4000/feed.xml">
+          <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+              y="0px" viewBox="0 0 64 64" class="footer--icon" xml:space="preserve">
+              <path data-name="layer1"
+  d="M8.6 46.746a8.627 8.627 0 1 0 8.6 8.627 8.678 8.678 0 0 0-8.6-8.627zM.7 21.567H.2V33.5h.5a29.836 29.836 0 0 1 29.8 29.8v.7h11.9v-.7A41.719 41.719 0 0 0 .7 21.567z"
+  fill="#ff8900"></path>
+  <path data-name="layer1" d="M.7 0H.2v11.937h.5A51.4 51.4 0 0 1 52 63.3v.7h12v-.7A63.369 63.369 0 0 0 .7 0z"
+  fill="#ff8900"></path>
+          </svg>
+      </a>
+      -->
+        
+        <a href=https://twitter.com/vikkiintweet> <svg viewBox="0 0 64 64" class="footer--icon">
+            <path data-name="layer1"
+                d="M64 13.194a23.1 23.1 0 0 1-7.3 2.1 14.119 14.119 0 0 0 5.5-7.2c-1.9 1.2-6.1 2.9-8.2 2.9a13.782 13.782 0 0 0-9.6-4 13.187 13.187 0 0 0-13.2 13.2 13.576 13.576 0 0 0 .3 2.9c-9.9-.3-21.5-5.2-28-13.7a13.206 13.206 0 0 0 4 17.4c-1.5.2-4.4-.1-5.7-1.4-.1 4.6 2.1 10.7 10.2 12.9-1.6.8-4.3.6-5.5.4.4 3.9 5.9 9 11.8 9-2.1 2.4-9.3 6.9-18.3 5.5a39.825 39.825 0 0 0 20.7 5.8 36.8 36.8 0 0 0 37-38.6v-.5a22.861 22.861 0 0 0 6.3-6.7z"
+                fill="#202020"></path>
+            </svg>
+        </a>
+    </div>
+    <div class="footer--section">
+        
+        <a href=https://github.com/vigneshragupathy> <svg class="footer--icon" viewBox="0 0 64 64"
+            xmlns="http://www.w3.org/2000/svg">
+            <path data-name="layer2"
+                d="M32 0a32.021 32.021 0 0 0-10.1 62.4c1.6.3 2.2-.7 2.2-1.5v-6c-8.9 1.9-10.8-3.8-10.8-3.8-1.5-3.7-3.6-4.7-3.6-4.7-2.9-2 .2-1.9.2-1.9 3.2.2 4.9 3.3 4.9 3.3 2.9 4.9 7.5 3.5 9.3 2.7a6.93 6.93 0 0 1 2-4.3c-7.1-.8-14.6-3.6-14.6-15.8a12.27 12.27 0 0 1 3.3-8.6 11.965 11.965 0 0 1 .3-8.5s2.7-.9 8.8 3.3a30.873 30.873 0 0 1 8-1.1 30.292 30.292 0 0 1 8 1.1c6.1-4.1 8.8-3.3 8.8-3.3a11.965 11.965 0 0 1 .3 8.5 12.1 12.1 0 0 1 3.3 8.6c0 12.3-7.5 15-14.6 15.8a7.746 7.746 0 0 1 2.2 5.9v8.8c0 .9.6 1.8 2.2 1.5A32.021 32.021 0 0 0 32 0z"
+                fill="#202020"></path>
+            <path data-name="layer1"
+                d="M12.1 45.9c-.1.2-.3.2-.5.1s-.4-.3-.3-.5.3-.2.6-.1c.2.2.3.4.2.5zm1.3 1.5a.589.589 0 0 1-.8-.8.631.631 0 0 1 .7.1.494.494 0 0 1 .1.7zm1.3 1.8a.585.585 0 0 1-.7-.3.6.6 0 0 1 0-.8.585.585 0 0 1 .7.3c.2.3.2.7 0 .8zm1.7 1.8c-.2.2-.5.1-.8-.1-.3-.3-.4-.6-.2-.8a.619.619 0 0 1 .8.1.554.554 0 0 1 .2.8zm2.4 1c-.1.3-.4.4-.8.3s-.6-.4-.5-.7.4-.4.8-.3c.3.2.6.5.5.7zm2.6.2c0 .3-.3.5-.7.5s-.7-.2-.7-.5.3-.5.7-.5c.4.1.7.3.7.5zm2.4-.4q0 .45-.6.6a.691.691 0 0 1-.8-.3q0-.45.6-.6c.5-.1.8.1.8.3z">
+            </path>
+            </svg>
+        </a>
+    </div>
+    <div class="footer--section">
+        
+        <a href=https://www.youtube.com/c/vigneshragupathy> <svg class="footer--icon" viewBox="0 0 64 64"
+            xmlns="http://www.w3.org/2000/svg">
+            <path data-name="layer1"
+                d="M50.708 9H13.292A13.25 13.25 0 0 0 0 22.207v18.586A13.25 13.25 0 0 0 13.292 54h37.416A13.25 13.25 0 0 0 64 40.793V22.207A13.25 13.25 0 0 0 50.708 9zm-8.989 23.4l-17.501 8.3a.7.7 0 0 1-1.005-.63V22.962a.7.7 0 0 1 1.02-.623l17.5 8.812a.7.7 0 0 1-.015 1.253zm0 0"
+                fill="#202020"></path>
+            </svg>
+        </a>
+    </div>
+
+    <div class="footer--section">
+        
+        <a href=https://www.linkedin.com/in/vigneshragupathy> <svg class="footer--icon" viewBox="0 0 64 64"
+            xmlns="http://www.w3.org/2000/svg">
+            <path data-name="layer1" fill="#202020"
+                d="M1.15 21.7h13V61h-13zm46.55-1.3c-5.7 0-9.1 2.1-12.7 6.7v-5.4H22V61h13.1V39.7c0-4.5 2.3-8.9 7.5-8.9s8.3 4.4 8.3 8.8V61H64V38.7c0-15.5-10.5-18.3-16.3-18.3zM7.7 2.6C3.4 2.6 0 5.7 0 9.5s3.4 6.9 7.7 6.9 7.7-3.1 7.7-6.9S12 2.6 7.7 2.6z">
+            </path>
+            </svg>
+        </a>
+    </div>
+    <div class="footer--section">
+        
+        <a href="http://0.0.0.0:4000/feed.xml">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+                y="0px" viewBox="0 0 64 64" class="footer--icon" xml:space="preserve">
+                <path data-name="layer1"
+                    d="M8.6 46.746a8.627 8.627 0 1 0 8.6 8.627 8.678 8.678 0 0 0-8.6-8.627zM.7 21.567H.2V33.5h.5a29.836 29.836 0 0 1 29.8 29.8v.7h11.9v-.7A41.719 41.719 0 0 0 .7 21.567z"
+                    fill="#202020"></path>
+                <path data-name="layer1"
+                    d="M.7 0H.2v11.937h.5A51.4 51.4 0 0 1 52 63.3v.7h12v-.7A63.369 63.369 0 0 0 .7 0z" fill="#202020">
+                </path>
+            </svg>
+        </a>
+    </div>
+</footer>
+  </body>
+</html>

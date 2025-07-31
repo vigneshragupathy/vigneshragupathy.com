@@ -1,0 +1,188 @@
+mark { 
+    background-color: #EFECFC;
+  }
+
+@media (prefers-color-scheme: dark) {
+mark { background-color: $vikki-shade2-dark; }
+}
+  
+.footer {
+  .footer--section {
+      padding-right: 1rem;
+  }
+
+  .footer--icon {
+      width: 20px;
+      height: 20px;
+
+      position: relative;
+      top: 2px;
+      left: 2px;
+  }
+  height: 3rem;
+  flex: none;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+
+  padding-bottom: 1rem;
+  justify-content: center;
+}
+
+#navbar {
+  //background-color: grey;
+  position: sticky;
+  top: 0;
+  width: 100%;
+  display: block;
+  transition: top 0.3s;
+  background-color: rgba(255,255,255,.9);
+  box-shadow: 0 2px 2px -2px $shadow-color;
+  overflow: auto;
+
+  &-container {
+    margin: 1rem auto;
+    position: relative;
+    text-align: left;
+  }
+  &-title {
+    @include transition(all .2s ease-out);
+    color: $default-color;
+    display: inline-block;
+    margin: 0;
+    padding-right: inherit;
+
+    &:hover,
+    &:focus {
+      opacity: .6;
+    }
+  }
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow: hidden;
+   // background-color: #fff;
+  }
+
+  li a {
+    display: block;
+    padding: 20px 20px;
+    border-right: 1px solid #f4f4f4;
+    text-decoration: none;
+  }
+
+  li a:hover {
+    background-color: #f4f4f4;
+  }
+
+  .menu {
+    clear: both;
+    max-height: 0;
+    transition: max-height .2s ease-out;
+  }
+
+  li {
+    @include transition(all .2s ease-out);
+    color: $default-color;
+    display: inline-block;
+    opacity: .6;
+    padding: 0 2rem 0 0;
+
+    &:last-child {
+      padding-right: 0;
+    }
+
+    &:hover,
+    &:focus {
+      opacity: 1;
+    }
+  }
+
+  a {
+    color: $default-color;
+    font-family: $sans-serif;
+  }
+}
+
+// reference https://medium.com/creative-technology-concepts-code/responsive-mobile-dropdown-navigation-using-css-only-7218e4498a99
+#navbar .menu-icon {
+  cursor: pointer;
+  display: inline-block;
+  float: right;
+  padding: 28px 20px;
+  position: relative;
+  user-select: none;
+}
+
+#navbar .menu-icon .navicon {
+  background: #333;
+  display: block;
+  height: 2px;
+  position: relative;
+  transition: background .2s ease-out;
+  width: 18px;
+}
+
+#navbar .menu-icon .navicon:before,
+#navbar .menu-icon .navicon:after {
+  background: #333;
+  content: '';
+  display: block;
+  height: 100%;
+  position: absolute;
+  transition: all .2s ease-out;
+  width: 100%;
+}
+
+#navbar .menu-icon .navicon:before {
+  top: 5px;
+}
+
+#navbar .menu-icon .navicon:after {
+  top: -5px;
+}
+
+#navbar .menu-btn {
+  display: none;
+}
+
+#navbar .menu-btn:checked ~ .menu {
+  max-height: 240px;
+}
+
+#navbar .menu-btn:checked ~ .menu-icon .navicon {
+  background: transparent;
+}
+
+#navbar .menu-btn:checked ~ .menu-icon .navicon:before {
+  transform: rotate(-45deg);
+}
+
+#navbar .menu-btn:checked ~ .menu-icon .navicon:after {
+  transform: rotate(45deg);
+}
+
+#navbar .menu-btn:checked ~ .menu-icon:not(.steps) .navicon:before,
+#navbar .menu-btn:checked ~ .menu-icon:not(.steps) .navicon:after {
+  top: 0;
+}
+
+@media (min-width: 600px) {
+  #navbar li {
+    float: left;
+  }
+  #navbar li a {
+    padding: 20px 30px;
+    border-right: unset;
+    display: contents;
+  }
+  #navbar .menu {
+    clear: none;
+    float: right;
+    max-height: none;
+  }
+  #navbar .menu-icon {
+    display: none;
+  }
+}

@@ -1,0 +1,43 @@
+<!--
+<nav class="nav">
+  <div class="nav-container">
+    <a href="{{ site.baseurl }}/">
+      <h2 class="nav-title">{{ site.title }}</h2>
+    </a>
+    <ul>
+      <li><a href="{{ '/tools' | prepend: site.baseurl }}">Tools developed</a></li>
+      <li><a href="{{ '/videos' | prepend: site.baseurl }}">Videos</a></li>
+      <li><a href="{{ '/about-me' | prepend: site.baseurl }}">About me</a></li>
+    </ul>
+  </div>
+</nav>
+-->
+
+<div id="navbar">
+  <nav class="nav">
+  <div class="nav-container">
+  <a href="{{ site.baseurl }}/">
+    <h2 class="nav-title ">{{ site.title }}</h2>
+  </a>
+  <input class="menu-btn" type="checkbox" id="menu-btn" />
+  <label class="menu-icon" for="menu-btn"><span class="navicon"></span></label>
+  <ul class="menu">
+    <li><a href="{{ '/about-me' | prepend: site.baseurl }}">About</a></li>
+    <li><a href="{{ '/search' | prepend: site.baseurl }}">Search</a></li>
+  </ul>
+</div>
+</div>
+</nav>
+
+  <script>
+    var prevScrollpos = window.pageYOffset;
+    window.onscroll = function() {
+    var currentScrollPos = window.pageYOffset;
+      if (prevScrollpos > currentScrollPos) {
+        document.getElementById("navbar").style.top = "0";
+      } else {
+        document.getElementById("navbar").style.top = "-100px";
+      }
+      prevScrollpos = currentScrollPos;
+    }
+    </script>
