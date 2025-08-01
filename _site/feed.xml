@@ -1,288 +1,271 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://0.0.0.0:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://0.0.0.0:4000/" rel="alternate" type="text/html" /><updated>2025-08-01T06:22:03+00:00</updated><id>http://0.0.0.0:4000/feed.xml</id><title type="html">Vignesh Ragupathy</title><subtitle>personal description</subtitle><author><name>Vignesh Ragupathy</name><email>r.vignesh88@gmail.com</email></author><entry><title type="html">Kubernetes monitoring in Zabbix via Prometheus backend</title><link href="http://0.0.0.0:4000/kubernetes-monitoring-in-zabbix-via-prometheus-backend/" rel="alternate" type="text/html" title="Kubernetes monitoring in Zabbix via Prometheus backend" /><published>2022-07-01T10:00:00+00:00</published><updated>2022-07-01T10:00:00+00:00</updated><id>http://0.0.0.0:4000/kubernetes-monitoring-in-zabbix-via-prometheus-backend</id><content type="html" xml:base="http://0.0.0.0:4000/kubernetes-monitoring-in-zabbix-via-prometheus-backend/"><![CDATA[<h2 id="summary">Summary</h2>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://0.0.0.0:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://0.0.0.0:4000/" rel="alternate" type="text/html" /><updated>2025-08-01T07:09:30+00:00</updated><id>http://0.0.0.0:4000/feed.xml</id><title type="html">Vignesh Ragupathy</title><subtitle>personal description</subtitle><author><name>Vignesh Ragupathy</name><email>r.vignesh88@gmail.com</email></author><entry><title type="html">Kubernetes monitoring in Zabbix via Prometheus backend</title><link href="http://0.0.0.0:4000/kubernetes-monitoring-in-zabbix-via-prometheus-backend/" rel="alternate" type="text/html" title="Kubernetes monitoring in Zabbix via Prometheus backend" /><published>2022-07-01T10:00:00+00:00</published><updated>2022-07-01T10:00:00+00:00</updated><id>http://0.0.0.0:4000/kubernetes-monitoring-in-zabbix-via-prometheus-backend</id><content type="html" xml:base="http://0.0.0.0:4000/kubernetes-monitoring-in-zabbix-via-prometheus-backend/"><![CDATA[## Summary
 
-<p>Monitoring in Kubernetes is a complex task.</p>
+Monitoring in Kubernetes is a complex task.
 
-<p>The traditional monitoring framework is not sufficient to handle such a massive workload.</p>
+The traditional monitoring framework is not sufficient to handle such a massive workload.
 
-<p>Zabbix since version 6.0 provides a native way of integration for monitoring Kubernetes cluster.</p>
+Zabbix since version 6.0 provides a native way of integration for monitoring Kubernetes cluster.
 
-<p>Zabbix-Kubernetes integration provides various templates to monitor kubernetes components like <code class="language-plaintext highlighter-rouge">kube-controller-manager</code>, <code class="language-plaintext highlighter-rouge">kube-apiserver</code>, <code class="language-plaintext highlighter-rouge">kube-scheduler</code>, <code class="language-plaintext highlighter-rouge">kubelet</code>, etc.</p>
+Zabbix-Kubernetes integration provides various templates to monitor kubernetes components like `kube-controller-manager`, `kube-apiserver`, `kube-scheduler`, `kubelet`, etc.
 
-<p>It also supports automatic discovery of kubernetes nodes, pods and also collects metrics agentlessly.</p>
+It also supports automatic discovery of kubernetes nodes, pods and also collects metrics agentlessly.
 
-<h2 id="why-i-dont-like-the-zabbixs-direct-way-of-monitoring-kubernetes-cluster">Why I don’t like the Zabbix’s direct way of monitoring Kubernetes cluster?</h2>
+## Why I don't like the Zabbix's direct way of monitoring Kubernetes cluster?
 
-<p>Although Zabbix-Kubernetes integration looks promising in the beginning , it is not easy to use.</p>
+Although Zabbix-Kubernetes integration looks promising in the beginning , it is not easy to use.
 
-<p>The documentation is not clear, it is mostly based on the assumption that the Zabbix server is running inside the same Kubernetes cluster.</p>
+The documentation is not clear, it is mostly based on the assumption that the Zabbix server is running inside the same Kubernetes cluster.
 
-<p>There are so much details missing in the documentation especially if you want to do the monitoring from external Zabbix server or even to do a multiple cross cluster monitoring.</p>
+There are so much details missing in the documentation especially if you want to do the monitoring from external Zabbix server or even to do a multiple cross cluster monitoring.
 
-<p>And finally, most of all, the  Zabbix monitoring system is not designed to monitor <code class="language-plaintext highlighter-rouge">directly</code> such a volatile, dynamic, multi-dimensional metrics from infrastructure like Kubernetes.</p>
+And finally, most of all, the  Zabbix monitoring system is not designed to monitor `directly` such a volatile, dynamic, multi-dimensional metrics from infrastructure like Kubernetes.
 
-<h2 id="why-prometheus">Why Prometheus?</h2>
+## Why Prometheus?
 
-<p>Prometheus is an opensource monitoring system which can collect massive amount of data in near real-time using it’s pull-based mechanism.</p>
+Prometheus is an opensource monitoring system which can collect massive amount of data in near real-time using it's pull-based mechanism.
 
-<p>Prometheus can be easily configured for service discovery.</p>
+Prometheus can be easily configured for service discovery.
 
-<p>It is agentless and works by sending an HTTP request so-called scrape, which can find the endpoints and scrap metrics from any source.</p>
+It is agentless and works by sending an HTTP request so-called scrape, which can find the endpoints and scrap metrics from any source.
 
-<p>The response from scrape request is parsed and stored in Prometheus database.</p>
+The response from scrape request is parsed and stored in Prometheus database.
 
-<p>Prometheus provided powerful querying using it’s PromQL and the metrics collected can be pulled from any external system like Zabbix or Grafana via its API.</p>
+Prometheus provided powerful querying using it's PromQL and the metrics collected can be pulled from any external system like Zabbix or Grafana via its API.
 
-<blockquote>
-  <p>Using Prometheus federation, we can easily collect metrics from multiple Kubernetes clusters and create a hierarchically scaled monitoring system.</p>
-</blockquote>
+> Using Prometheus federation, we can easily collect metrics from multiple Kubernetes clusters and create a hierarchically scaled monitoring system.
 
-<h2 id="how-prometheus-exposes-metrics">How Prometheus exposes metrics?</h2>
+## How Prometheus exposes metrics?
 
-<p>Prometheus collects the metrics from any source by scraping the HTTP endpoint which contains metrics.</p>
+Prometheus collects the metrics from any source by scraping the HTTP endpoint which contains metrics.
 
-<p>It also provides a web interface to view the metrics.</p>
+It also provides a web interface to view the metrics.
 
-<p>The metrics are exposed via API.</p>
+The metrics are exposed via API.
 
-<p>Prometheus metrics can be queried by any HTTP client using it’s API Endpoints.</p>
+Prometheus metrics can be queried by any HTTP client using it's API Endpoints.
 
-<p><strong>Query Prometheus using curl</strong></p>
+**Query Prometheus using curl**
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl -X GET  'https://PROMETHEUS_HOSTNAME/api/v1/query?query=up' | jq status.
-</code></pre></div></div>
+```
+curl -X GET  'https://PROMETHEUS_HOSTNAME/api/v1/query?query=up' | jq status.
+```
 
-<p><strong>Query on kubernetes node metrics</strong></p>
+**Query on kubernetes node metrics**
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl -X GET  'https://PROMETHEUS_HOSTNAME/api/v1/query?query=kube_node_info' | jq status.
-</code></pre></div></div>
+```
+curl -X GET  'https://PROMETHEUS_HOSTNAME/api/v1/query?query=kube_node_info' | jq status.
+```
 
-<p><strong>Advanced query operations like boolean</strong></p>
+**Advanced query operations like boolean**
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl -X GET  'http://PROMETHEUS_HOSTNAME/api/v1/query?query={__name__=~"kube_pod_container_resource_limits_cpu_cores|kube_pod_status_phase"}&gt;0' | jq .
-</code></pre></div></div>
+```
+curl -X GET  'http://PROMETHEUS_HOSTNAME/api/v1/query?query={__name__=~"kube_pod_container_resource_limits_cpu_cores|kube_pod_status_phase"}>0' | jq .
+```
 
-<h2 id="why-prometheus-is-just-not-good-enough">Why Prometheus is just not good enough?</h2>
+## Why Prometheus is just not good enough?
 
-<p>Prometheus is good for collecting the metrics from Kubernetes cluster.
-But it is not enough to act as a full-stack monitoring system.</p>
+Prometheus is good for collecting the metrics from Kubernetes cluster.
+But it is not enough to act as a full-stack monitoring system.
 
-<p>Here are some of the limitations.</p>
+Here are some of the limitations.
 
-<ul>
-  <li>Very basic visualization of the metrics.</li>
-  <li>No AI/ML features like automatic anomaly detection</li>
-  <li>No role based access control</li>
-  <li>Long term storage is not available.</li>
-</ul>
+- Very basic visualization of the metrics.
+- No AI/ML features like automatic anomaly detection
+- No role based access control
+- Long term storage is not available.
 
-<h2 id="proposed-approach">Proposed approach</h2>
+## Proposed approach
 
-<blockquote>
-  <p>The proposed approach is to use Prometheus as a backend for Zabbix.</p>
-</blockquote>
+> The proposed approach is to use Prometheus as a backend for Zabbix.
 
-<p>This approach provides the flexibility of using Prometheus pull based metrics collection, scalability and PromQL queries. Also the advantage of Zabbix for alerting, anomaly detection and role based access control etc.</p>
+This approach provides the flexibility of using Prometheus pull based metrics collection, scalability and PromQL queries. Also the advantage of Zabbix for alerting, anomaly detection and role based access control etc.
 
-<p><strong>Architecture of the proposed approach</strong></p>
+**Architecture of the proposed approach**
 
-<p><img src="/content/images/2022/kubernetes-promethues-federate.png" alt="prometheus_federate" /></p>]]></content><author><name>Vignesh Ragupathy</name></author><category term="kubernetes" /><category term="opensource" /><category term="observability" /><summary type="html"><![CDATA[Summary]]></summary></entry><entry><title type="html">My life at SBI</title><link href="http://0.0.0.0:4000/lifeatsbi/" rel="alternate" type="text/html" title="My life at SBI" /><published>2021-09-16T12:15:00+00:00</published><updated>2021-09-16T12:15:00+00:00</updated><id>http://0.0.0.0:4000/lifeatsbi</id><content type="html" xml:base="http://0.0.0.0:4000/lifeatsbi/"><![CDATA[<h2 id="summary">Summary</h2>
+![prometheus_federate](/content/images/2022/kubernetes-promethues-federate.png)]]></content><author><name>Vignesh Ragupathy</name></author><category term="kubernetes" /><category term="opensource" /><category term="observability" /><summary type="html"><![CDATA[Summary]]></summary></entry><entry><title type="html">My life at SBI</title><link href="http://0.0.0.0:4000/lifeatsbi/" rel="alternate" type="text/html" title="My life at SBI" /><published>2021-09-16T12:15:00+00:00</published><updated>2021-09-16T12:15:00+00:00</updated><id>http://0.0.0.0:4000/lifeatsbi</id><content type="html" xml:base="http://0.0.0.0:4000/lifeatsbi/"><![CDATA[## Summary 
 
-<p>I joined State Bank of India on July 2020 and worked for 1 year and 2 months as Manager - IT Infrastructure Architect in Enterprise and Technology Architecture department in GITC, Navi Mumbai.</p>
+I joined State Bank of India on July 2020 and worked for 1 year and 2 months as Manager - IT Infrastructure Architect in Enterprise and Technology Architecture department in GITC, Navi Mumbai. 
 
-<p>My role in SBI is technical, and it involves consulting, design, Architecture and reviewing of application and infrastructure.</p>
+My role in SBI is technical, and it involves consulting, design, Architecture and reviewing of application and infrastructure. 
 
-<p>Through out my tenure in SBI i worked on various short term projects. Among them setting up DevOps infrastructure for SBI is one.</p>
+Through out my tenure in SBI i worked on various short term projects. Among them setting up DevOps infrastructure for SBI is one.  
 
-<p>It’s an ongoing project and we’re constantly finding ways to improve and make life easier for developers and Operations team across SBI.</p>
+It’s an ongoing project and we’re constantly finding ways to improve and make life easier for developers and Operations team across SBI. 
 
-<p>Breakup of overall time that had spent in SBI.</p>
+Breakup of overall time that had spent in SBI.
 
-<p><img src="/content/images/2021/sbi_work_breakup.png" alt="sbi_breadkdown" /></p>
+![sbi_breadkdown](/content/images/2021/sbi_work_breakup.png)
 
-<h2 id="what-have-i-learned-">What have I learned ?</h2>
 
-<ul>
-  <li>Importance of architecture principles and policies</li>
-  <li>Some software architectural design</li>
-  <li>Compliance and regulation in banking</li>
-  <li>DevOps tools and practises</li>
-  <li>Managing vendor partners</li>
-  <li>Tracking project timelines</li>
-</ul>
+## What have I learned ?
 
-<h4 id="certificate-of-appreciation-for-delivering-a-talk-on-kubernetes">Certificate of appreciation for delivering a talk on Kubernetes</h4>
+-  Importance of architecture principles and policies 
+-  Some software architectural design
+-  Compliance and regulation in banking
+-  DevOps tools and practises
+-  Managing vendor partners
+-  Tracking project timelines
+
+#### Certificate of appreciation for delivering a talk on Kubernetes
 
 <iframe src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:6757560991862669312" height="448" width="504" frameborder="0" allowfullscreen="" title="Embedded post"></iframe>
 
-<h2 id="my-timeline-in-sbi">My timeline in SBI</h2>
+## My timeline in SBI
 
-<ul>
-  <li>Sep 2019 - Specialist exam for SBI</li>
-  <li>Dec 2019 - Personal Interview in Mumbai, SBI</li>
-  <li>Jan 2020 -  Received job offer from SBI</li>
-  <li>Feb 2020 - Pandemic and full work from home start in Ericsson</li>
-  <li>Apr 2021 - Relieving extension in Ericsson</li>
-  <li>Jun 2020 - Last day in Ericsson</li>
-  <li>Jul 2020 - Relocation to Mumbai and joining SBI</li>
-  <li>Aug 2020 - Joining Enterprise and Technology architecture dept in SBI</li>
-  <li>Oct 2020 - Travel to native and bringing family to Mumbai</li>
-  <li>April 2021 - Travel to native and leaving family</li>
-  <li>May 2021 - COVID like symptoms and home quarantine</li>
-  <li>June 2021 - Decision to leave SBI and relocate from Mumbai</li>
-  <li>July 2021 - New job offer received</li>
-  <li>Aug 2021 - Resignation initiation in SBI</li>
-  <li>Sep 2021 - Last working day in SBI</li>
-</ul>
+- Sep 2019 - Specialist exam for SBI
+- Dec 2019 - Personal Interview in Mumbai, SBI
+- Jan 2020 -  Received job offer from SBI
+- Feb 2020 - Pandemic and full work from home start in Ericsson
+- Apr 2021 - Relieving extension in Ericsson 
+- Jun 2020 - Last day in Ericsson
+- Jul 2020 - Relocation to Mumbai and joining SBI
+- Aug 2020 - Joining Enterprise and Technology architecture dept in SBI
+- Oct 2020 - Travel to native and bringing family to Mumbai
+- April 2021 - Travel to native and leaving family
+- May 2021 - COVID like symptoms and home quarantine
+- June 2021 - Decision to leave SBI and relocate from Mumbai
+- July 2021 - New job offer received
+- Aug 2021 - Resignation initiation in SBI
+- Sep 2021 - Last working day in SBI
 
-<h2 id="why-leaving-job-from-state-bank-of-india">Why leaving job from State Bank of India</h2>
+## Why leaving job from State Bank of India
 
-<p>The decision for leaving the job at state bank of India is both personal and family. Some of the key points that influence the decisions are no WFH, no relocation/transfer of job, micro management, unnecessary and complicated process, poor decision making and low learning curve/Legacy technologies.</p>
+The decision for leaving the job at state bank of India is both personal and family. Some of the key points that influence the decisions are no WFH, no relocation/transfer of job, micro management, unnecessary and complicated process, poor decision making and low learning curve/Legacy technologies. 
 
-<p>One of the important factor that any organisation should focus is equally changing the organisation culture when they modernise the technology stack. There are significant effort put on hiring technical experts, digital transformation, cloud strategy but very little on organisation culture.</p>
+One of the important factor that any organisation should focus is equally changing the organisation culture when they modernise the technology stack. There are significant effort put on hiring technical experts, digital transformation, cloud strategy but very little on organisation culture.
 
-<h2 id="to-sbi-on-request-from-sbi-colleagues">To SBI (on request from SBI colleagues)</h2>
+## To SBI (on request from SBI colleagues)
 
-<ul>
-  <li>Invest as equally as technology transformation in cultural transformation.</li>
-  <li>Let the internal team solve the hard problems and use the external teams /vendors only to enable the in-house teams</li>
-  <li>IT operations need engineers, not just the people managers. Replace people managers with engineering managers whereever needed. Do not mix them both.</li>
-  <li>Make an open/transparent and employee friendly organisation.</li>
-</ul>
+-  Invest as equally as technology transformation in cultural transformation.
+-  Let the internal team solve the hard problems and use the external teams /vendors only to enable the in-house teams
+-  IT operations need engineers, not just the people managers. Replace people managers with engineering managers whereever needed. Do not mix them both. 
+-  Make an open/transparent and employee friendly organisation.
 
-<h2 id="so-whats-next-">So whats next ?</h2>
+## So whats next ?
 
-<p>So what am I doing next? It’s been a privilege and an adventure to work in SBI as Infrastructure Architect with so many amazing people. But I’m now excited about my new role as Sr Site Reliability Engineer at Sage Intacct, Bangalore.</p>]]></content><author><name>Vignesh Ragupathy</name></author><category term="linux" /><category term="opensource" /><summary type="html"><![CDATA[Summary]]></summary></entry><entry><title type="html">Plotly4Nagios - A Graph plugin for nagios monitoring</title><link href="http://0.0.0.0:4000/plotly4nagios-graph-plugin-for-nagios-monitoring/" rel="alternate" type="text/html" title="Plotly4Nagios - A Graph plugin for nagios monitoring" /><published>2021-03-24T12:15:00+00:00</published><updated>2021-03-24T12:15:00+00:00</updated><id>http://0.0.0.0:4000/plotly4nagios-graph-plugin-for-nagios-monitoring</id><content type="html" xml:base="http://0.0.0.0:4000/plotly4nagios-graph-plugin-for-nagios-monitoring/"><![CDATA[<p><a href="https://github.com/vigneshragupathy/plotly4nagios">Plotly4Nagios</a> is a nagios plugin to display the performance data in Graph. It uses the RRD database provided by pnp4nagios and visualize it in interactive graph format using plotly javascript. The first pre-release is published today in <a href="https://github.com/vigneshragupathy/plotly4nagios">github</a> and here is the installation document. You can experiment it and report the issue/feedback for further enhancement.</p>
+So what am I doing next? It's been a privilege and an adventure to work in SBI as Infrastructure Architect with so many amazing people. But I'm now excited about my new role as Sr Site Reliability Engineer at Sage Intacct, Bangalore.]]></content><author><name>Vignesh Ragupathy</name></author><category term="linux" /><category term="opensource" /><summary type="html"><![CDATA[Summary]]></summary></entry><entry><title type="html">Plotly4Nagios - A Graph plugin for nagios monitoring</title><link href="http://0.0.0.0:4000/plotly4nagios-graph-plugin-for-nagios-monitoring/" rel="alternate" type="text/html" title="Plotly4Nagios - A Graph plugin for nagios monitoring" /><published>2021-03-24T12:15:00+00:00</published><updated>2021-03-24T12:15:00+00:00</updated><id>http://0.0.0.0:4000/plotly4nagios-graph-plugin-for-nagios-monitoring</id><content type="html" xml:base="http://0.0.0.0:4000/plotly4nagios-graph-plugin-for-nagios-monitoring/"><![CDATA[[Plotly4Nagios](https://github.com/vigneshragupathy/plotly4nagios) is a nagios plugin to display the performance data in Graph. It uses the RRD database provided by pnp4nagios and visualize it in interactive graph format using plotly javascript. The first pre-release is published today in [github](https://github.com/vigneshragupathy/plotly4nagios) and here is the installation document. You can experiment it and report the issue/feedback for further enhancement.
 
-<blockquote>
-  <p>Plotly4Nagios is accepted and listed under official <a href="https://exchange.nagios.org/directory/Addons/Graphing-and-Trending/Plotly4Nagios/details">nagios addons</a></p>
-</blockquote>
+> Plotly4Nagios is accepted and listed under official [nagios addons](https://exchange.nagios.org/directory/Addons/Graphing-and-Trending/Plotly4Nagios/details)
 
-<h2 id="git-badges">GIT badges</h2>
+## GIT badges
 
-<p><img src="https://img.shields.io/github/license/vigneshragupathy/plotly4nagios" alt="GitHub" />
-<a href="https://travis-ci.com/vigneshragupathy/plotly4nagios"><img src="https://travis-ci.com/vigneshragupathy/plotly4nagios.svg?branch=main" alt="Build Status" /></a></p>
+![GitHub](https://img.shields.io/github/license/vigneshragupathy/plotly4nagios)
+[![Build Status](https://travis-ci.com/vigneshragupathy/plotly4nagios.svg?branch=main)](https://travis-ci.com/vigneshragupathy/plotly4nagios)
 
-<h2 id="features">Features</h2>
+## Features
 
-<ul>
-  <li>Easy integration with nagios <code class="language-plaintext highlighter-rouge">notes_url</code>.</li>
-  <li>Single page view for all performance metrics.</li>
-  <li>Easy template change using configuration variable.</li>
-  <li>Docker container based deploy and run.</li>
-</ul>
+- Easy integration with nagios `notes_url`.
+- Single page view for all performance metrics.
+- Easy template change using configuration variable.
+- Docker container based deploy and run.
 
-<h2 id="prerequisite">Prerequisite</h2>
+## Prerequisite
 
-<ul>
-  <li><a href="https://support.nagios.com/kb/article/nagios-core-performance-graphs-using-pnp4nagios-801.html">pnp4nagios</a></li>
-</ul>
+- [pnp4nagios](https://support.nagios.com/kb/article/nagios-core-performance-graphs-using-pnp4nagios-801.html)
 
-<h2 id="installation">Installation</h2>
+## Installation
 
-<ul>
-  <li>Download plotly4nagios.tar.gz and extract it under /usr/local/plotly4nagios</li>
-  <li>Modify the config.json variables according to the environment</li>
-  <li>Copy the plotly4nagios/plotly4nagios.conf to /etc/http/conf.d/ folder and restart httpd</li>
-  <li>Add the follwing with  notes_url to templates.cfg.</li>
-</ul>
+- Download plotly4nagios.tar.gz and extract it under /usr/local/plotly4nagios
+- Modify the config.json variables according to the environment
+- Copy the plotly4nagios/plotly4nagios.conf to /etc/http/conf.d/ folder and restart httpd
+- Add the follwing with  notes_url to templates.cfg.
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    notes_url /plotly4nagios/plotly4nagios.html?host<span class="o">=</span><span class="se">\$</span>HOSTNAME<span class="se">\$</span>&amp;srv<span class="o">=</span>_HOST_
-    notes_url /plotly4nagios/plotly4nagios.html?host<span class="o">=</span><span class="se">\$</span>HOSTNAME<span class="nv">$&amp;srv</span><span class="o">=</span><span class="se">\$</span>SERVICEDESC<span class="err">$</span>
-</code></pre></div></div>
+``` bash
+    notes_url /plotly4nagios/plotly4nagios.html?host=\$HOSTNAME\$&srv=_HOST_
+    notes_url /plotly4nagios/plotly4nagios.html?host=\$HOSTNAME$&srv=\$SERVICEDESC$
+```
 
-<ul>
-  <li>Restart httpd and nagios.</li>
-</ul>
+- Restart httpd and nagios.
 
-<h2 id="installation-with-dockerubuntu-image">Installation with docker(Ubuntu image)</h2>
+## Installation with docker(Ubuntu image)
 
-<ul>
-  <li>Build the docker image using the below command</li>
-</ul>
+- Build the docker image using the below command
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/vigneshragupathy/plotly4nagios.git
-<span class="nb">cd </span>plotly4nagios
-docker build <span class="nt">-t</span> plotly4nagios <span class="nb">.</span>
-</code></pre></div></div>
+```bash
+git clone https://github.com/vigneshragupathy/plotly4nagios.git
+cd plotly4nagios
+docker build -t plotly4nagios .
+```
 
-<ul>
-  <li>Run the docker container using the below command</li>
-</ul>
+- Run the docker container using the below command
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">-it</span> <span class="nt">--name</span> plotly4nagios <span class="nt">-p</span> 80:80 plotly4nagios
-</code></pre></div></div>
+```bash
+docker run -it --name plotly4nagios -p 80:80 plotly4nagios
+```
 
-<p>Alternatively direct pull and run from docker hub.</p>
+Alternatively direct pull and run from docker hub.
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">-d</span> <span class="nt">-p</span> 80:80 <span class="nt">--name</span> plotly4nagios vigneshragupathy/plotly4nagios
-</code></pre></div></div>
+```bash
+docker run -d -p 80:80 --name plotly4nagios vigneshragupathy/plotly4nagios
+```
 
-<blockquote>
-  <p>Open from the browser and view the application at http://localhost/nagios</p>
-</blockquote>
+> Open from the browser and view the application at http://localhost/nagios
 
-<h3 id="login-details">Login details</h3>
+### Login details
 
-<ul>
-  <li>Username : nagiosadmin</li>
-  <li>Password : nagios</li>
-</ul>
+- Username : nagiosadmin
+- Password : nagios
 
-<h2 id="demo">Demo</h2>
+## Demo
 
-<p><img src="https://raw.githubusercontent.com/vigneshragupathy/plotly4nagios/main/img/plotly4nagios.gif" alt="'demo'" /></p>
+!['demo'](https://raw.githubusercontent.com/vigneshragupathy/plotly4nagios/main/img/plotly4nagios.gif)
 
-<h2 id="screenshot">Screenshot</h2>
+## Screenshot
 
-<h3 id="dark-mode">Dark mode</h3>
+### Dark mode
 
-<p><img src="https://raw.githubusercontent.com/vigneshragupathy/plotly4nagios/main/img/screenshot_darkmode.png" alt="'Dark mode'" /></p>
+!['Dark mode'](https://raw.githubusercontent.com/vigneshragupathy/plotly4nagios/main/img/screenshot_darkmode.png)
 
-<h2 id="license">License</h2>
+## License
 
-<p>Copyright 2020-2021 © Vignesh Ragupathy. All rights reserved.</p>
+Copyright 2020-2021 © Vignesh Ragupathy. All rights reserved.
 
-<p>Licensed under the <a href="https://github.com/vigneshragupathy/plotly4nagios/blob/ed09f8d687014107c8002d92acbc7acd2f62468a/LICENSE">MIT License</a></p>]]></content><author><name>Vignesh Ragupathy</name></author><category term="linux" /><category term="opensource" /><category term="observability" /><summary type="html"><![CDATA[Plotly4Nagios is a nagios plugin to display the performance data in Graph. It uses the RRD database provided by pnp4nagios and visualize it in interactive graph format using plotly javascript. The first pre-release is published today in github and here is the installation document. You can experiment it and report the issue/feedback for further enhancement.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://0.0.0.0:4000/content/images/2021/plotly4nagios_dark.png" /><media:content medium="image" url="http://0.0.0.0:4000/content/images/2021/plotly4nagios_dark.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Publish package in NPM and serve the static content from CDN</title><link href="http://0.0.0.0:4000/publish-package-in-npm-and-serve-the-static-content-from-cdn/" rel="alternate" type="text/html" title="Publish package in NPM and serve the static content from CDN" /><published>2020-06-12T12:15:00+00:00</published><updated>2020-06-12T12:15:00+00:00</updated><id>http://0.0.0.0:4000/publish-package-in-npm-and-serve-the-static-content-from-cdn</id><content type="html" xml:base="http://0.0.0.0:4000/publish-package-in-npm-and-serve-the-static-content-from-cdn/"><![CDATA[<p><img src="/content/images/cover/npm.jpg" alt="" />
-<em>Photo by <a href="https://photography.vikki.in/vikki-photography-budapest-3" target="_blank">Vignesh Ragupathy</a>.</em></p>
+Licensed under the [MIT License](https://github.com/vigneshragupathy/plotly4nagios/blob/ed09f8d687014107c8002d92acbc7acd2f62468a/LICENSE)]]></content><author><name>Vignesh Ragupathy</name></author><category term="linux" /><category term="opensource" /><category term="observability" /><summary type="html"><![CDATA[Plotly4Nagios is a nagios plugin to display the performance data in Graph. It uses the RRD database provided by pnp4nagios and visualize it in interactive graph format using plotly javascript. The first pre-release is published today in github and here is the installation document. You can experiment it and report the issue/feedback for further enhancement.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://0.0.0.0:4000/content/images/2021/plotly4nagios_dark.png" /><media:content medium="image" url="http://0.0.0.0:4000/content/images/2021/plotly4nagios_dark.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Publish package in NPM and serve the static content from CDN</title><link href="http://0.0.0.0:4000/publish-package-in-npm-and-serve-the-static-content-from-cdn/" rel="alternate" type="text/html" title="Publish package in NPM and serve the static content from CDN" /><published>2020-06-12T12:15:00+00:00</published><updated>2020-06-12T12:15:00+00:00</updated><id>http://0.0.0.0:4000/publish-package-in-npm-and-serve-the-static-content-from-cdn</id><content type="html" xml:base="http://0.0.0.0:4000/publish-package-in-npm-and-serve-the-static-content-from-cdn/"><![CDATA[![](/content/images/cover/npm.jpg)
+*Photo by [Vignesh Ragupathy](https://photography.vikki.in/vikki-photography-budapest-3){:target="_blank"}.*
 
-<p>I have been utilizing AWS to host my personal blog for almost 3 years now. Originally my blog was hosted in WordPress and then I migrated to <a href="https://ghost.org/" target="_blank">ghost</a>. It’s been 2 years now in ghost and I thought of exploring a new hosting option which should be free, supports custom domain name and free <a href="https://letsencrypt.org/" target="_blank">SSL</a>.</p>
+I have been utilizing AWS to host my personal blog for almost 3 years now. Originally my blog was hosted in WordPress and then I migrated to [ghost](https://ghost.org/){:target="_blank"}. It's been 2 years now in ghost and I thought of exploring a new hosting option which should be free, supports custom domain name and free [SSL](https://letsencrypt.org/){:target="_blank"}.
 
-<p><a href="https://jekyllrb.com/" target="_blank">Jekyll</a> is a ruby based static blog generator and it has an advantage of free hosting in GitHub. The letsencrypt SSL certificate is also provided by GitHub for my custom domain so i don’t have to worry about managing it.</p>
+[Jekyll](https://jekyllrb.com/){:target="_blank"} is a ruby based static blog generator and it has an advantage of free hosting in GitHub. The letsencrypt SSL certificate is also provided by GitHub for my custom domain so i don’t have to worry about managing it.
 
-<p>I also created a separate <a href="https://tools.vikki.in" target="_blank">website</a> to showcase my open-source tools and I can use the same AWS instance for hosting it. It is a Django application which uses more memory/CPU, so i can run it in a dedicated instance instead of running the ghost and Django together.</p>
+I also created a separate [website](https://tools.vikki.in){:target="_blank"} to showcase my open-source tools and I can use the same AWS instance for hosting it. It is a Django application which uses more memory/CPU, so i can run it in a dedicated instance instead of running the ghost and Django together.
 
-<p>One of the challenges in a Django application is hosting your static content. Django recommends using a proxy server like Nginx to serve its static content.</p>
+One of the challenges in a Django application is hosting your static content. Django recommends using a proxy server like Nginx to serve its static content.
 
-<p>I use my nginx proxy to serve the static content. But due to performance reason , i started to explore the free CDN to serve my static content</p>
+I use my nginx proxy to serve the static content. But due to performance reason , i started to explore the free CDN to serve my static content
 
-<p>Below is the nginx configuration snippet for mapping static content.</p>
+Below is the nginx configuration snippet for mapping static content.
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="go">location /static/ {
-</span><span class="gp">        root /tools.vikki.in/static;</span><span class="w">
-</span><span class="go">    }</span></code></pre></figure>
+{% highlight console %}
+location /static/ {
+        root /tools.vikki.in/static;
+    }
+{% endhighlight %}
 
-<p>After doing some research I chose to utilize unpkg or jsdelivr for my site.</p>
+After doing some research I chose to utilize unpkg or jsdelivr for my site.
 
-<blockquote>
-  <p>unpkg and jsdelivr are global CDN and they can be used to deliver any packages hosted in NPM</p>
-</blockquote>
+> unpkg and jsdelivr are global CDN and they can be used to deliver any packages hosted in NPM
 
-<p><a href="https://unpkg.com/" target="_blank">unpkg</a> and <a href="https://www.jsdelivr.com/" target="_blank">jsdelivr</a> both provides CDN for the content hosted in NPM.
-So first we should have the static content published in <a href="https://www.npmjs.com/" target="_blank">NPM</a>.</p>
+[unpkg](https://unpkg.com/){:target="_blank"} and [jsdelivr](https://www.jsdelivr.com/){:target="_blank"} both provides CDN for the content hosted in NPM.
+So first we should have the static content published in [NPM](https://www.npmjs.com/){:target="_blank"}.
 
-<h2 id="npm-package-creation">NPM Package creation</h2>
+## NPM Package creation
 
-<h3 id="1-create-the-directory-for-adding-packages-for-npm">1. Create the directory for adding packages for NPM</h3>
+### 1. Create the directory for adding packages for NPM
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="go">mkdir npm
+{% highlight console %}
+mkdir npm
 mkdir npm/dist
-cd npm</span></code></pre></figure>
+cd npm
+{% endhighlight %}
 
-<h3 id="2-create-a-packagejson-file-for-your-package">2. Create a package.json file for your package</h3>
+### 2. Create a package.json file for your package
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="go">npm init</span></code></pre></figure>
+{% highlight console %}
+npm init
+{% endhighlight %}
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="go">This utility will walk you through creating a package.json file.
+{% highlight console %}
+This utility will walk you through creating a package.json file.
 It only covers the most common items, and tries to guess sensible defaults.
 
 See `npm help json` for definitive documentation on these fields
@@ -301,104 +284,75 @@ git repository: https://github.com/vignesh88/tools.git
 keywords: vikki, tools
 author: Vignesh Ragupathy
 license: (ISC)
-About to write to /home/vikki/npm/package.json:</span></code></pre></figure>
+About to write to /home/vikki/npm/package.json:
 
-<figure class="highlight"><pre><code class="language-json" data-lang="json"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-</pre></td><td class="code"><pre><span class="p">{</span><span class="w">
-</span><span class="err"> </span><span class="w"> </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"vikki-tools"</span><span class="p">,</span><span class="w">
-</span><span class="err"> </span><span class="w"> </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.0.7"</span><span class="p">,</span><span class="w">
-</span><span class="err"> </span><span class="w"> </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Libraries for https://tools.vikki.in"</span><span class="p">,</span><span class="w">
-</span><span class="err"> </span><span class="w"> </span><span class="nl">"main"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dist/index.js"</span><span class="p">,</span><span class="w">
-</span><span class="err"> </span><span class="w"> </span><span class="nl">"scripts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-</span><span class="err"> </span><span class="w"> </span><span class="err"> </span><span class="w"> </span><span class="nl">"test"</span><span class="p">:</span><span class="w"> </span><span class="s2">"echo </span><span class="se">\"</span><span class="s2">Error: no test specified</span><span class="se">\"</span><span class="s2"> &amp;&amp; exit 1"</span><span class="w">
-</span><span class="err"> </span><span class="w"> </span><span class="p">},</span><span class="w">
-</span><span class="err"> </span><span class="w"> </span><span class="nl">"repository"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-</span><span class="err"> </span><span class="w"> </span><span class="err"> </span><span class="w"> </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"git"</span><span class="p">,</span><span class="w">
-</span><span class="err"> </span><span class="w"> </span><span class="err"> </span><span class="w"> </span><span class="nl">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"git+https://github.com/vignesh88/tools.git"</span><span class="w">
-</span><span class="err"> </span><span class="w"> </span><span class="p">},</span><span class="w">
-</span><span class="err"> </span><span class="w"> </span><span class="nl">"keywords"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-</span><span class="err"> </span><span class="w"> </span><span class="err"> </span><span class="w"> </span><span class="s2">"vikki"</span><span class="p">,</span><span class="w">
-</span><span class="err"> </span><span class="w"> </span><span class="err"> </span><span class="w"> </span><span class="s2">"tools"</span><span class="w">
-</span><span class="err"> </span><span class="w"> </span><span class="p">],</span><span class="w">
-</span><span class="err"> </span><span class="w"> </span><span class="nl">"author"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Vignesh Ragupathy"</span><span class="p">,</span><span class="w">
-</span><span class="err"> </span><span class="w"> </span><span class="nl">"license"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ISC"</span><span class="p">,</span><span class="w">
-</span><span class="err"> </span><span class="w"> </span><span class="nl">"bugs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-</span><span class="err"> </span><span class="w"> </span><span class="err"> </span><span class="w"> </span><span class="nl">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://github.com/vignesh88/tools/issues"</span><span class="w">
-</span><span class="err"> </span><span class="w"> </span><span class="p">},</span><span class="w">
-</span><span class="err"> </span><span class="w"> </span><span class="nl">"homepage"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://github.com/vignesh88/tools#readme"</span><span class="w">
-</span><span class="p">}</span>
-</pre></td></tr></tbody></table></code></pre></figure>
+{% endhighlight %}
+{% highlight json linenos %}
+{
+  "name": "vikki-tools",
+  "version": "1.0.7",
+  "description": "Libraries for https://tools.vikki.in",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vignesh88/tools.git"
+  },
+  "keywords": [
+    "vikki",
+    "tools"
+  ],
+  "author": "Vignesh Ragupathy",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vignesh88/tools/issues"
+  },
+  "homepage": "https://github.com/vignesh88/tools#readme"
+}
+{% endhighlight %}
+{% highlight console %}
+Is this OK? (yes) yes
+{% endhighlight %}
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="go">Is this OK? (yes) yes</span></code></pre></figure>
 
-<h3 id="3-create-a-indexjs">3. Create a index.js</h3>
+### 3. Create a index.js
 
-<p>I added a javascript function that will be used to copy text to clipboard.</p>
+I added a javascript function that will be used to copy text to clipboard.
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="go">vim dist/index.js</span></code></pre></figure>
+{% highlight console %}
+vim dist/index.js
+{% endhighlight %}
 
-<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-</pre></td><td class="code"><pre><span class="kd">function</span> <span class="nx">copyToClipboard</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span><span class="nx">y</span><span class="p">)</span> <span class="p">{</span>
-<span class="err"> </span> <span class="err"> </span> <span class="k">if</span><span class="p">(</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="nx">x</span><span class="p">).</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
-<span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="nx">data_2_copy</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="nx">x</span><span class="p">).</span><span class="nx">value</span><span class="p">;</span>
-<span class="err"> </span> <span class="err"> </span> <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-<span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="nx">data_2_copy</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="nx">x</span><span class="p">).</span><span class="nx">innerText</span><span class="p">;</span>
-<span class="err"> </span> <span class="err"> </span> <span class="p">}</span>
+{% highlight javascript linenos %}
+function copyToClipboard(x,y) {
+    if( document.getElementById(x).value) {
+        data_2_copy = document.getElementById(x).value;
+    } else {
+        data_2_copy = document.getElementById(x).innerText;
+    }
 
-<span class="err"> </span> <span class="err"> </span> <span class="kd">var</span> <span class="nx">e</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="dl">"</span><span class="s2">textarea</span><span class="dl">"</span><span class="p">);</span>
-<span class="err"> </span> <span class="err"> </span> <span class="nx">e</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">opacity</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">0</span><span class="dl">"</span><span class="p">,</span> <span class="nx">e</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">position</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">fixed</span><span class="dl">"</span><span class="p">,</span> <span class="nx">e</span><span class="p">.</span><span class="nx">textContent</span> <span class="o">=</span> <span class="nx">data_2_copy</span><span class="p">;</span>
-<span class="err"> </span> <span class="err"> </span> <span class="kd">var</span> <span class="nx">t</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="dl">"</span><span class="s2">body</span><span class="dl">"</span><span class="p">)[</span><span class="mi">0</span><span class="p">];</span>
-<span class="err"> </span> <span class="err"> </span> <span class="nx">t</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">e</span><span class="p">),</span> <span class="nx">e</span><span class="p">.</span><span class="nx">select</span><span class="p">(),</span> <span class="nb">document</span><span class="p">.</span><span class="nx">execCommand</span><span class="p">(</span><span class="dl">"</span><span class="s2">copy</span><span class="dl">"</span><span class="p">),</span> <span class="nx">t</span><span class="p">.</span><span class="nx">removeChild</span><span class="p">(</span><span class="nx">e</span><span class="p">),</span> <span class="nx">$</span><span class="p">(</span><span class="nx">y</span><span class="p">).</span><span class="nx">show</span><span class="p">(),</span> <span class="nx">setTimeout</span><span class="p">((</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
-<span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="nx">$</span><span class="p">(</span><span class="nx">y</span><span class="p">).</span><span class="nx">hide</span><span class="p">()</span>
-<span class="err"> </span> <span class="err"> </span> <span class="p">}),</span> <span class="mi">1</span><span class="nx">e3</span><span class="p">)</span>
-<span class="p">}</span>
-</pre></td></tr></tbody></table></code></pre></figure>
+    var e = document.createElement("textarea");
+    e.style.opacity = "0", e.style.position = "fixed", e.textContent = data_2_copy;
+    var t = document.getElementsByTagName("body")[0];
+    t.appendChild(e), e.select(), document.execCommand("copy"), t.removeChild(e), $(y).show(), setTimeout((function () {
+        $(y).hide()
+    }), 1e3)
+}
+{% endhighlight %}
 
-<h3 id="4-copy-all-your-static-content-to-dist-directory">4. Copy all your static content to dist directory</h3>
+### 4. Copy all your static content to dist directory
 
-<p>Now lets copy all our static content to the <mark>dist</mark> directory.
-I have various css,images,javascript that will be used in various app inside my django application.</p>
+Now lets copy all our static content to the <mark>dist</mark> directory.
+I have various css,images,javascript that will be used in various app inside my django application.
 
-<p>Below are the files which i copied.</p>
+Below are the files which i copied.
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="go">tree .
-</span><span class="c">.
-</span><span class="go">├── dist
+{% highlight console %}
+tree .
+.
+├── dist
 │   ├── admin
 │   │   ├── css
 │   │   │   ├── autocomplete.css
@@ -420,23 +374,26 @@ I have various css,images,javascript that will be used in various app inside my 
 │       └── js
 │           └── password_generator.js
 ├── package.json
-└── README.md</span></code></pre></figure>
+└── README.md
+{% endhighlight %}
 
-<h3 id="5-publish-you-static-content-as-package-in-npm">5. Publish you static content as package in NPM</h3>
+### 5. Publish you static content as package in NPM
 
-<p>Now we are all set, let’s connect to NPM and publish our package.</p>
+Now we are all set, let's connect to NPM and publish our package.
 
-<blockquote>
-  <p>You should already have an account in NPM to publish.</p>
-</blockquote>
+> You should already have an account in NPM to publish.
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="go">npm login
+{% highlight console %}
+npm login
 Username: r_vignesh
 Password: 
 Email: (this IS public) me@vikki.in
-Logged in as r_vignesh on https://registry.npmjs.org/.</span></code></pre></figure>
+Logged in as r_vignesh on https://registry.npmjs.org/.
+{% endhighlight %}
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="go">npm publish
+
+{% highlight console %}
+npm publish
 
 npm notice
 npm notice package: vikki-tools@1.0.7
@@ -456,127 +413,129 @@ npm notice shasum:        a9153c3a9bb68bc34d5040d2088a5b95a256e4cc
 npm notice integrity:     sha512-zynWl1/pL0Wvk[...]k3yhkCzBz7+0A==
 npm notice total files:   188
 npm notice
-+ vikki-tools@1.0.7</span></code></pre></figure>
++ vikki-tools@1.0.7
+{% endhighlight %}
 
-<p>That’s it. Now we have the package published in NPM.</p>
+That's it. Now we have the package published in NPM.
 
-<blockquote>
-  <p>Unpkg and Jsdelivr provide CDN for NPM packages without any configuration.</p>
-</blockquote>
+> Unpkg and Jsdelivr provide CDN for NPM packages without any configuration.
 
-<h3 id="6-verify-published-package-in-npm">6. Verify published package in NPM</h3>
+### 6. Verify published package in NPM
 
-<p>Lets try to access it using unpkg. Open your browser and enter the url in the below format.</p>
+Lets try to access it using unpkg. Open your browser and enter the url in the below format.
 
-<p><mark>https://unpkg.com/pacakage/</mark></p>
+<mark>https://unpkg.com/pacakage/</mark>
 
-<p>For using specific version <mark>https://unpkg.com/package@version/:file</mark></p>
+For using specific version <mark>https://unpkg.com/package@version/:file</mark>
 
-<p>My package name is <em>vikki-tools</em> so the format will be <a href="https://unpkg.com/vikki-tools/" target="_blank">https://unpkg.com/vikki-tools<mark>/</mark></a>.</p>
+My package name is *vikki-tools* so the format will be [https://unpkg.com/vikki-tools<mark>/</mark>](https://unpkg.com/vikki-tools/){:target="_blank"}.
 
-<blockquote>
-  <p>The leading <mark> / </mark> at the end of the URL is important.</p>
-</blockquote>
+> The leading <mark> / </mark> at the end of the URL is important.
 
-<h3 id="screenshot-from-browser">Screenshot from browser</h3>
+### Screenshot from browser
 
-<p><img src="/content/images/2020/screenshot_vikki_tools.jpg" alt="unpkg screenshot" /></p>
+![unpkg screenshot](/content/images/2020/screenshot_vikki_tools.jpg)
 
-<h2 id="using-unpkg-to-serve-static-content-in-website">Using Unpkg to serve static content in website</h2>
+## Using Unpkg to serve static content in website
 
-<p>We can now load the static content from NPM on our website.</p>
+We can now load the static content from NPM on our website.
 
-<figure class="highlight"><pre><code class="language-html" data-lang="html"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
-2
-</pre></td><td class="code"><pre><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"https://unpkg.com/vikki-tools@1.0.3/dist/index.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
-<span class="nt">&lt;link</span> <span class="na">href=</span><span class="s">"https://unpkg.com/vikki-tools@1.0.3/dist/base64/css/base64_dark.css"</span> <span class="na">rel=</span><span class="s">"stylesheet"</span><span class="nt">&gt;</span>
-</pre></td></tr></tbody></table></code></pre></figure>
+{% highlight html linenos %}
+<script src="https://unpkg.com/vikki-tools@1.0.3/dist/index.js"></script>
+<link href="https://unpkg.com/vikki-tools@1.0.3/dist/base64/css/base64_dark.css" rel="stylesheet">
+{% endhighlight %}
 
-<h2 id="using-jsdelivr-to-serve-static-content-in-website">Using Jsdelivr to serve static content in website</h2>
+## Using Jsdelivr to serve static content in website
 
-<p>We can also use Jsdelivr instead of unpkg.</p>
+We can also use Jsdelivr instead of unpkg.
 
-<figure class="highlight"><pre><code class="language-html" data-lang="html"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
-2
-</pre></td><td class="code"><pre><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"https://cdn.jsdelivr.net/npm/vikki-tools@1.0.3/dist/index.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
-<span class="nt">&lt;link</span> <span class="na">href=</span><span class="s">"https://cdn.jsdelivr.net/npm/vikki-tools@1.0.3/dist/base64/css/base64_dark.css"</span> <span class="na">rel=</span><span class="s">"stylesheet"</span><span class="nt">&gt;</span>
-</pre></td></tr></tbody></table></code></pre></figure>
+{% highlight html linenos %}
+<script src="https://cdn.jsdelivr.net/npm/vikki-tools@1.0.3/dist/index.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/vikki-tools@1.0.3/dist/base64/css/base64_dark.css" rel="stylesheet">
+{% endhighlight %}
 
-<h2 id="auto-minified-version-from-jsdelivr">Auto minified version from jsdelivr</h2>
+## Auto minified version from jsdelivr
 
-<p>Jsdelivr also provides the auto minified version of the CSS and Javascript from NPM.
-If you want to use minified version css and js, just add <mark>.min</mark> extension to the filename</p>
+Jsdelivr also provides the auto minified version of the CSS and Javascript from NPM.
+If you want to use minified version css and js, just add <mark>.min</mark> extension to the filename
 
-<figure class="highlight"><pre><code class="language-html" data-lang="html"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
-2
-</pre></td><td class="code"><pre><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"https://cdn.jsdelivr.net/npm/vikki-tools@1.0.3/dist/index.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
-<span class="nt">&lt;link</span> <span class="na">href=</span><span class="s">"https://cdn.jsdelivr.net/npm/vikki-tools@1.0.3/dist/base64/css/base64_dark.min.css"</span> <span class="na">rel=</span><span class="s">"stylesheet"</span><span class="nt">&gt;</span>
-</pre></td></tr></tbody></table></code></pre></figure>
+{% highlight html linenos %}
+<script src="https://cdn.jsdelivr.net/npm/vikki-tools@1.0.3/dist/index.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/vikki-tools@1.0.3/dist/base64/css/base64_dark.min.css" rel="stylesheet">
+{% endhighlight %}
 
-<h2 id="script-to-automatically-update-the-static-and-cdn-url-in-django">Script to automatically update the static and CDN URL in Django</h2>
+## Script to automatically update the static and CDN URL in Django
 
-<p>For ease, I created a script to automatically update all static content in your template directory in the Django application.</p>
+For ease, I created a script to automatically update all static content in your template directory in the Django application.
 
-<p>The code is available in the <a href="https://github.com/vignesh88/tools/blob/master/vikki_scripts/django_template_static_to_cdn.py" target="_blank">Github URL</a></p>
+The code is available in the [Github URL](https://github.com/vignesh88/tools/blob/master/vikki_scripts/django_template_static_to_cdn.py){:target="_blank"}
 
-<h2 id="demo-video">Demo video</h2>
+## Demo video
 
-<style>.embed-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; } .embed-container iframe, .embed-container object, .embed-container embed { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }</style>
-<div class="embed-container"><iframe src="https://www.youtube.com/embed/PKGLkmzHQH0" frameborder="0" allowfullscreen=""></iframe></div>
+
+
+<style>.embed-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; } .embed-container iframe, .embed-container object, .embed-container embed { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }</style><div class='embed-container'><iframe src='https://www.youtube.com/embed/PKGLkmzHQH0' frameborder='0' allowfullscreen></iframe></div>
 
 <!--
 <object style="width:100%;height:100%;width: 820px; height: 461.25px; float: none; clear: both; margin: 2px auto;" data="https://www.youtube.com/embed/XMSV5J4jxSo">
 </object>
 <iframe width="560" height="315" src="https://www.youtube.com/embed/XMSV5J4jxSo" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
--->]]></content><author><name>Vignesh Ragupathy</name></author><category term="linux" /><category term="opensource" /><summary type="html"><![CDATA[Photo by Vignesh Ragupathy.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://0.0.0.0:4000/content/images/cover/npm.jpg" /><media:content medium="image" url="http://0.0.0.0:4000/content/images/cover/npm.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Backup of etcd database in kubernetes</title><link href="http://0.0.0.0:4000/backup-of-etcd-database-in-kubernetes/" rel="alternate" type="text/html" title="Backup of etcd database in kubernetes" /><published>2019-11-28T16:37:26+00:00</published><updated>2019-11-28T16:37:26+00:00</updated><id>http://0.0.0.0:4000/backup-of-etcd-database-in-kubernetes</id><content type="html" xml:base="http://0.0.0.0:4000/backup-of-etcd-database-in-kubernetes/"><![CDATA[<p>Kubernetes cluster state is saved in etcd datastore. In the post we are going to see how to take a backup for etcd database in kubernetes cluster.</p>
+-->]]></content><author><name>Vignesh Ragupathy</name></author><category term="linux" /><category term="opensource" /><summary type="html"><![CDATA[Photo by Vignesh Ragupathy.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://0.0.0.0:4000/content/images/cover/npm.jpg" /><media:content medium="image" url="http://0.0.0.0:4000/content/images/cover/npm.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Backup of etcd database in kubernetes</title><link href="http://0.0.0.0:4000/backup-of-etcd-database-in-kubernetes/" rel="alternate" type="text/html" title="Backup of etcd database in kubernetes" /><published>2019-11-28T16:37:26+00:00</published><updated>2019-11-28T16:37:26+00:00</updated><id>http://0.0.0.0:4000/backup-of-etcd-database-in-kubernetes</id><content type="html" xml:base="http://0.0.0.0:4000/backup-of-etcd-database-in-kubernetes/"><![CDATA[Kubernetes cluster state is saved in etcd datastore. In the post we are going to see how to take a backup for etcd database in kubernetes cluster.
 
-<h3 id="setup"><strong>Setup</strong></h3>
+### **Setup**
 
-<p>I am using the Virtualbox(running in Ubuntu 18.04 physical machine) for this entire setup . The physical machine is Dell inspiron laptop with 12GB RAM , Intel® Core™ i7-6500U CPU @ 2.50GHz × 4 and 512GB SSD hardisk.</p>
+I am using the Virtualbox(running in Ubuntu 18.04 physical machine) for this entire setup . The physical machine is Dell inspiron laptop with 12GB RAM , Intel® Core™ i7-6500U CPU @ 2.50GHz × 4 and 512GB SSD hardisk.
 
-<!--kg-card-begin: image-->
-<figure class="kg-card kg-image-card"><img src="/content/images/2019/11/setup-7.jpg" class="kg-image" /></figure>
-<!--kg-card-end: image-->
-<h5 id="step-1-create-a-directory-and-backup-all-certificates">Step 1: Create a directory and backup all certificates</h5>
+<!--kg-card-begin: image--><figure class="kg-card kg-image-card"><img src="/content/images/2019/11/setup-7.jpg" class="kg-image"></figure><!--kg-card-end: image-->
+##### Step 1: Create a directory and backup all certificates
 
-<p>Kubernetes cluster have all the certificates saved in the defautl path /etc/kubernetes/pki. Take the backup of all the files and save it in the backup directory</p>
+Kubernetes cluster have all the certificates saved in the defautl path /etc/kubernetes/pki. Take the backup of all the files and save it in the backup directory
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span><span class="nb">mkdir </span>backup 
-<span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span><span class="nb">cd </span>backup/</code></pre></figure>
+{% highlight console %}
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~/backup$</span><span class="w"> </span><span class="nb">sudo cp</span> <span class="nt">-rvf</span> /etc/kubernetes/pki <span class="nb">.</span>
-<span class="gp">'/etc/kubernetes/pki' -&gt;</span><span class="w"> </span><span class="s1">'./pki'</span>
-<span class="gp">'/etc/kubernetes/pki/ca.key' -&gt;</span><span class="w"> </span><span class="s1">'./pki/ca.key'</span>
-<span class="gp">'/etc/kubernetes/pki/ca.crt' -&gt;</span><span class="w"> </span><span class="s1">'./pki/ca.crt'</span>
-<span class="gp">'/etc/kubernetes/pki/apiserver.key' -&gt;</span><span class="w"> </span><span class="s1">'./pki/apiserver.key'</span>
-<span class="gp">'/etc/kubernetes/pki/apiserver.crt' -&gt;</span><span class="w"> </span><span class="s1">'./pki/apiserver.crt'</span>
-<span class="gp">'/etc/kubernetes/pki/apiserver-kubelet-client.key' -&gt;</span><span class="w"> </span><span class="s1">'./pki/apiserver-kubelet-client.key'</span>
-<span class="gp">'/etc/kubernetes/pki/apiserver-kubelet-client.crt' -&gt;</span><span class="w"> </span><span class="s1">'./pki/apiserver-kubelet-client.crt'</span>
-<span class="gp">'/etc/kubernetes/pki/front-proxy-ca.key' -&gt;</span><span class="w"> </span><span class="s1">'./pki/front-proxy-ca.key'</span>
-<span class="gp">'/etc/kubernetes/pki/front-proxy-ca.crt' -&gt;</span><span class="w"> </span><span class="s1">'./pki/front-proxy-ca.crt'</span>
-<span class="gp">'/etc/kubernetes/pki/front-proxy-client.key' -&gt;</span><span class="w"> </span><span class="s1">'./pki/front-proxy-client.key'</span>
-<span class="gp">'/etc/kubernetes/pki/front-proxy-client.crt' -&gt;</span><span class="w"> </span><span class="s1">'./pki/front-proxy-client.crt'</span>
-<span class="gp">'/etc/kubernetes/pki/etcd' -&gt;</span><span class="w"> </span><span class="s1">'./pki/etcd'</span>
-<span class="gp">'/etc/kubernetes/pki/etcd/ca.key' -&gt;</span><span class="w"> </span><span class="s1">'./pki/etcd/ca.key'</span>
-<span class="gp">'/etc/kubernetes/pki/etcd/ca.crt' -&gt;</span><span class="w"> </span><span class="s1">'./pki/etcd/ca.crt'</span>
-<span class="gp">'/etc/kubernetes/pki/etcd/server.key' -&gt;</span><span class="w"> </span><span class="s1">'./pki/etcd/server.key'</span>
-<span class="gp">'/etc/kubernetes/pki/etcd/server.crt' -&gt;</span><span class="w"> </span><span class="s1">'./pki/etcd/server.crt'</span>
-<span class="gp">'/etc/kubernetes/pki/etcd/peer.key' -&gt;</span><span class="w"> </span><span class="s1">'./pki/etcd/peer.key'</span>
-<span class="gp">'/etc/kubernetes/pki/etcd/peer.crt' -&gt;</span><span class="w"> </span><span class="s1">'./pki/etcd/peer.crt'</span>
-<span class="gp">'/etc/kubernetes/pki/etcd/healthcheck-client.key' -&gt;</span><span class="w"> </span><span class="s1">'./pki/etcd/healthcheck-client.key'</span>
-<span class="gp">'/etc/kubernetes/pki/etcd/healthcheck-client.crt' -&gt;</span><span class="w"> </span><span class="s1">'./pki/etcd/healthcheck-client.crt'</span>
-<span class="gp">'/etc/kubernetes/pki/apiserver-etcd-client.key' -&gt;</span><span class="w"> </span><span class="s1">'./pki/apiserver-etcd-client.key'</span>
-<span class="gp">'/etc/kubernetes/pki/apiserver-etcd-client.crt' -&gt;</span><span class="w"> </span><span class="s1">'./pki/apiserver-etcd-client.crt'</span>
-<span class="gp">'/etc/kubernetes/pki/sa.key' -&gt;</span><span class="w"> </span><span class="s1">'./pki/sa.key'</span>
-<span class="gp">'/etc/kubernetes/pki/sa.pub' -&gt;</span><span class="w"> </span><span class="s1">'./pki/sa.pub'</span>
-<span class="go">    </span></code></pre></figure>
+vikki@kubernetes1:~$ mkdir backup 
+vikki@kubernetes1:~$ cd backup/
+{% endhighlight %}
 
-<h5 id="step-2-download-the-etcdctl-binary">Step 2: Download the etcdctl binary</h5>
 
-<p>Download the etcdctl binary. I have created a shortlinks for the etcd-v3.2.28 which works in ubuntu16.04 and kubernetes v16.</p>
+{% highlight console %}
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~/backup$</span><span class="w"> </span>wget shortlinks.vikki.in/etcd
-<span class="go">--2019-11-26 22:05:52-- http://shortlinks.vikki.in/etcd
+vikki@kubernetes1:~/backup$ sudo cp -rvf /etc/kubernetes/pki .
+'/etc/kubernetes/pki' -> './pki'
+'/etc/kubernetes/pki/ca.key' -> './pki/ca.key'
+'/etc/kubernetes/pki/ca.crt' -> './pki/ca.crt'
+'/etc/kubernetes/pki/apiserver.key' -> './pki/apiserver.key'
+'/etc/kubernetes/pki/apiserver.crt' -> './pki/apiserver.crt'
+'/etc/kubernetes/pki/apiserver-kubelet-client.key' -> './pki/apiserver-kubelet-client.key'
+'/etc/kubernetes/pki/apiserver-kubelet-client.crt' -> './pki/apiserver-kubelet-client.crt'
+'/etc/kubernetes/pki/front-proxy-ca.key' -> './pki/front-proxy-ca.key'
+'/etc/kubernetes/pki/front-proxy-ca.crt' -> './pki/front-proxy-ca.crt'
+'/etc/kubernetes/pki/front-proxy-client.key' -> './pki/front-proxy-client.key'
+'/etc/kubernetes/pki/front-proxy-client.crt' -> './pki/front-proxy-client.crt'
+'/etc/kubernetes/pki/etcd' -> './pki/etcd'
+'/etc/kubernetes/pki/etcd/ca.key' -> './pki/etcd/ca.key'
+'/etc/kubernetes/pki/etcd/ca.crt' -> './pki/etcd/ca.crt'
+'/etc/kubernetes/pki/etcd/server.key' -> './pki/etcd/server.key'
+'/etc/kubernetes/pki/etcd/server.crt' -> './pki/etcd/server.crt'
+'/etc/kubernetes/pki/etcd/peer.key' -> './pki/etcd/peer.key'
+'/etc/kubernetes/pki/etcd/peer.crt' -> './pki/etcd/peer.crt'
+'/etc/kubernetes/pki/etcd/healthcheck-client.key' -> './pki/etcd/healthcheck-client.key'
+'/etc/kubernetes/pki/etcd/healthcheck-client.crt' -> './pki/etcd/healthcheck-client.crt'
+'/etc/kubernetes/pki/apiserver-etcd-client.key' -> './pki/apiserver-etcd-client.key'
+'/etc/kubernetes/pki/apiserver-etcd-client.crt' -> './pki/apiserver-etcd-client.crt'
+'/etc/kubernetes/pki/sa.key' -> './pki/sa.key'
+'/etc/kubernetes/pki/sa.pub' -> './pki/sa.pub'
+    
+
+{% endhighlight %}
+##### Step 2: Download the etcdctl binary
+
+Download the etcdctl binary. I have created a shortlinks for the etcd-v3.2.28 which works in ubuntu16.04 and kubernetes v16.
+
+{% highlight console %}
+
+vikki@kubernetes1:~/backup$ wget shortlinks.vikki.in/etcd
+--2019-11-26 22:05:52-- http://shortlinks.vikki.in/etcd
 Resolving shortlinks.vikki.in (shortlinks.vikki.in)... 172.217.160.179, 2404:6800:4007:80d::2013
 Connecting to shortlinks.vikki.in (shortlinks.vikki.in)|172.217.160.179|:80... connected.
 HTTP request sent, awaiting response... 302 Found
@@ -593,17 +552,23 @@ HTTP request sent, awaiting response... 200 OK
 Length: 10529149 (10M) [application/octet-stream]
 Saving to: ‘etcd’
 
-</span><span class="gp">etcd 100%[=============================================================================&gt;</span><span class="o">]</span> 10.04M 4.47MB/s <span class="k">in </span>2.2s    
-<span class="go">
-2019-11-26 22:05:57 (4.47 MB/s) - ‘etcd’ saved [10529149/10529149]</span></code></pre></figure>
+etcd 100%[=============================================================================>] 10.04M 4.47MB/s in 2.2s    
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~/backup$</span><span class="w"> </span><span class="nb">ls</span>
-<span class="go">etcd pki</span></code></pre></figure>
+2019-11-26 22:05:57 (4.47 MB/s) - ‘etcd’ saved [10529149/10529149]
 
-<p>Extract the etcd package</p>
+{% endhighlight %}{% highlight console %}
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~/backup$</span><span class="w"> </span><span class="nb">tar</span> <span class="nt">-xvf</span> etcd
-<span class="go">etcd-v3.2.28-linux-amd64/
+vikki@kubernetes1:~/backup$ ls
+etcd pki
+
+{% endhighlight %}
+
+Extract the etcd package
+
+{% highlight console %}
+
+vikki@kubernetes1:~/backup$ tar -xvf etcd
+etcd-v3.2.28-linux-amd64/
 etcd-v3.2.28-linux-amd64/etcdctl
 etcd-v3.2.28-linux-amd64/etcd
 etcd-v3.2.28-linux-amd64/README-etcdctl.md
@@ -697,249 +662,308 @@ etcd-v3.2.28-linux-amd64/Documentation/rfc/
 etcd-v3.2.28-linux-amd64/Documentation/rfc/_index.md
 etcd-v3.2.28-linux-amd64/Documentation/rfc/v3api.md
 etcd-v3.2.28-linux-amd64/Documentation/metrics.md
-etcd-v3.2.28-linux-amd64/READMEv2-etcdctl.md</span></code></pre></figure>
+etcd-v3.2.28-linux-amd64/READMEv2-etcdctl.md
 
-<p>Navigate to the extraced directory</p>
+{% endhighlight %}
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~/backup$</span><span class="w"> </span><span class="nb">ls</span>
-<span class="go">etcd etcd-v3.2.28-linux-amd64 pki</span></code></pre></figure>
+Navigate to the extraced directory
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~/backup$</span><span class="w"> </span><span class="nb">cd </span>etcd-v3.2.28-linux-amd64/</code></pre></figure>
+{% highlight console %}
 
-<h5 id="step-3-backup-the-etcd-database">Step 3: Backup the etcd database</h5>
+vikki@kubernetes1:~/backup$ ls
+etcd etcd-v3.2.28-linux-amd64 pki
 
-<p>Now you will see a etcdctl binary inside the directy.</p>
+{% endhighlight %}{% highlight console %}
 
-<p>Use the key, certificate and CA certificate to take backup of the existing etcd database as shown below</p>
+vikki@kubernetes1:~/backup$ cd etcd-v3.2.28-linux-amd64/
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~/backup/etcd-v3.2.28-linux-amd64$</span><span class="w"> </span><span class="nb">sudo </span><span class="nv">ETCDCTL_API</span><span class="o">=</span>3 ./etcdctl <span class="nt">--endpoints</span> https://127.0.0.1:2379 <span class="nt">--cert</span><span class="o">=</span>/etc/kubernetes/pki/etcd/server.crt <span class="nt">--key</span><span class="o">=</span>/etc/kubernetes/pki/etcd/server.key <span class="nt">--cacert</span><span class="o">=</span>/etc/kubernetes/pki/etcd/ca.crt snapshot save ../etc_database_backup.db
-<span class="go">Snapshot saved at ../etc_database_backup.db</span></code></pre></figure>
+{% endhighlight %}
+##### Step 3: Backup the etcd database
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~/backup/etcd-v3.2.28-linux-amd64$</span><span class="w"> </span><span class="nb">cd</span> ..
-<span class="gp">vikki@kubernetes1:~/backup$</span><span class="w"> </span><span class="nb">ls</span>
-<span class="go">etcd etc_database_backup.db etcd-v3.2.28-linux-amd64 pki</span></code></pre></figure>
+Now you will see a etcdctl binary inside the directy.
 
-<blockquote>
-  <p>Now we can see the backup has been taken and saved as etc_database_backup.db</p>
-</blockquote>]]></content><author><name>Vignesh Ragupathy</name></author><category term="kubernetes" /><category term="linux" /><category term="opensource" /><summary type="html"><![CDATA[Kubernetes cluster state is saved in etcd datastore. In the post we are going to see how to take a backup for etcd database in kubernetes cluster.]]></summary></entry><entry><title type="html">RBAC in kubernetes</title><link href="http://0.0.0.0:4000/rbac-in-kubernetes/" rel="alternate" type="text/html" title="RBAC in kubernetes" /><published>2019-11-28T16:26:19+00:00</published><updated>2019-11-28T16:26:19+00:00</updated><id>http://0.0.0.0:4000/rbac-in-kubernetes</id><content type="html" xml:base="http://0.0.0.0:4000/rbac-in-kubernetes/"><![CDATA[<p>There are 3 elements involved in RBAC. In this post we are going to see how to provide user level access to resources.</p>
+Use the key, certificate and CA certificate to take backup of the existing etcd database as shown below
 
-<ul>
-  <li>Subjects - Users or Process that wants access to Kubernetes API</li>
-  <li>Resources - Kubernetes API objects like pods, deployments etc</li>
-  <li>Verbs - Set of operations like get, watch create etc</li>
-</ul>
+{% highlight console %}
 
-<h3 id="setup"><strong>Setup</strong></h3>
+vikki@kubernetes1:~/backup/etcd-v3.2.28-linux-amd64$ sudo ETCDCTL_API=3 ./etcdctl --endpoints https://127.0.0.1:2379 --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key --cacert=/etc/kubernetes/pki/etcd/ca.crt snapshot save ../etc_database_backup.db
+Snapshot saved at ../etc_database_backup.db
 
-<p>I am using the Virtualbox(running in Ubuntu 18.04 physical machine) for this entire setup . The physical machine is Dell inspiron laptop with 12GB RAM , Intel® Core™ i7-6500U CPU @ 2.50GHz × 4 and 512GB SSD hardisk.</p>
+{% endhighlight %}{% highlight console %}
 
-<!--kg-card-begin: image-->
-<figure class="kg-card kg-image-card"><img src="/content/images/2019/11/setup-6.jpg" class="kg-image" /></figure>
-<!--kg-card-end: image-->
-<h5 id="step-1-create-a-private-key">Step 1: Create a private key</h5>
+vikki@kubernetes1:~/backup/etcd-v3.2.28-linux-amd64$ cd ..
+vikki@kubernetes1:~/backup$ ls
+etcd etc_database_backup.db etcd-v3.2.28-linux-amd64 pki
 
-<p>Create a new directly and navigate to the directory</p>
+{% endhighlight %}
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span><span class="nb">mkdir </span>ssl
-<span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span><span class="nb">cd </span>ssl/</code></pre></figure>
+> Now we can see the backup has been taken and saved as etc\_database\_backup.db]]></content><author><name>Vignesh Ragupathy</name></author><category term="kubernetes" /><category term="linux" /><category term="opensource" /><summary type="html"><![CDATA[Kubernetes cluster state is saved in etcd datastore. In the post we are going to see how to take a backup for etcd database in kubernetes cluster.]]></summary></entry><entry><title type="html">RBAC in kubernetes</title><link href="http://0.0.0.0:4000/rbac-in-kubernetes/" rel="alternate" type="text/html" title="RBAC in kubernetes" /><published>2019-11-28T16:26:19+00:00</published><updated>2019-11-28T16:26:19+00:00</updated><id>http://0.0.0.0:4000/rbac-in-kubernetes</id><content type="html" xml:base="http://0.0.0.0:4000/rbac-in-kubernetes/"><![CDATA[There are 3 elements involved in RBAC. In this post we are going to see how to provide user level access to resources.
 
-<p>Use openssl command a generate a private key <em>user1.key</em></p>
+- Subjects - Users or Process that wants access to Kubernetes API
+- Resources - Kubernetes API objects like pods, deployments etc
+- Verbs - Set of operations like get, watch create etc
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~/ssl$</span><span class="w"> </span>openssl genrsa <span class="nt">-out</span> user1.key 2048
-<span class="go">Generating RSA private key, 2048 bit long modulus
+### **Setup**
+
+I am using the Virtualbox(running in Ubuntu 18.04 physical machine) for this entire setup . The physical machine is Dell inspiron laptop with 12GB RAM , Intel® Core™ i7-6500U CPU @ 2.50GHz × 4 and 512GB SSD hardisk.
+
+<!--kg-card-begin: image--><figure class="kg-card kg-image-card"><img src="/content/images/2019/11/setup-6.jpg" class="kg-image"></figure><!--kg-card-end: image-->
+##### Step 1: Create a private key
+
+Create a new directly and navigate to the directory
+
+{% highlight console %}
+
+vikki@kubernetes1:~$ mkdir ssl
+vikki@kubernetes1:~$ cd ssl/
+
+{% endhighlight %}
+
+Use openssl command a generate a private key _user1.key_
+
+{% highlight console %}
+
+vikki@kubernetes1:~/ssl$ openssl genrsa -out user1.key 2048
+Generating RSA private key, 2048 bit long modulus
 .......................................................+++
 .......................................................................................................................................+++
 e is 65537 (0x10001)
-</span><span class="gp">vikki@kubernetes1:~/ssl$</span><span class="w"> </span><span class="nb">ls</span>
-<span class="go">user1.key</span></code></pre></figure>
+vikki@kubernetes1:~/ssl$ ls
+user1.key
 
-<h5 id="step-2-generate-a-csr">Step 2: Generate a CSR</h5>
+{% endhighlight %}
+##### Step 2: Generate a CSR 
 
-<p>Use the private key generated in the privous step and generate the certificate signing request(csr)</p>
+Use the private key generated in the privous step and generate the certificate signing request(csr)
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~/ssl$</span><span class="w"> </span>openssl req <span class="nt">-new</span> <span class="nt">-key</span> user1.key <span class="nt">-out</span> user1.csr <span class="nt">-subj</span> <span class="s2">"/CN=user1/O=vikki.in"</span>
-<span class="go">
-</span><span class="gp">vikki@kubernetes1:~/ssl$</span><span class="w"> </span><span class="nb">ls</span>
-<span class="go">user1.csr user1.key</span></code></pre></figure>
+{% highlight console %}
 
-<h5 id="step-3-sign-the-csr-and-generate-certificate">Step 3: Sign the CSR and generate certificate</h5>
+vikki@kubernetes1:~/ssl$ openssl req -new -key user1.key -out user1.csr -subj "/CN=user1/O=vikki.in"
 
-<p>The kubernetes cluster have the CA(certificate authority) key and certificate available under /etc/kubernetes/pki location</p>
+vikki@kubernetes1:~/ssl$ ls
+user1.csr user1.key
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~/ssl$</span><span class="w"> </span><span class="nb">ls</span> /etc/kubernetes/pki/ca.
-<span class="go">ca.crt ca.key  </span></code></pre></figure>
+{% endhighlight %}
+##### Step 3: Sign the CSR and generate certificate
 
-<p>Use the CA certificate and key to sign the CSR</p>
+The kubernetes cluster have the CA(certificate authority) key and certificate available under /etc/kubernetes/pki location
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~/ssl$</span><span class="w"> </span><span class="nb">sudo </span>openssl x509 <span class="nt">-req</span> <span class="nt">-in</span> user1.csr <span class="nt">-CA</span> /etc/kubernetes/pki/ca.crt <span class="nt">-CAkey</span> /etc/kubernetes/pki/ca.key <span class="nt">-CAcreateserial</span> <span class="nt">-out</span> user1.crt <span class="nt">-days</span> 365
-<span class="go">[sudo] password for vikki: 
+{% highlight console %}
+
+vikki@kubernetes1:~/ssl$ ls /etc/kubernetes/pki/ca.
+ca.crt ca.key  
+
+{% endhighlight %}
+
+Use the CA certificate and key to sign the CSR
+
+{% highlight console %}
+
+vikki@kubernetes1:~/ssl$ sudo openssl x509 -req -in user1.csr -CA /etc/kubernetes/pki/ca.crt -CAkey /etc/kubernetes/pki/ca.key -CAcreateserial -out user1.crt -days 365
+[sudo] password for vikki: 
 Signature ok
 subject=/CN=user1/O=vikki.in
 Getting CA Private Key
 
-</span><span class="gp">vikki@kubernetes1:~/ssl$</span><span class="w"> </span><span class="nb">ls</span>
-<span class="go">user1.crt user1.csr user1.key</span></code></pre></figure>
+vikki@kubernetes1:~/ssl$ ls
+user1.crt user1.csr user1.key
 
-<blockquote>
-  <p>Now we have the private key <em>user1.key</em> and signed certificate <em>user1.crt</em></p>
-</blockquote>
+{% endhighlight %}
 
-<h5 id="step-4-set-credential-for-the-user">Step 4: Set credential for the user</h5>
+> Now we have the private key _user1.key_ and signed certificate _user1.crt_
 
-<p>Now set credential for the user <em>user1</em> with the private key and the signed certificate.</p>
+##### Step 4: Set credential for the user
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~/ssl$</span><span class="w"> </span>kubectl config set-credentials user1 <span class="nt">--client-certificate</span><span class="o">=</span>user1.crt <span class="nt">--client-key</span><span class="o">=</span>user1.key 
-<span class="go">User "user1" set.</span></code></pre></figure>
+Now set credential for the user _user1_ with the private key and the signed certificate.
 
-<h5 id="step-5-set-context-for-the-user">Step 5: Set context for the user</h5>
+{% highlight console %}
 
-<p>Now set the new context with the username , cluster etc.</p>
+vikki@kubernetes1:~/ssl$ kubectl config set-credentials user1 --client-certificate=user1.crt --client-key=user1.key 
+User "user1" set.
 
-<p>We can also map the context to specific namespace using the –namespacec option. By default it will take the default namespace</p>
+{% endhighlight %}
+##### Step 5: Set context for the user
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~/ssl$</span><span class="w"> </span>kubectl config set-context user1-context <span class="nt">--cluster</span><span class="o">=</span>kubernetes <span class="nt">--user</span><span class="o">=</span>user1
-<span class="go">Context "user1-context" created.
+Now set the new context with the username , cluster etc.
 
-</span><span class="gp">vikki@kubernetes1:~/ssl$</span><span class="w"> </span>kubectl config get-contexts 
-<span class="go">CURRENT NAME CLUSTER AUTHINFO NAMESPACE
+We can also map the context to specific namespace using the --namespacec option. By default it will take the default namespace
+
+{% highlight console %}
+
+vikki@kubernetes1:~/ssl$ kubectl config set-context user1-context --cluster=kubernetes --user=user1
+Context "user1-context" created.
+
+vikki@kubernetes1:~/ssl$ kubectl config get-contexts 
+CURRENT NAME CLUSTER AUTHINFO NAMESPACE
 * kubernetes-admin@kubernetes kubernetes kubernetes-admin   
-            user1-context kubernetes user1              </span></code></pre></figure>
+            user1-context kubernetes user1              
 
-<blockquote>
-  <p>Now we can see there are 2 context created.</p>
-</blockquote>
+{% endhighlight %}
 
-<h5 id="step-6-create-a-role">Step 6: Create a role</h5>
+> Now we can see there are 2 context created.
 
-<p>Create a role and map the resources and verb required.</p>
+##### Step 6: Create a role
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~/ssl$</span><span class="w"> </span>kubectl create role myrole <span class="nt">--verb</span><span class="o">=</span>get,create,list <span class="nt">--resource</span><span class="o">=</span>pods
-<span class="go">role.rbac.authorization.k8s.io/myrole created</span></code></pre></figure>
+Create a role and map the resources and verb required.
 
-<h5 id="step-7-create-a-rolebinding">Step 7: Create a rolebinding</h5>
+{% highlight console %}
 
-<p>Create a rolebinding and map the role and user.</p>
+vikki@kubernetes1:~/ssl$ kubectl create role myrole --verb=get,create,list --resource=pods
+role.rbac.authorization.k8s.io/myrole created
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~/ssl$</span><span class="w"> </span>kubectl create rolebinding myrolebinding <span class="nt">--role</span><span class="o">=</span>myrole <span class="nt">--user</span><span class="o">=</span>user1 
-<span class="go">rolebinding.rbac.authorization.k8s.io/myrolebinding created</span></code></pre></figure>
+{% endhighlight %}
+##### Step 7: Create a rolebinding
 
-<h5 id="step-8-verify-role-and-rolebinding">Step 8: Verify role and rolebinding</h5>
+Create a rolebinding and map the role and user.
 
-<p>List the role and rolebinding and verify both are created.</p>
+{% highlight console %}
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~/ssl$</span><span class="w"> </span>kubectl get role
-<span class="go">NAME AGE
+vikki@kubernetes1:~/ssl$ kubectl create rolebinding myrolebinding --role=myrole --user=user1 
+rolebinding.rbac.authorization.k8s.io/myrolebinding created
+
+{% endhighlight %}
+##### Step 8: Verify role and rolebinding
+
+List the role and rolebinding and verify both are created.
+
+{% highlight console %}
+
+vikki@kubernetes1:~/ssl$ kubectl get role
+NAME AGE
 myrole 58s
-</span><span class="gp">vikki@kubernetes1:~/ssl$</span><span class="w"> </span>kubectl get rolebindings.rbac.authorization.k8s.io 
-<span class="go">NAME AGE
-myrolebinding 8s</span></code></pre></figure>
+vikki@kubernetes1:~/ssl$ kubectl get rolebindings.rbac.authorization.k8s.io 
+NAME AGE
+myrolebinding 8s
 
-<h5 id="step-9-change-the-context-and-verify-role-based-access">Step 9: Change the context and verify role based access</h5>
+{% endhighlight %}
+##### Step 9: Change the context and verify role based access
+{% highlight console %}
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~/ssl$</span><span class="w"> </span>kubectl config get-contexts 
-<span class="go">CURRENT NAME CLUSTER AUTHINFO NAMESPACE
+vikki@kubernetes1:~/ssl$ kubectl config get-contexts 
+CURRENT NAME CLUSTER AUTHINFO NAMESPACE
 * kubernetes-admin@kubernetes kubernetes kubernetes-admin   
-            user1-context kubernetes user1     </span></code></pre></figure>
+            user1-context kubernetes user1     
 
-<p>Switch to newly created contesxt <em>user1-context</em></p>
+{% endhighlight %}
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~/ssl$</span><span class="w"> </span>kubectl config use-context user1-context 
-<span class="go">Switched to context "user1-context".
+Switch to newly created contesxt _user1-context_
 
-</span><span class="gp">vikki@kubernetes1:~/ssl$</span><span class="w"> </span>kubectl config get-contexts 
-<span class="go">CURRENT NAME CLUSTER AUTHINFO NAMESPACE
+{% highlight console %}
+
+vikki@kubernetes1:~/ssl$ kubectl config use-context user1-context 
+Switched to context "user1-context".
+
+vikki@kubernetes1:~/ssl$ kubectl config get-contexts 
+CURRENT NAME CLUSTER AUTHINFO NAMESPACE
             kubernetes-admin@kubernetes kubernetes kubernetes-admin   
-* user1-context kubernetes user1           </span></code></pre></figure>
+* user1-context kubernetes user1           
 
-<blockquote>
-  <p>Now we can see the current context is switched to <em>user1-context.</em></p>
-</blockquote>
+{% endhighlight %}
 
-<p>Try to create a deployement</p>
+> Now we can see the current context is switched to _user1-context._
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~/ssl$</span><span class="w"> </span>kubectl run nginx-deployment <span class="nt">--image</span><span class="o">=</span>nginx
-<span class="go">kubectl run --generator=deployment/apps.v1 is DEPRECATED and will be removed in a future version. Use kubectl run --generator=run-pod/v1 or kubectl create instead.
-Error from server (Forbidden): deployments.apps is forbidden: User "user1" cannot create resource "deployments" in API group "apps" in the namespace "default"</span></code></pre></figure>
+Try to create a deployement
 
-<blockquote>
-  <p>The deployment creation is failed because the new context has resource mapped only for pod.</p>
-</blockquote>
+{% highlight console %}
 
-<p>Now lets create a pod and verify the status</p>
+vikki@kubernetes1:~/ssl$ kubectl run nginx-deployment --image=nginx
+kubectl run --generator=deployment/apps.v1 is DEPRECATED and will be removed in a future version. Use kubectl run --generator=run-pod/v1 or kubectl create instead.
+Error from server (Forbidden): deployments.apps is forbidden: User "user1" cannot create resource "deployments" in API group "apps" in the namespace "default"
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~/ssl$</span><span class="w"> </span>vim pod.yaml</code></pre></figure>
-<!--kg-card-begin: html-->
-<script src="https://gist.github.com/vigneshragupathy/aa1503f5161a453f120ab6b121f6325a.js"></script>
-<!--kg-card-end: html-->
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~/ssl$</span><span class="w"> </span>kubectl create <span class="nt">-f</span> pod.yaml 
-<span class="go">pod/myapp-pod created</span></code></pre></figure>
+{% endhighlight %}
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~/ssl$</span><span class="w"> </span>kubectl get pods
-<span class="go">NAME READY STATUS RESTARTS AGE
+> The deployment creation is failed because the new context has resource mapped only for pod.
+
+Now lets create a pod and verify the status
+
+{% highlight console %}
+
+vikki@kubernetes1:~/ssl$ vim pod.yaml
+
+{% endhighlight %}<!--kg-card-begin: html--><script src="https://gist.github.com/vigneshragupathy/aa1503f5161a453f120ab6b121f6325a.js"></script><!--kg-card-end: html-->{% highlight console %}
+
+vikki@kubernetes1:~/ssl$ kubectl create -f pod.yaml 
+pod/myapp-pod created
+
+{% endhighlight %}{% highlight console %}
+
+vikki@kubernetes1:~/ssl$ kubectl get pods
+NAME READY STATUS RESTARTS AGE
 httpd-7765f5994-vc2j5 1/1 Running 1 2d
 myapp-pod 0/1 ContainerCreating 0 5s
-nginx-7bffc778db-p4ff5 1/1 Running 1 2d</span></code></pre></figure>
+nginx-7bffc778db-p4ff5 1/1 Running 1 2d
 
-<blockquote>
-  <p>We can see now the pod created successfully and running in the new context.</p>
-</blockquote>
+{% endhighlight %}
 
-<p>We can also test the permission of user using the below command</p>
+> We can see now the pod created successfully and running in the new context.
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl auth can-i create deployments <span class="nt">--as</span> user1
-<span class="go">no
+We can also test the permission of user using the below command
 
-</span><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl auth can-i create pods <span class="nt">--as</span> user1
-<span class="go">yes</span></code></pre></figure>]]></content><author><name>Vignesh Ragupathy</name></author><category term="kubernetes" /><category term="linux" /><category term="opensource" /><summary type="html"><![CDATA[There are 3 elements involved in RBAC. In this post we are going to see how to provide user level access to resources.]]></summary></entry><entry><title type="html">Upgrading kubernetes cluster master and worker nodes</title><link href="http://0.0.0.0:4000/upgrading-kubernetes-cluster-master-and-worker-nodes/" rel="alternate" type="text/html" title="Upgrading kubernetes cluster master and worker nodes" /><published>2019-11-26T15:07:58+00:00</published><updated>2019-11-26T15:07:58+00:00</updated><id>http://0.0.0.0:4000/upgrading-kubernetes-cluster-master-and-worker-nodes</id><content type="html" xml:base="http://0.0.0.0:4000/upgrading-kubernetes-cluster-master-and-worker-nodes/"><![CDATA[<p>This post we are going to discuss how to upgrade the kubernetes cluster, both master and worker nodes. We are going to upgrade a older version v1.15 to v.1.16.</p>
+{% highlight console %}
 
-<h3 id="setup"><strong>Setup</strong></h3>
+vikki@kubernetes1:~$ kubectl auth can-i create deployments --as user1
+no
 
-<p>I am using the Virtualbox(running in Ubuntu 18.04 physical machine) for this entire setup . The physical machine is Dell inspiron laptop with 12GB RAM , Intel® Core™ i7-6500U CPU @ 2.50GHz × 4 and 512GB SSD hardisk.</p>
+vikki@kubernetes1:~$ kubectl auth can-i create pods --as user1
+yes
 
-<!--kg-card-begin: image-->
-<figure class="kg-card kg-image-card"><img src="/content/images/2019/11/setup-5.jpg" class="kg-image" /></figure>
-<!--kg-card-end: image-->
-<h3 id="master-node">Master node</h3>
+{% endhighlight %}]]></content><author><name>Vignesh Ragupathy</name></author><category term="kubernetes" /><category term="linux" /><category term="opensource" /><summary type="html"><![CDATA[There are 3 elements involved in RBAC. In this post we are going to see how to provide user level access to resources.]]></summary></entry><entry><title type="html">Upgrading kubernetes cluster master and worker nodes</title><link href="http://0.0.0.0:4000/upgrading-kubernetes-cluster-master-and-worker-nodes/" rel="alternate" type="text/html" title="Upgrading kubernetes cluster master and worker nodes" /><published>2019-11-26T15:07:58+00:00</published><updated>2019-11-26T15:07:58+00:00</updated><id>http://0.0.0.0:4000/upgrading-kubernetes-cluster-master-and-worker-nodes</id><content type="html" xml:base="http://0.0.0.0:4000/upgrading-kubernetes-cluster-master-and-worker-nodes/"><![CDATA[This post we are going to discuss how to upgrade the kubernetes cluster, both master and worker nodes. We are going to upgrade a older version v1.15 to v.1.16.
 
-<h5 id="step-1-verify-the-current-version-of-kubelet-and-kubeadm-running-in-all-nodes">Step 1: Verify the current version of kubelet and kubeadm running in all nodes</h5>
+### **Setup**
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl get nodes
-<span class="go">NAME STATUS ROLES AGE VERSION
+I am using the Virtualbox(running in Ubuntu 18.04 physical machine) for this entire setup . The physical machine is Dell inspiron laptop with 12GB RAM , Intel® Core™ i7-6500U CPU @ 2.50GHz × 4 and 512GB SSD hardisk.
+
+<!--kg-card-begin: image--><figure class="kg-card kg-image-card"><img src="/content/images/2019/11/setup-5.jpg" class="kg-image"></figure><!--kg-card-end: image-->
+### Master node
+
+##### Step 1: Verify the current version of kubelet and kubeadm running in all nodes
+{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl get nodes
+NAME STATUS ROLES AGE VERSION
 kubernetes1 Ready master 41d v1.15.5
-</span><span class="gp">kubernetes2 Ready &lt;none&gt;</span><span class="w"> </span>41d v1.15.5</code></pre></figure>
+kubernetes2 Ready <none> 41d v1.15.5
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubeadm version
-<span class="go">kubeadm version: &amp;version.Info{Major:"1", Minor:"15", GitVersion:"v1.15.5", GitCommit:"20c265fef0741dd71a66480e35bd69f18351daea", GitTreeState:"clean", BuildDate:"2019-10-15T19:14:19Z", GoVersion:"go1.12.10", Compiler:"gc", Platform:"linux/amd64"}</span></code></pre></figure>
+{% endhighlight %}{% highlight console %}
 
-<blockquote>
-  <p>We can see kubelet and kubeadm is running in version v1.15.5</p>
-</blockquote>
+vikki@kubernetes1:~$ kubeadm version
+kubeadm version: &version.Info{Major:"1", Minor:"15", GitVersion:"v1.15.5", GitCommit:"20c265fef0741dd71a66480e35bd69f18351daea", GitTreeState:"clean", BuildDate:"2019-10-15T19:14:19Z", GoVersion:"go1.12.10", Compiler:"gc", Platform:"linux/amd64"}
 
-<h5 id="step-2-verify-the-lastest-stable-availble-version">Step 2: Verify the lastest stable availble version</h5>
+{% endhighlight %}
 
-<p>Run the update in kubernetes master node</p>
+> We can see kubelet and kubeadm is running in version v1.15.5
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@kubernetes1:~#</span><span class="w"> </span>apt update</code></pre></figure>
+##### Step 2: Verify the lastest stable availble version
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@kubernetes1:~#</span><span class="w"> </span>apt-cache policy kubeadm
-<span class="go">kubeadm:
+Run the update in kubernetes master node
+
+{% highlight console %}
+
+root@kubernetes1:~# apt update
+
+{% endhighlight %}{% highlight console %}
+
+root@kubernetes1:~# apt-cache policy kubeadm
+kubeadm:
     Installed: 1.15.5-00
     Candidate: 1.16.3-00
     Version table:
-</span><span class="c">    .....</span></code></pre></figure>
+    .....
 
-<blockquote>
-  <p>We can see from this output that current version is 1.15.5 and the latest available is 1.16.3</p>
-</blockquote>
+{% endhighlight %}
 
-<h5 id="step-3-upgrade-the-kubeadm-to-latest-version">Step 3: Upgrade the kubeadm to latest version</h5>
+> We can see from this output that current version is 1.15.5 and the latest available is 1.16.3
 
-<p>Upgrade the kubeadm in master to the latest version 1.16.3</p>
+##### Step 3: Upgrade the kubeadm to latest version
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@kubernetes1:~#</span><span class="w"> </span>apt-mark unhold kubeadm <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="gp">&gt;</span><span class="w"> </span>apt-get update <span class="o">&amp;&amp;</span> apt-get <span class="nb">install</span> <span class="nt">-y</span> <span class="nv">kubeadm</span><span class="o">=</span>1.16.3-00 <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="gp">&gt;</span><span class="w"> </span>apt-mark hold kubeadm
-<span class="go">kubeadm was already not hold.
+Upgrade the kubeadm in master to the latest version 1.16.3
+
+{% highlight console %}
+
+root@kubernetes1:~# apt-mark unhold kubeadm && \
+> apt-get update && apt-get install -y kubeadm=1.16.3-00 && \
+> apt-mark hold kubeadm
+kubeadm was already not hold.
 Hit:1 http://us.archive.ubuntu.com/ubuntu xenial InRelease                  
 Hit:2 http://security.ubuntu.com/ubuntu xenial-security InRelease
 Hit:3 http://us.archive.ubuntu.com/ubuntu xenial-updates InRelease
@@ -960,14 +984,17 @@ Fetched 8,762 kB in 7s (1,117 kB/s)
 Preparing to unpack .../kubeadm_1.16.3-00_amd64.deb ...
 Unpacking kubeadm (1.16.3-00) over (1.15.5-00) ...
 Setting up kubeadm (1.16.3-00) ...
-kubeadm set on hold.</span></code></pre></figure>
+kubeadm set on hold.
 
-<h5 id="step-4-run-the-upgrade-plan">Step 4: Run the upgrade plan</h5>
+{% endhighlight %}
+##### Step 4: Run the upgrade plan
 
-<p>Now in the previous step we already updated the kubeadm to latest version. Now lets run the upgrade plan and see the available options.</p>
+Now in the previous step we already updated the kubeadm to latest version. Now lets run the upgrade plan and see the available options.
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@kubernetes1:~#</span><span class="w"> </span><span class="nb">sudo </span>kubeadm upgrade plan
-<span class="go">[upgrade/config] Making sure the configuration is correct:
+{% highlight console %}
+
+root@kubernetes1:~# sudo kubeadm upgrade plan
+[upgrade/config] Making sure the configuration is correct:
 [upgrade/config] Reading configuration from the cluster...
 [upgrade/config] FYI: You can look at this config file with 'kubectl -n kube-system get cm kubeadm-config -oyaml'
 [preflight] Running pre-flight checks.
@@ -1016,31 +1043,36 @@ You can now apply the upgrade by executing the following command:
 
     kubeadm upgrade apply v1.16.3
 
-_____________________________________________________________________</span></code></pre></figure>
+_____________________________________________________________________
 
-<blockquote>
-  <p>We can see that we can upgrade the cluster to v1.16.3 from the above output</p>
-</blockquote>
+{% endhighlight %}
 
-<h5 id="step-5-drain-the-pods-in-master-node">Step 5: Drain the pods in master node</h5>
+> We can see that we can upgrade the cluster to v1.16.3 from the above output
 
-<p>Now drain all the pods execpt daemonsets in the master node</p>
+##### Step 5: Drain the pods in master node
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl drain kubernetes1 <span class="nt">--ignore-daemonsets</span>
-<span class="go">node/kubernetes1 cordoned
+Now drain all the pods execpt daemonsets in the master node
+
+{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl drain kubernetes1 --ignore-daemonsets
+node/kubernetes1 cordoned
 WARNING: ignoring DaemonSet-managed Pods: kube-system/kube-flannel-ds-amd64-bfr9j, kube-system/kube-proxy-8267n
 evicting pod "coredns-5c98db65d4-v4cms"
 evicting pod "coredns-5c98db65d4-g4gv4"
 pod/coredns-5c98db65d4-v4cms evicted
 pod/coredns-5c98db65d4-g4gv4 evicted
-node/kubernetes1 evicted</span></code></pre></figure>
+node/kubernetes1 evicted
 
-<h5 id="step-6-run-the-upgrade">Step 6: Run the upgrade</h5>
+{% endhighlight %}
+##### Step 6: Run the upgrade
 
-<p>Now run the upgrade to the lastest version 1.16.3</p>
+Now run the upgrade to the lastest version 1.16.3
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span><span class="nb">sudo </span>kubeadm upgrade apply v1.16.3
-<span class="go">[upgrade/config] Making sure the configuration is correct:
+{% highlight console %}
+
+vikki@kubernetes1:~$ sudo kubeadm upgrade apply v1.16.3
+[upgrade/config] Making sure the configuration is correct:
 [upgrade/config] Reading configuration from the cluster...
 [upgrade/config] FYI: You can look at this config file with 'kubectl -n kube-system get cm kubeadm-config -oyaml'
 [preflight] Running pre-flight checks.
@@ -1128,27 +1160,32 @@ Static pod: kube-scheduler-kubernetes1 hash: 8c5e33e50bb56e8adacd1cc99c56b2cb
 
 [upgrade/successful] SUCCESS! Your cluster was upgraded to "v1.16.3". Enjoy!
 
-[upgrade/kubelet] Now that your control plane is upgraded, please proceed with upgrading your kubelets if you haven't already done so.</span></code></pre></figure>
+[upgrade/kubelet] Now that your control plane is upgraded, please proceed with upgrading your kubelets if you haven't already done so.
 
-<blockquote>
-  <p>We can see the cluster is upgraded to lastest version v1.16.3</p>
-</blockquote>
+{% endhighlight %}
 
-<h5 id="step-7-uncordon-the-master-node">Step 7: Uncordon the master node</h5>
+> We can see the cluster is upgraded to lastest version v1.16.3
 
-<p>Now ucordon the master node</p>
+##### Step 7: Uncordon the master node
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl uncordon kubernetes1 
-<span class="go">node/kubernetes1 uncordoned</span></code></pre></figure>
+Now ucordon the master node
 
-<h5 id="step-8-upgrade-the-kubelet">Step 8: Upgrade the kubelet</h5>
+{% highlight console %}
 
-<p>Now in the previous steps we have upgraded the kubeadm and cluster , next we need to upgrade the kubelet and kubectl</p>
+vikki@kubernetes1:~$ kubectl uncordon kubernetes1 
+node/kubernetes1 uncordoned
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@kubernetes1:~#</span><span class="w"> </span>apt-mark unhold kubelet kubectl <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="gp">&gt;</span><span class="w"> </span>apt-get update <span class="o">&amp;&amp;</span> apt-get <span class="nb">install</span> <span class="nt">-y</span> <span class="nv">kubelet</span><span class="o">=</span>1.16.3-00 <span class="nv">kubectl</span><span class="o">=</span>1.16.3-00 <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="gp">&gt;</span><span class="w"> </span>apt-mark hold kubelet kubectl
-<span class="go">kubelet was already not hold.
+{% endhighlight %}
+##### Step 8: Upgrade the kubelet 
+
+Now in the previous steps we have upgraded the kubeadm and cluster , next we need to upgrade the kubelet and kubectl
+
+{% highlight console %}
+
+root@kubernetes1:~# apt-mark unhold kubelet kubectl && \
+> apt-get update && apt-get install -y kubelet=1.16.3-00 kubectl=1.16.3-00 && \
+> apt-mark hold kubelet kubectl
+kubelet was already not hold.
 kubectl was already not hold.
 Hit:1 http://security.ubuntu.com/ubuntu xenial-security InRelease           
 Hit:2 http://us.archive.ubuntu.com/ubuntu xenial InRelease
@@ -1175,29 +1212,36 @@ Unpacking kubelet (1.16.3-00) over (1.15.5-00) ...
 Setting up kubectl (1.16.3-00) ...
 Setting up kubelet (1.16.3-00) ...
 kubelet set on hold.
-kubectl set on hold.</span></code></pre></figure>
+kubectl set on hold.
 
-<p>Restart the kubelet service</p>
+{% endhighlight %}
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@kubernetes1:~#</span><span class="w"> </span><span class="nb">sudo </span>systemctl restart kubelet</code></pre></figure>
+Restart the kubelet service
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl get nodes
-<span class="go">NAME STATUS ROLES AGE VERSION
+{% highlight console %}
+
+root@kubernetes1:~# sudo systemctl restart kubelet
+
+{% endhighlight %}{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl get nodes
+NAME STATUS ROLES AGE VERSION
 kubernetes1 Ready master 41d v1.16.3
-</span><span class="gp">kubernetes2 Ready &lt;none&gt;</span><span class="w"> </span>41d v1.15.5</code></pre></figure>
+kubernetes2 Ready <none> 41d v1.15.5
 
-<blockquote>
-  <p>Now we can see the master node kubernetes1 is upgraded to v1.16.3</p>
-</blockquote>
+{% endhighlight %}
 
-<h3 id="worker-node">Worker node</h3>
+> Now we can see the master node kubernetes1 is upgraded to v1.16.3
 
-<h5 id="step-1-upgrade-the-kubeadm-to-version-1163">Step 1: Upgrade the kubeadm to version 1.16.3</h5>
+### Worker node
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@kubernetes2:~#</span><span class="w"> </span>apt-mark unhold kubeadm <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="gp">&gt;</span><span class="w"> </span>apt-get update <span class="o">&amp;&amp;</span> apt-get <span class="nb">install</span> <span class="nt">-y</span> <span class="nv">kubeadm</span><span class="o">=</span>1.16.3-00 <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="gp">&gt;</span><span class="w"> </span>apt-mark hold kubeadm
-<span class="go">kubeadm was already not hold.
+##### Step 1: Upgrade the kubeadm to version 1.16.3
+{% highlight console %}
+
+root@kubernetes2:~# apt-mark unhold kubeadm && \
+> apt-get update && apt-get install -y kubeadm=1.16.3-00 && \
+> apt-mark hold kubeadm
+kubeadm was already not hold.
 Get:1 http://security.ubuntu.com/ubuntu xenial-security InRelease [109 kB]                 
 Get:2 http://security.ubuntu.com/ubuntu xenial-security/main amd64 Packages [785 kB]       
 Hit:3 http://us.archive.ubuntu.com/ubuntu xenial InRelease
@@ -1236,14 +1280,17 @@ Fetched 8,762 kB in 7s (1,122 kB/s)
 Preparing to unpack .../kubeadm_1.16.3-00_amd64.deb ...
 Unpacking kubeadm (1.16.3-00) over (1.15.5-00) ...
 Setting up kubeadm (1.16.3-00) ...
-kubeadm set on hold.</span></code></pre></figure>
+kubeadm set on hold.
 
-<h5 id="step-2-drain-the-pods-in-worker-node">Step 2: Drain the pods in worker node</h5>
+{% endhighlight %}
+##### Step 2: Drain the pods in worker node
 
-<p>Now drain all the pods , except daemonsets from the worker node kubernetes2. <em>This command should be run in master node in case the kubenetes config is not mapped in worker</em>.</p>
+Now drain all the pods , except daemonsets from the worker node kubernetes2. _This command should be run in master node in case the kubenetes config is not mapped in worker_.
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl drain kubernetes2 <span class="nt">--ignore-daemonsets</span>
-<span class="go">node/kubernetes2 cordoned
+{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl drain kubernetes2 --ignore-daemonsets
+node/kubernetes2 cordoned
 WARNING: ignoring DaemonSet-managed Pods: kube-system/kube-flannel-ds-amd64-8v6lb, kube-system/kube-proxy-877b2
 evicting pod "coredns-5644d7b6d9-t8qw5"
 evicting pod "httpd-7765f5994-gvlj6"
@@ -1253,26 +1300,31 @@ pod/coredns-5644d7b6d9-frz4v evicted
 pod/coredns-5644d7b6d9-t8qw5 evicted
 pod/httpd-7765f5994-gvlj6 evicted
 pod/nginx-7bffc778db-phdb5 evicted
-node/kubernetes2 evicted</span></code></pre></figure>
+node/kubernetes2 evicted
 
-<h5 id="step-3-upgrade-the-worker-node">Step 3: Upgrade the worker node</h5>
+{% endhighlight %}
+##### Step 3: Upgrade the worker node
+{% highlight console %}
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@kubernetes2:~#</span><span class="w"> </span><span class="nb">sudo </span>kubeadm upgrade node
-<span class="go">[upgrade] Reading configuration from the cluster...
+root@kubernetes2:~# sudo kubeadm upgrade node
+[upgrade] Reading configuration from the cluster...
 [upgrade] FYI: You can look at this config file with 'kubectl -n kube-system get cm kubeadm-config -oyaml'
 [upgrade] Skipping phase. Not a control plane node[kubelet-start] Downloading configuration for the kubelet from the "kubelet-config-1.16" ConfigMap in the kube-system namespace
 [kubelet-start] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml"
 [upgrade] The configuration for this node was successfully updated!
-[upgrade] Now you should go ahead and upgrade the kubelet package using your package manager.</span></code></pre></figure>
+[upgrade] Now you should go ahead and upgrade the kubelet package using your package manager.
 
-<h5 id="step-4-upgrade-the-kubelet-and-kubectl">Step 4: Upgrade the kubelet and kubectl</h5>
+{% endhighlight %}
+##### Step 4: Upgrade the kubelet and kubectl
 
-<p>In previous steps we upgraded the kubeadm and cluster. Now we need to upgrade the kubelet and kubectl.</p>
+In previous steps we upgraded the kubeadm and cluster. Now we need to upgrade the kubelet and kubectl.
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@kubernetes2:~#</span><span class="w"> </span>apt-mark unhold kubelet kubectl <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="gp">&gt;</span><span class="w"> </span>apt-get update <span class="o">&amp;&amp;</span> apt-get <span class="nb">install</span> <span class="nt">-y</span> <span class="nv">kubelet</span><span class="o">=</span>1.16.3-00 <span class="nv">kubectl</span><span class="o">=</span>1.16.3-00 <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="gp">&gt;</span><span class="w"> </span>apt-mark hold kubelet kubectl
-<span class="go">kubelet was already not hold.
+{% highlight console %}
+
+root@kubernetes2:~# apt-mark unhold kubelet kubectl && \
+> apt-get update && apt-get install -y kubelet=1.16.3-00 kubectl=1.16.3-00 && \
+> apt-mark hold kubelet kubectl
+kubelet was already not hold.
 kubectl was already not hold.
 Hit:1 http://security.ubuntu.com/ubuntu xenial-security InRelease
 Hit:2 http://us.archive.ubuntu.com/ubuntu xenial InRelease                       
@@ -1299,65 +1351,73 @@ Unpacking kubelet (1.16.3-00) over (1.15.5-00) ...
 Setting up kubectl (1.16.3-00) ...
 Setting up kubelet (1.16.3-00) ...
 kubelet set on hold.
-kubectl set on hold.</span></code></pre></figure>
+kubectl set on hold.
 
-<p>Restart the kubelet service in worker node</p>
+{% endhighlight %}
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@kubernetes2:~#</span><span class="w"> </span><span class="nb">sudo </span>systemctl restart kubelet</code></pre></figure>
+Restart the kubelet service in worker node
 
-<h5 id="step-5-uncordon-the-worker-node">Step 5: Uncordon the worker node</h5>
+{% highlight console %}
 
-<p>Now uncordon all the pods in kubernetes2 worker onde</p>
+root@kubernetes2:~# sudo systemctl restart kubelet
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl uncordon kubernetes2
-<span class="go">node/kubernetes2 uncordoned</span></code></pre></figure>
+{% endhighlight %}
+##### Step 5: Uncordon the worker node
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl get nodes
-<span class="go">NAME STATUS ROLES AGE VERSION
+Now uncordon all the pods in kubernetes2 worker onde
+
+{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl uncordon kubernetes2
+node/kubernetes2 uncordoned
+
+{% endhighlight %}{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl get nodes
+NAME STATUS ROLES AGE VERSION
 kubernetes1 Ready master 41d v1.16.3
-</span><span class="gp">kubernetes2 Ready &lt;none&gt;</span><span class="w"> </span>41d v1.16.3</code></pre></figure>
+kubernetes2 Ready <none> 41d v1.16.3
 
-<blockquote>
-  <p>We can see now both the master and worker nodes are upgraded from v1.15.5 to v1.16.3</p>
-</blockquote>]]></content><author><name>Vignesh Ragupathy</name></author><category term="kubernetes" /><category term="linux" /><category term="opensource" /><summary type="html"><![CDATA[This post we are going to discuss how to upgrade the kubernetes cluster, both master and worker nodes. We are going to upgrade a older version v1.15 to v.1.16.]]></summary></entry><entry><title type="html">Running kubernetes custom scheduler</title><link href="http://0.0.0.0:4000/running-kubernetes-custom-scheduler/" rel="alternate" type="text/html" title="Running kubernetes custom scheduler" /><published>2019-11-25T17:28:55+00:00</published><updated>2019-11-25T17:28:55+00:00</updated><id>http://0.0.0.0:4000/running-kubernetes-custom-scheduler</id><content type="html" xml:base="http://0.0.0.0:4000/running-kubernetes-custom-scheduler/"><![CDATA[<p>Kubernetes cluster have a default scheduler kube-scheduler. If the default scheduler does not suits our requirement we can also create our own scheduler. In the post we will discus how to create multiple scheduler and schedule pods based on different scheduler.</p>
+{% endhighlight %}
 
-<h3 id="setup"><strong>Setup</strong></h3>
+> We can see now both the master and worker nodes are upgraded from v1.15.5 to v1.16.3]]></content><author><name>Vignesh Ragupathy</name></author><category term="kubernetes" /><category term="linux" /><category term="opensource" /><summary type="html"><![CDATA[This post we are going to discuss how to upgrade the kubernetes cluster, both master and worker nodes. We are going to upgrade a older version v1.15 to v.1.16.]]></summary></entry><entry><title type="html">Running kubernetes custom scheduler</title><link href="http://0.0.0.0:4000/running-kubernetes-custom-scheduler/" rel="alternate" type="text/html" title="Running kubernetes custom scheduler" /><published>2019-11-25T17:28:55+00:00</published><updated>2019-11-25T17:28:55+00:00</updated><id>http://0.0.0.0:4000/running-kubernetes-custom-scheduler</id><content type="html" xml:base="http://0.0.0.0:4000/running-kubernetes-custom-scheduler/"><![CDATA[Kubernetes cluster have a default scheduler kube-scheduler. If the default scheduler does not suits our requirement we can also create our own scheduler. In the post we will discus how to create multiple scheduler and schedule pods based on different scheduler.
 
-<p>I am using the Virtualbox(running in Ubuntu 18.04 physical machine) for this entire setup . The physical machine is Dell inspiron laptop with 12GB RAM , Intel® Core™ i7-6500U CPU @ 2.50GHz × 4 and 512GB SSD hardisk.</p>
+### **Setup**
 
-<!--kg-card-begin: image-->
-<figure class="kg-card kg-image-card"><img src="/content/images/2019/11/setup-4.jpg" class="kg-image" /></figure>
-<!--kg-card-end: image-->
-<h5 id="step-1-copy-the-default-scheduler-yaml-and-modify">Step 1: Copy the default scheduler yaml and modify</h5>
+I am using the Virtualbox(running in Ubuntu 18.04 physical machine) for this entire setup . The physical machine is Dell inspiron laptop with 12GB RAM , Intel® Core™ i7-6500U CPU @ 2.50GHz × 4 and 512GB SSD hardisk.
 
-<p>Copy the default scheduler yaml from master node and modify the name.</p>
+<!--kg-card-begin: image--><figure class="kg-card kg-image-card"><img src="/content/images/2019/11/setup-4.jpg" class="kg-image"></figure><!--kg-card-end: image-->
+##### Step 1: Copy the default scheduler yaml and modify
 
-<p>In this below example i am naming the custom schedule are <em>my-scheduler.</em> Add a ServiceAccount and ClusterRoleBinding to the yaml file as given below.</p>
+Copy the default scheduler yaml from master node and modify the name.
 
-<p>The key changes made are</p>
+In this below example i am naming the custom schedule are _my-scheduler._ Add a ServiceAccount and ClusterRoleBinding to the yaml file as given below.
 
-<ul>
-  <li>line 27: name: my-scheduler</li>
-  <li>line 30: serviceAccountName: my-scheduler</li>
-  <li>line 38: - –leader-elect=false</li>
-  <li>line 39: - –scheduler-name=my-scheduler</li>
-</ul>
+The key changes made are
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span><span class="nb">sudo cp</span> /etc/kubernetes/manifests/kube-scheduler.yaml custom-scheduler.yaml
-<span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span><span class="nb">sudo chmod </span>777 custom-scheduler.yaml 
-<span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>vim custom-scheduler.yaml </code></pre></figure>
-<!--kg-card-begin: html-->
-<script src="https://gist.github.com/vigneshragupathy/2a8e765cb702a7f8edf4e8760599da10.js"></script>
-<!--kg-card-end: html-->
-<h5 id="step-2-create-the-custom-scheduler">Step 2: Create the custom scheduler</h5>
+- line 27: name: my-scheduler
+- line 30: serviceAccountName: my-scheduler
+- line 38: - --leader-elect=false
+- line 39: - --scheduler-name=my-scheduler
+{% highlight console %}
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl create <span class="nt">-f</span> custom-scheduler.yaml 
-<span class="go">serviceaccount/my-scheduler created
+vikki@kubernetes1:~$ sudo cp /etc/kubernetes/manifests/kube-scheduler.yaml custom-scheduler.yaml
+vikki@kubernetes1:~$ sudo chmod 777 custom-scheduler.yaml 
+vikki@kubernetes1:~$ vim custom-scheduler.yaml 
+
+{% endhighlight %}<!--kg-card-begin: html--><script src="https://gist.github.com/vigneshragupathy/2a8e765cb702a7f8edf4e8760599da10.js"></script><!--kg-card-end: html-->
+##### Step 2: Create the custom scheduler
+{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl create -f custom-scheduler.yaml 
+serviceaccount/my-scheduler created
 clusterrolebinding.rbac.authorization.k8s.io/my-scheduler-as-kube-scheduler created
-pod/my-scheduler created</span></code></pre></figure>
+pod/my-scheduler created
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl get pods <span class="nt">-n</span><span class="o">=</span>kube-system 
-<span class="go">NAME READY STATUS RESTARTS AGE
+{% endhighlight %}{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl get pods -n=kube-system 
+NAME READY STATUS RESTARTS AGE
 calico-kube-controllers-55754f75c-fgs8g 1/1 Running 7 22d
 calico-node-4h72l 1/1 Running 7 22d
 calico-node-ld84s 1/1 Running 7 22d
@@ -1373,459 +1433,524 @@ kube-proxy-96q5x 1/1 Running 7 22d
 kube-proxy-njl6r 1/1 Running 7 22d
 kube-proxy-whlhw 1/1 Running 1 27h
 kube-scheduler-kubernetes1 1/1 Running 8 22d
-my-scheduler 1/1 Running 0 6s</span></code></pre></figure>
+my-scheduler 1/1 Running 0 6s
 
-<blockquote>
-  <p>Now we can see a new custom scheduler <em>my-scheduler</em> is running along with defautl scheduler <em>kube-scheduler-kubernetes1</em></p>
-</blockquote>
+{% endhighlight %}
 
-<h5 id="step-3-edit-the-custerrole-for-kube-scheduler">Step 3: Edit the custerrole for kube-scheduler</h5>
+> Now we can see a new custom scheduler _my-scheduler_ is running along with defautl scheduler _kube-scheduler-kubernetes1_
 
-<p>If RBAC is enabled on your cluster, you must update the system:kube-scheduler cluster role. Edit the clusterrole for kube-scheduler and modify.</p>
+##### Step 3: Edit the custerrole for kube-scheduler
 
-<p>Below are the key changes made in orignal file</p>
+If RBAC is enabled on your cluster, you must update the system:kube-scheduler cluster role. Edit the clusterrole for kube-scheduler and modify.
 
-<ul>
-  <li>line 33: - my-scheduler</li>
-  <li>line 131: - storageclasses</li>
-</ul>
+Below are the key changes made in orignal file
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl edit clusterrole system:kube-scheduler</code></pre></figure>
-<!--kg-card-begin: html-->
-<script src="https://gist.github.com/vigneshragupathy/801aa697779378ff30e46e5247de8980.js"></script>
-<!--kg-card-end: html-->
-<h5 id="step-4-create-pods-with-different-types-of-scheduler">Step 4: Create pods with different types of scheduler</h5>
+- line 33: - my-scheduler
+- line 131: - storageclasses
+{% highlight console %}
 
-<p>Create a pod without explicitly mentioning any scheuler name. This pod should be scheduled by default scheduler <em>kube-scheduler</em></p>
+vikki@kubernetes1:~$ kubectl edit clusterrole system:kube-scheduler
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>vim pod_default_scheduler.yaml</code></pre></figure>
-<!--kg-card-begin: html-->
-<script src="https://gist.github.com/vigneshragupathy/cfe05dda5b00a4f170b9cdd08f6aa0dd.js"></script>
-<!--kg-card-end: html-->
+{% endhighlight %}<!--kg-card-begin: html--><script src="https://gist.github.com/vigneshragupathy/801aa697779378ff30e46e5247de8980.js"></script><!--kg-card-end: html-->
+##### Step 4: Create pods with different types of scheduler
 
-<p>Create a pod by explicitly mentioning custom scheuler name <em>my-scheduler</em>.</p>
+Create a pod without explicitly mentioning any scheuler name. This pod should be scheduled by default scheduler _kube-scheduler_
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>vim pod_custom_scheduler.yaml </code></pre></figure>
-<!--kg-card-begin: html-->
-<script src="https://gist.github.com/vigneshragupathy/04cc5ac3e1933b4c1979a631de424116.js"></script>
-<!--kg-card-end: html-->
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl create <span class="nt">-f</span> pod_default_scheduler.yaml 
-<span class="go">pod/nginx-pod-default-scheduler created
-</span><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl create <span class="nt">-f</span> pod_custom_scheduler.yaml 
-<span class="go">pod/nginx-pod-custom-scheduler created</span></code></pre></figure>
+{% highlight console %}
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl get pods nginx-pod-custom-scheduler nginx-pod-default-scheduler
-<span class="go">NAME READY STATUS RESTARTS AGE
+vikki@kubernetes1:~$ vim pod_default_scheduler.yaml
+
+{% endhighlight %}<!--kg-card-begin: html--><script src="https://gist.github.com/vigneshragupathy/cfe05dda5b00a4f170b9cdd08f6aa0dd.js"></script><!--kg-card-end: html-->
+
+Create a pod by explicitly mentioning custom scheuler name _my-scheduler_.
+
+{% highlight console %}
+
+vikki@kubernetes1:~$ vim pod_custom_scheduler.yaml 
+
+{% endhighlight %}<!--kg-card-begin: html--><script src="https://gist.github.com/vigneshragupathy/04cc5ac3e1933b4c1979a631de424116.js"></script><!--kg-card-end: html-->{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl create -f pod_default_scheduler.yaml 
+pod/nginx-pod-default-scheduler created
+vikki@kubernetes1:~$ kubectl create -f pod_custom_scheduler.yaml 
+pod/nginx-pod-custom-scheduler created
+
+{% endhighlight %}{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl get pods nginx-pod-custom-scheduler nginx-pod-default-scheduler
+NAME READY STATUS RESTARTS AGE
 nginx-pod-custom-scheduler 1/1 Running 0 9m9s
 nginx-pod-default-scheduler 1/1 Running 0 9m13s
-</span><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span></code></pre></figure>
+vikki@kubernetes1:~$ 
 
-<blockquote>
-  <p>Now we can see both the pods are created and running</p>
-</blockquote>
+{% endhighlight %}
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl get events <span class="nt">-o</span> wide |grep nginx-pod-custom-scheduler |head <span class="nt">-1</span>
-<span class="gp">&lt;unknown&gt;</span><span class="w"> </span>Normal Scheduled pod/nginx-pod-custom-scheduler my-scheduler Successfully assigned default/nginx-pod-custom-scheduler to kubernetes3 &lt;unknown&gt; 0 nginx-pod-custom-scheduler.15da76383c2c2859
-<span class="go">
-</span><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl get events <span class="nt">-o</span> wide |grep nginx-pod-default-scheduler |head <span class="nt">-1</span>
-<span class="gp">&lt;unknown&gt;</span><span class="w"> </span>Normal Scheduled pod/nginx-pod-default-scheduler default-scheduler Successfully assigned default/nginx-pod-default-scheduler to kubernetes3 &lt;unknown&gt; 0 nginx-pod-default-scheduler.15da76372f4444f7</code></pre></figure>
+> Now we can see both the pods are created and running
 
-<blockquote>
-  <p>From the events, we can see pod nginx-pod-custom-scheduler is scheduled by <em>my-scheduler</em> and nginx-pod-default-scheduler by  <em>default-scheduler.</em></p>
-</blockquote>]]></content><author><name>Vignesh Ragupathy</name></author><category term="kubernetes" /><category term="linux" /><category term="opensource" /><summary type="html"><![CDATA[Kubernetes cluster have a default scheduler kube-scheduler. If the default scheduler does not suits our requirement we can also create our own scheduler. In the post we will discus how to create multiple scheduler and schedule pods based on different scheduler.]]></summary></entry><entry><title type="html">Creating static pod in kubernetes</title><link href="http://0.0.0.0:4000/creating-static-pod-in-kubernetes/" rel="alternate" type="text/html" title="Creating static pod in kubernetes" /><published>2019-11-24T15:55:52+00:00</published><updated>2019-11-24T15:55:52+00:00</updated><id>http://0.0.0.0:4000/creating-static-pod-in-kubernetes</id><content type="html" xml:base="http://0.0.0.0:4000/creating-static-pod-in-kubernetes/"><![CDATA[<p>Static Pods are managed directly by the kubelet daemon on a specific node, without the API server observing them.<br />
-Static pods automatically restarts if it crashes. Static Pods are always bound to one Kubelet on a specific node. In the post we will try creating a static pod and watch the behaviour on delete.</p>
+{% highlight console %}
 
-<h3 id="setup"><strong>Setup</strong></h3>
+vikki@kubernetes1:~$ kubectl get events -o wide |grep nginx-pod-custom-scheduler |head -1
+<unknown> Normal Scheduled pod/nginx-pod-custom-scheduler my-scheduler Successfully assigned default/nginx-pod-custom-scheduler to kubernetes3 <unknown> 0 nginx-pod-custom-scheduler.15da76383c2c2859
 
-<p>I am using the Virtualbox(running in Ubuntu 18.04 physical machine) for this entire setup . The physical machine is Dell inspiron laptop with 12GB RAM , Intel® Core™ i7-6500U CPU @ 2.50GHz × 4 and 512GB SSD hardisk.</p>
+vikki@kubernetes1:~$ kubectl get events -o wide |grep nginx-pod-default-scheduler |head -1
+<unknown> Normal Scheduled pod/nginx-pod-default-scheduler default-scheduler Successfully assigned default/nginx-pod-default-scheduler to kubernetes3 <unknown> 0 nginx-pod-default-scheduler.15da76372f4444f7
 
-<!--kg-card-begin: image-->
-<figure class="kg-card kg-image-card"><img src="/content/images/2019/11/setup-3.jpg" class="kg-image" /></figure>
-<!--kg-card-end: image-->
-<h5 id="step-1-find-the-static-pod-manifest-location">Step 1: Find the static pod manifest location</h5>
+{% endhighlight %}
 
-<p>Go to any node where you want to run the static pod. I want to run in kubernetes3 node. Look for the kubelet process and config.yaml file associated with it</p>
+> From the events, we can see pod nginx-pod-custom-scheduler is scheduled by _my-scheduler_ and nginx-pod-default-scheduler by &nbsp;_default-scheduler._]]></content><author><name>Vignesh Ragupathy</name></author><category term="kubernetes" /><category term="linux" /><category term="opensource" /><summary type="html"><![CDATA[Kubernetes cluster have a default scheduler kube-scheduler. If the default scheduler does not suits our requirement we can also create our own scheduler. In the post we will discus how to create multiple scheduler and schedule pods based on different scheduler.]]></summary></entry><entry><title type="html">Creating static pod in kubernetes</title><link href="http://0.0.0.0:4000/creating-static-pod-in-kubernetes/" rel="alternate" type="text/html" title="Creating static pod in kubernetes" /><published>2019-11-24T15:55:52+00:00</published><updated>2019-11-24T15:55:52+00:00</updated><id>http://0.0.0.0:4000/creating-static-pod-in-kubernetes</id><content type="html" xml:base="http://0.0.0.0:4000/creating-static-pod-in-kubernetes/"><![CDATA[Static Pods are managed directly by the kubelet daemon on a specific node, without the API server observing them.  
+Static pods automatically restarts if it crashes. Static Pods are always bound to one Kubelet on a specific node. In the post we will try creating a static pod and watch the behaviour on delete.
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@kubernetes3:~#</span><span class="w"> </span>ps <span class="nt">-aux</span> |grep kubelet
-<span class="go">root 905 3.6 9.4 544516 95676 ? Ssl 16:49 9:13 /usr/bin/kubelet --bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf --config=/var/lib/kubelet/config.yaml --cgroup-driver=cgroupfs --network-plugin=cni --pod-infra-container-image=k8s.gcr.io/pause:3.1
-root 29041 0.0 0.0 14224 940 pts/0 S+ 21:03 0:00 grep --color=auto kubelet</span></code></pre></figure>
+### **Setup**
 
-<p>Now grep for the staticPodPath in config file</p>
+I am using the Virtualbox(running in Ubuntu 18.04 physical machine) for this entire setup . The physical machine is Dell inspiron laptop with 12GB RAM , Intel® Core™ i7-6500U CPU @ 2.50GHz × 4 and 512GB SSD hardisk.
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@kubernetes3:~#</span><span class="w"> </span><span class="nb">cat</span> /var/lib/kubelet/config.yaml |grep static
-<span class="go">staticPodPath: /etc/kubernetes/manifests</span></code></pre></figure>
+<!--kg-card-begin: image--><figure class="kg-card kg-image-card"><img src="/content/images/2019/11/setup-3.jpg" class="kg-image"></figure><!--kg-card-end: image-->
+##### Step 1: Find the static pod manifest location
 
-<h5 id="step-2-go-to-the-directory-and-add-a-yaml-for-pod">Step 2: Go to the directory and add a yaml for pod</h5>
+Go to any node where you want to run the static pod. I want to run in kubernetes3 node. Look for the kubelet process and config.yaml file associated with it
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@kubernetes3:~#</span><span class="w"> </span><span class="nb">cd</span> /etc/kubernetes/manifests/
-<span class="gp">root@kubernetes3:/etc/kubernetes/manifests#</span><span class="w"> </span>vim static-pod.yaml</code></pre></figure>
-<!--kg-card-begin: html-->
-<script src="https://gist.github.com/vigneshragupathy/bbd1584780b98d771c479a4413c97b6e.js"></script>
-<!--kg-card-end: html-->
+{% highlight console %}
 
-<p>Now try to grep for the pod name in the docker container list</p>
+root@kubernetes3:~# ps -aux |grep kubelet
+root 905 3.6 9.4 544516 95676 ? Ssl 16:49 9:13 /usr/bin/kubelet --bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf --config=/var/lib/kubelet/config.yaml --cgroup-driver=cgroupfs --network-plugin=cni --pod-infra-container-image=k8s.gcr.io/pause:3.1
+root 29041 0.0 0.0 14224 940 pts/0 S+ 21:03 0:00 grep --color=auto kubelet
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@kubernetes3:/etc/kubernetes/manifests#</span><span class="w"> </span>docker ps <span class="nt">-a</span> |grep static-web
-<span class="go">e5bf8054343a nginx "nginx -g 'daemon of…" 17 seconds ago Up 16 seconds k8s_web_static-web-kubernetes3_default_b42924f0dce4ce471e92742ee9bf65d7_0
-138ea3819894 k8s.gcr.io/pause:3.1 "/pause" 23 seconds ago Up 22 seconds k8s_POD_static-web-kubernetes3_default_b42924f0dce4ce471e92742ee9bf65d7_0</span></code></pre></figure>
+{% endhighlight %}
 
-<blockquote>
-  <p>We can see a new static pod is created automatically</p>
-</blockquote>
+Now grep for the staticPodPath in config file
 
-<h5 id="step-3-delete-the-container-and-watch-the-behaviour">Step 3: Delete the container and watch the behaviour</h5>
+{% highlight console %}
 
-<p>Now lets try to delete the static pod  </p>
+root@kubernetes3:~# cat /var/lib/kubelet/config.yaml |grep static
+staticPodPath: /etc/kubernetes/manifests
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@kubernetes3:/etc/kubernetes/manifests#</span><span class="w"> </span>docker stop k8s_web_static-web-kubernetes3_default_b42924f0dce4ce471e92742ee9bf65d7_0
-<span class="go">k8s_web_static-web-kubernetes3_default_b42924f0dce4ce471e92742ee9bf65d7_0
-</span><span class="gp">root@kubernetes3:/etc/kubernetes/manifests#</span><span class="w"> </span>docker <span class="nb">rm </span>k8s_web_static-web-kubernetes3_default_b42924f0dce4ce471e92742ee9bf65d7_0
-<span class="go">k8s_web_static-web-kubernetes3_default_b42924f0dce4ce471e92742ee9bf65d7_0</span></code></pre></figure>
+{% endhighlight %}
+##### Step 2: Go to the directory and add a yaml for pod
+{% highlight console %}
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@kubernetes3:/etc/kubernetes/manifests#</span><span class="w"> </span>docker ps <span class="nt">-a</span> |grep static-web
-<span class="go">d3d9713b937e nginx "nginx -g 'daemon of…" 1 second ago Up Less than a second k8s_web_static-web-kubernetes3_default_b42924f0dce4ce471e92742ee9bf65d7_1
-138ea3819894 k8s.gcr.io/pause:3.1 "/pause" About a minute ago Up About a minute k8s_POD_static-web-kubernetes3_default_b42924f0dce4ce471e92742ee9bf65d7_0</span></code></pre></figure>
+root@kubernetes3:~# cd /etc/kubernetes/manifests/
+root@kubernetes3:/etc/kubernetes/manifests# vim static-pod.yaml
 
-<blockquote>
-  <p>We can see the new static pod is automatically creating</p>
-</blockquote>]]></content><author><name>Vignesh Ragupathy</name></author><category term="kubernetes" /><category term="linux" /><category term="opensource" /><summary type="html"><![CDATA[Static Pods are managed directly by the kubelet daemon on a specific node, without the API server observing them. Static pods automatically restarts if it crashes. Static Pods are always bound to one Kubelet on a specific node. In the post we will try creating a static pod and watch the behaviour on delete.]]></summary></entry><entry><title type="html">Pod scheduling in kubernetes - detailed step by step</title><link href="http://0.0.0.0:4000/pod-scheduling-in-kubernetes-detailed-step-by-step/" rel="alternate" type="text/html" title="Pod scheduling in kubernetes - detailed step by step" /><published>2019-11-24T14:42:51+00:00</published><updated>2019-11-24T14:42:51+00:00</updated><id>http://0.0.0.0:4000/pod-scheduling-in-kubernetes-detailed-step-by-step</id><content type="html" xml:base="http://0.0.0.0:4000/pod-scheduling-in-kubernetes-detailed-step-by-step/"><![CDATA[<p>We can assign the pod to node based on various methods. Lets discuss all the below methods in the post</p>
+{% endhighlight %}<!--kg-card-begin: html--><script src="https://gist.github.com/vigneshragupathy/bbd1584780b98d771c479a4413c97b6e.js"></script><!--kg-card-end: html-->
 
-<ul>
-  <li>Using nodeName</li>
-  <li>Using labels in nodeSelector</li>
-  <li>Node Affinity/Anti Affinity</li>
-  <li>Pod Affinity/Anti Affinity</li>
-  <li>Taints and tolerations</li>
-</ul>
+Now try to grep for the pod name in the docker container list
 
-<h3 id="setup"><strong>Setup</strong></h3>
+{% highlight console %}
 
-<p>I am using the Virtualbox(running in Ubuntu 18.04 physical machine) for this entire setup . The physical machine is Dell inspiron laptop with 12GB RAM , Intel® Core™ i7-6500U CPU @ 2.50GHz × 4 and 512GB SSD hardisk.</p>
+root@kubernetes3:/etc/kubernetes/manifests# docker ps -a |grep static-web
+e5bf8054343a nginx "nginx -g 'daemon of…" 17 seconds ago Up 16 seconds k8s_web_static-web-kubernetes3_default_b42924f0dce4ce471e92742ee9bf65d7_0
+138ea3819894 k8s.gcr.io/pause:3.1 "/pause" 23 seconds ago Up 22 seconds k8s_POD_static-web-kubernetes3_default_b42924f0dce4ce471e92742ee9bf65d7_0
 
-<!--kg-card-begin: image-->
-<figure class="kg-card kg-image-card"><img src="/content/images/2019/11/setup-2.jpg" class="kg-image" /></figure>
-<!--kg-card-end: image-->
-<h3 id="using-nodename">Using nodeName</h3>
+{% endhighlight %}
 
-<h5 id="step-1-create-a-pod-and-assign-using-nodename">Step 1: Create a pod and assign using nodeName</h5>
+> We can see a new static pod is created automatically
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>vim pod_node_name.yaml</code></pre></figure>
-<!--kg-card-begin: html-->
-<script src="https://gist.github.com/vigneshragupathy/5f329160b5846ba72beba94bd46f8860.js"></script>
-<!--kg-card-end: html-->
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl apply <span class="nt">-f</span> pod_node_name.yaml 
-<span class="go">pod/nginx-pod-nodename created</span></code></pre></figure>
+##### Step 3: Delete the container and watch the behaviour
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl get pods <span class="nt">-o</span> wide
-<span class="go">NAME READY STATUS RESTARTS AGE IP NODE NOMINATED NODE READINESS GATES
-</span><span class="gp">busybox 1/1 Running 4 5h47m 192.168.249.141 kubernetes2 &lt;none&gt;</span><span class="w"> </span>&lt;none&gt;
-<span class="gp">nginx-pod-nodename 1/1 Running 0 8s 192.168.80.199 kubernetes3 &lt;none&gt;</span><span class="w"> </span>&lt;none&gt;
-<span class="gp">web-0 1/1 Running 2 5h21m 192.168.249.139 kubernetes2 &lt;none&gt;</span><span class="w"> </span>&lt;none&gt;
-<span class="gp">web-1 1/1 Running 2 5h21m 192.168.249.140 kubernetes2 &lt;none&gt;</span><span class="w"> </span>&lt;none&gt;
-<span class="gp">web-2 1/1 Running 2 5h22m 192.168.249.138 kubernetes2 &lt;none&gt;</span><span class="w"> </span>&lt;none&gt;</code></pre></figure>
+Now lets try to delete the static pod &nbsp;
 
-<blockquote>
-  <p>Now we can see the pod is created in the node “kubernetes3” conifgued in nodeName option</p>
-</blockquote>
+{% highlight console %}
 
-<!--kg-card-begin: hr-->
-<hr />
-<!--kg-card-end: hr-->
-<h3 id="using-labels-in-nodeselector">Using labels in nodeSelector</h3>
+root@kubernetes3:/etc/kubernetes/manifests# docker stop k8s_web_static-web-kubernetes3_default_b42924f0dce4ce471e92742ee9bf65d7_0
+k8s_web_static-web-kubernetes3_default_b42924f0dce4ce471e92742ee9bf65d7_0
+root@kubernetes3:/etc/kubernetes/manifests# docker rm k8s_web_static-web-kubernetes3_default_b42924f0dce4ce471e92742ee9bf65d7_0
+k8s_web_static-web-kubernetes3_default_b42924f0dce4ce471e92742ee9bf65d7_0
 
-<h5 id="step-1-add-a-new-label-to-the-node">Step 1: Add a new label to the node</h5>
+{% endhighlight %}{% highlight console %}
 
-<p>Check the current lables using the below command</p>
+root@kubernetes3:/etc/kubernetes/manifests# docker ps -a |grep static-web
+d3d9713b937e nginx "nginx -g 'daemon of…" 1 second ago Up Less than a second k8s_web_static-web-kubernetes3_default_b42924f0dce4ce471e92742ee9bf65d7_1
+138ea3819894 k8s.gcr.io/pause:3.1 "/pause" About a minute ago Up About a minute k8s_POD_static-web-kubernetes3_default_b42924f0dce4ce471e92742ee9bf65d7_0
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl get nodes <span class="nt">--show-labels</span> 
-<span class="go">NAME STATUS ROLES AGE VERSION LABELS
-kubernetes1 Ready master 20d v1.16.2 beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=kubernetes1,kubernetes.io/os=linux,node-role.kubernetes.io/master=
-</span><span class="gp">kubernetes2 Ready &lt;none&gt;</span><span class="w"> </span>20d v1.16.2 beta.kubernetes.io/arch<span class="o">=</span>amd64,beta.kubernetes.io/os<span class="o">=</span>linux,kubernetes.io/arch<span class="o">=</span>amd64,kubernetes.io/hostname<span class="o">=</span>kubernetes2,kubernetes.io/os<span class="o">=</span>linux
-<span class="gp">kubernetes3 Ready &lt;none&gt;</span><span class="w"> </span>117m v1.16.3 beta.kubernetes.io/arch<span class="o">=</span>amd64,beta.kubernetes.io/os<span class="o">=</span>linux,kubernetes.io/arch<span class="o">=</span>amd64,kubernetes.io/hostname<span class="o">=</span>kubernetes3,kubernetes.io/os<span class="o">=</span>linux,namee<span class="o">=</span>node3</code></pre></figure>
+{% endhighlight %}
 
-<p>Add a new lable “disktype=vhd” to the kubernetes3 node</p>
+> We can see the new static pod is automatically creating]]></content><author><name>Vignesh Ragupathy</name></author><category term="kubernetes" /><category term="linux" /><category term="opensource" /><summary type="html"><![CDATA[Static Pods are managed directly by the kubelet daemon on a specific node, without the API server observing them. Static pods automatically restarts if it crashes. Static Pods are always bound to one Kubelet on a specific node. In the post we will try creating a static pod and watch the behaviour on delete.]]></summary></entry><entry><title type="html">Pod scheduling in kubernetes - detailed step by step</title><link href="http://0.0.0.0:4000/pod-scheduling-in-kubernetes-detailed-step-by-step/" rel="alternate" type="text/html" title="Pod scheduling in kubernetes - detailed step by step" /><published>2019-11-24T14:42:51+00:00</published><updated>2019-11-24T14:42:51+00:00</updated><id>http://0.0.0.0:4000/pod-scheduling-in-kubernetes-detailed-step-by-step</id><content type="html" xml:base="http://0.0.0.0:4000/pod-scheduling-in-kubernetes-detailed-step-by-step/"><![CDATA[We can assign the pod to node based on various methods. Lets discuss all the below methods in the post
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl label nodes kubernetes3 <span class="nv">disktype</span><span class="o">=</span>vhd
-<span class="go">node/kubernetes3 labeled
+- Using nodeName
+- Using labels in nodeSelector
+- Node Affinity/Anti Affinity
+- Pod Affinity/Anti Affinity
+- Taints and tolerations
 
-</span><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl get nodes <span class="nt">--show-labels</span> 
-<span class="go">NAME STATUS ROLES AGE VERSION LABELS
-kubernetes1 Ready master 20d v1.16.2 beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=kubernetes1,kubernetes.io/os=linux,node-role.kubernetes.io/master=
-</span><span class="gp">kubernetes2 Ready &lt;none&gt;</span><span class="w"> </span>20d v1.16.2 beta.kubernetes.io/arch<span class="o">=</span>amd64,beta.kubernetes.io/os<span class="o">=</span>linux,kubernetes.io/arch<span class="o">=</span>amd64,kubernetes.io/hostname<span class="o">=</span>kubernetes2,kubernetes.io/os<span class="o">=</span>linux
-<span class="gp">kubernetes3 Ready &lt;none&gt;</span><span class="w"> </span>118m v1.16.3 beta.kubernetes.io/arch<span class="o">=</span>amd64,beta.kubernetes.io/os<span class="o">=</span>linux,disktype<span class="o">=</span>vhd,kubernetes.io/arch<span class="o">=</span>amd64,kubernetes.io/hostname<span class="o">=</span>kubernetes3,kubernetes.io/os<span class="o">=</span>linux,namee<span class="o">=</span>node3</code></pre></figure>
+### **Setup**
 
-<h5 id="step-2-create-a-pod-and-assign-using-nodeselector">Step 2: Create a pod and assign using nodeSelector</h5>
+I am using the Virtualbox(running in Ubuntu 18.04 physical machine) for this entire setup . The physical machine is Dell inspiron laptop with 12GB RAM , Intel® Core™ i7-6500U CPU @ 2.50GHz × 4 and 512GB SSD hardisk.
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>vim pod_label.yaml</code></pre></figure>
-<!--kg-card-begin: html-->
-<script src="https://gist.github.com/vigneshragupathy/dc26cbe554bd78b4e17103bcd96d153f.js"></script>
-<!--kg-card-end: html-->
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl create <span class="nt">-f</span> pod_label.yaml 
-<span class="go">pod/nginx-pod-label created</span></code></pre></figure>
+<!--kg-card-begin: image--><figure class="kg-card kg-image-card"><img src="/content/images/2019/11/setup-2.jpg" class="kg-image"></figure><!--kg-card-end: image-->
+### Using nodeName
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl get pods <span class="nt">-o</span> wide
-<span class="go">NAME READY STATUS RESTARTS AGE IP NODE NOMINATED NODE READINESS GATES
-</span><span class="gp">busybox 1/1 Running 3 4h50m 192.168.249.141 kubernetes2 &lt;none&gt;</span><span class="w"> </span>&lt;none&gt;
-<span class="gp">nginx-pod-label 1/1 Running 0 4m14s 192.168.80.195 kubernetes3 &lt;none&gt;</span><span class="w"> </span>&lt;none&gt;
-<span class="gp">web-0 1/1 Running 2 4h25m 192.168.249.139 kubernetes2 &lt;none&gt;</span><span class="w"> </span>&lt;none&gt;
-<span class="gp">web-1 1/1 Running 2 4h25m 192.168.249.140 kubernetes2 &lt;none&gt;</span><span class="w"> </span>&lt;none&gt;
-<span class="gp">web-2 1/1 Running 2 4h25m 192.168.249.138 kubernetes2 &lt;none&gt;</span><span class="w"> </span>&lt;none&gt;
-<span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span></code></pre></figure>
+##### Step 1: Create a pod and assign using nodeName
+{% highlight console %}
 
-<blockquote>
-  <p>Now we can see the new pod is assinged to kubernetes3 based on nodeSelector label option</p>
-</blockquote>
+vikki@kubernetes1:~$ vim pod_node_name.yaml
+
+{% endhighlight %}<!--kg-card-begin: html--><script src="https://gist.github.com/vigneshragupathy/5f329160b5846ba72beba94bd46f8860.js"></script><!--kg-card-end: html-->{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl apply -f pod_node_name.yaml 
+pod/nginx-pod-nodename created
+
+{% endhighlight %}{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl get pods -o wide
+NAME READY STATUS RESTARTS AGE IP NODE NOMINATED NODE READINESS GATES
+busybox 1/1 Running 4 5h47m 192.168.249.141 kubernetes2 <none> <none>
+nginx-pod-nodename 1/1 Running 0 8s 192.168.80.199 kubernetes3 <none> <none>
+web-0 1/1 Running 2 5h21m 192.168.249.139 kubernetes2 <none> <none>
+web-1 1/1 Running 2 5h21m 192.168.249.140 kubernetes2 <none> <none>
+web-2 1/1 Running 2 5h22m 192.168.249.138 kubernetes2 <none> <none>
+
+{% endhighlight %}
+
+> Now we can see the pod is created in the node "kubernetes3" conifgued in nodeName option
 
 <!--kg-card-begin: hr-->
-<hr />
+* * *
 <!--kg-card-end: hr-->
-<h3 id="advance-pod-scheduling">Advance pod scheduling</h3>
+### Using labels in nodeSelector
 
-<p>We can also assing the pod to a specific node using the Node/pod affinity and anti affinity rules.</p>
+##### Step 1: Add a new label to the node
 
-<p>Affinity types:</p>
+Check the current lables using the below command
 
-<ul>
-  <li>requiredDuringSchedulingRequiredDuringExecution</li>
-  <li>requiredDuringSchedulingIgnoredDuringExecution</li>
-  <li>preferredDuringSchedulingIgnoredDuringExecution</li>
-</ul>
+{% highlight console %}
 
-<p>Affinity operators:</p>
+vikki@kubernetes1:~$ kubectl get nodes --show-labels 
+NAME STATUS ROLES AGE VERSION LABELS
+kubernetes1 Ready master 20d v1.16.2 beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=kubernetes1,kubernetes.io/os=linux,node-role.kubernetes.io/master=
+kubernetes2 Ready <none> 20d v1.16.2 beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=kubernetes2,kubernetes.io/os=linux
+kubernetes3 Ready <none> 117m v1.16.3 beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=kubernetes3,kubernetes.io/os=linux,namee=node3
 
-<ul>
-  <li>In</li>
-  <li>NotIn</li>
-  <li>Exists</li>
-  <li>DoesNotExist</li>
-  <li>Gt</li>
-  <li>Lt</li>
-</ul>
+{% endhighlight %}
 
-<h3 id="node-affinityanti-affinity">Node Affinity/Anti Affinity</h3>
+Add a new lable "disktype=vhd" to the kubernetes3 node
 
-<h5 id="step-1-create-a-pod-with-node-affinity">Step 1: Create a pod with node affinity</h5>
+{% highlight console %}
 
-<p>Create a pod with node affinity specs and match the lable using matchExpressions spec</p>
+vikki@kubernetes1:~$ kubectl label nodes kubernetes3 disktype=vhd
+node/kubernetes3 labeled
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>vim pod_node_affinity.yaml </code></pre></figure>
-<!--kg-card-begin: html-->
-<script src="https://gist.github.com/vigneshragupathy/704e4a3ce125a5e66b5b754f9edcd874.js"></script>
-<!--kg-card-end: html-->
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl create <span class="nt">-f</span> pod_node_affinity.yaml 
-<span class="go">pod/nginx-pod-nodeaffinity created</span></code></pre></figure>
+vikki@kubernetes1:~$ kubectl get nodes --show-labels 
+NAME STATUS ROLES AGE VERSION LABELS
+kubernetes1 Ready master 20d v1.16.2 beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=kubernetes1,kubernetes.io/os=linux,node-role.kubernetes.io/master=
+kubernetes2 Ready <none> 20d v1.16.2 beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=kubernetes2,kubernetes.io/os=linux
+kubernetes3 Ready <none> 118m v1.16.3 beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,disktype=vhd,kubernetes.io/arch=amd64,kubernetes.io/hostname=kubernetes3,kubernetes.io/os=linux,namee=node3
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl get pods
-<span class="go">NAME READY STATUS RESTARTS AGE
+{% endhighlight %}
+##### Step 2: Create a pod and assign using nodeSelector
+{% highlight console %}
+
+vikki@kubernetes1:~$ vim pod_label.yaml
+
+{% endhighlight %}<!--kg-card-begin: html--><script src="https://gist.github.com/vigneshragupathy/dc26cbe554bd78b4e17103bcd96d153f.js"></script><!--kg-card-end: html-->{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl create -f pod_label.yaml 
+pod/nginx-pod-label created
+
+{% endhighlight %}{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl get pods -o wide
+NAME READY STATUS RESTARTS AGE IP NODE NOMINATED NODE READINESS GATES
+busybox 1/1 Running 3 4h50m 192.168.249.141 kubernetes2 <none> <none>
+nginx-pod-label 1/1 Running 0 4m14s 192.168.80.195 kubernetes3 <none> <none>
+web-0 1/1 Running 2 4h25m 192.168.249.139 kubernetes2 <none> <none>
+web-1 1/1 Running 2 4h25m 192.168.249.140 kubernetes2 <none> <none>
+web-2 1/1 Running 2 4h25m 192.168.249.138 kubernetes2 <none> <none>
+vikki@kubernetes1:~$ 
+
+{% endhighlight %}
+
+> Now we can see the new pod is assinged to kubernetes3 based on nodeSelector label option
+
+<!--kg-card-begin: hr-->
+* * *
+<!--kg-card-end: hr-->
+### Advance pod scheduling
+
+We can also assing the pod to a specific node using the Node/pod affinity and anti affinity rules.
+
+Affinity types:
+
+- requiredDuringSchedulingRequiredDuringExecution
+- requiredDuringSchedulingIgnoredDuringExecution
+- preferredDuringSchedulingIgnoredDuringExecution
+
+Affinity operators:
+
+- In
+- NotIn
+- Exists
+- DoesNotExist
+- Gt
+- Lt
+
+### Node Affinity/Anti Affinity
+
+##### Step 1: Create a pod with node affinity 
+
+Create a pod with node affinity specs and match the lable using matchExpressions spec
+
+{% highlight console %}
+
+vikki@kubernetes1:~$ vim pod_node_affinity.yaml 
+
+{% endhighlight %}<!--kg-card-begin: html--><script src="https://gist.github.com/vigneshragupathy/704e4a3ce125a5e66b5b754f9edcd874.js"></script><!--kg-card-end: html-->{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl create -f pod_node_affinity.yaml 
+pod/nginx-pod-nodeaffinity created
+
+{% endhighlight %}{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl get pods
+NAME READY STATUS RESTARTS AGE
 busybox 1/1 Running 3 5h17m
 nginx-pod-label 1/1 Running 0 31m
 nginx-pod-nodeaffinity 0/1 Pending 0 4s
 web-0 1/1 Running 2 4h52m
 web-1 1/1 Running 2 4h52m
-web-2 1/1 Running 2 4h52m</span></code></pre></figure>
+web-2 1/1 Running 2 4h52m
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl describe pods nginx-pod-nodeaffinity |grep Events: <span class="nt">-A</span> 3
-<span class="go">Events:
+{% endhighlight %}{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl describe pods nginx-pod-nodeaffinity |grep Events: -A 3
+Events:
     Type Reason Age From Message
     ---- ------ ---- ---- -------
-</span><span class="gp">    Warning FailedScheduling &lt;unknown&gt;</span><span class="w"> </span>default-scheduler 0/3 nodes are available: 3 node<span class="o">(</span>s<span class="o">)</span> didn<span class="s1">'t match node selector.
-</span><span class="go">    </span></code></pre></figure>
+    Warning FailedScheduling <unknown> default-scheduler 0/3 nodes are available: 3 node(s) didn't match node selector.
+    
 
-<blockquote>
-  <p>Now the pod is failing because there is no node has the match lables</p>
-</blockquote>
+{% endhighlight %}
 
-<p>Lets add a label bandwidth to the kubernetes3 node</p>
+> Now the pod is failing because there is no node has the match lables
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl label nodes kubernetes3 <span class="nv">bandwidth</span><span class="o">=</span>100GB
-<span class="go">node/kubernetes3 labeled</span></code></pre></figure>
+Lets add a label bandwidth to the kubernetes3 node
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl describe pods nginx-pod-nodeaffinity |grep Events: <span class="nt">-A</span> 5
-<span class="go">Events:
+{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl label nodes kubernetes3 bandwidth=100GB
+node/kubernetes3 labeled
+
+{% endhighlight %}{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl describe pods nginx-pod-nodeaffinity |grep Events: -A 5
+Events:
     Type Reason Age From Message
     ---- ------ ---- ---- -------
-</span><span class="gp">    Warning FailedScheduling &lt;unknown&gt;</span><span class="w"> </span>default-scheduler 0/3 nodes are available: 3 node<span class="o">(</span>s<span class="o">)</span> didn<span class="s1">'t match node selector.
-</span><span class="gp">    Warning FailedScheduling &lt;unknown&gt;</span><span class="w"> </span><span class="s1">default-scheduler 0/3 nodes are available: 3 node(s) didn'</span>t match node selector.
-<span class="gp">    Normal Scheduled &lt;unknown&gt;</span><span class="w"> </span>default-scheduler Successfully assigned default/nginx-pod-nodeaffinity to kubernetes3</code></pre></figure>
+    Warning FailedScheduling <unknown> default-scheduler 0/3 nodes are available: 3 node(s) didn't match node selector.
+    Warning FailedScheduling <unknown> default-scheduler 0/3 nodes are available: 3 node(s) didn't match node selector.
+    Normal Scheduled <unknown> default-scheduler Successfully assigned default/nginx-pod-nodeaffinity to kubernetes3
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl get pods <span class="nt">-o</span> wide
-<span class="go">NAME READY STATUS RESTARTS AGE IP NODE NOMINATED NODE READINESS GATES
-</span><span class="gp">busybox 1/1 Running 3 5h23m 192.168.249.141 kubernetes2 &lt;none&gt;</span><span class="w"> </span>&lt;none&gt;
-<span class="gp">nginx-pod-label 1/1 Running 0 37m 192.168.80.195 kubernetes3 &lt;none&gt;</span><span class="w"> </span>&lt;none&gt;
-<span class="gp">nginx-pod-nodeaffinity 1/1 Running 0 6m16s 192.168.80.196 kubernetes3 &lt;none&gt;</span><span class="w"> </span>&lt;none&gt;
-<span class="gp">web-0 1/1 Running 2 4h58m 192.168.249.139 kubernetes2 &lt;none&gt;</span><span class="w"> </span>&lt;none&gt;
-<span class="gp">web-1 1/1 Running 2 4h58m 192.168.249.140 kubernetes2 &lt;none&gt;</span><span class="w"> </span>&lt;none&gt;
-<span class="gp">web-2 1/1 Running 2 4h59m 192.168.249.138 kubernetes2 &lt;none&gt;</span><span class="w"> </span>&lt;none&gt;
-<span class="go">    </span></code></pre></figure>
+{% endhighlight %}{% highlight console %}
 
-<blockquote>
-  <p>Now we can see the node pod is successully assinged to the kubernetes3 node after adding the label</p>
-</blockquote>
+vikki@kubernetes1:~$ kubectl get pods -o wide
+NAME READY STATUS RESTARTS AGE IP NODE NOMINATED NODE READINESS GATES
+busybox 1/1 Running 3 5h23m 192.168.249.141 kubernetes2 <none> <none>
+nginx-pod-label 1/1 Running 0 37m 192.168.80.195 kubernetes3 <none> <none>
+nginx-pod-nodeaffinity 1/1 Running 0 6m16s 192.168.80.196 kubernetes3 <none> <none>
+web-0 1/1 Running 2 4h58m 192.168.249.139 kubernetes2 <none> <none>
+web-1 1/1 Running 2 4h58m 192.168.249.140 kubernetes2 <none> <none>
+web-2 1/1 Running 2 4h59m 192.168.249.138 kubernetes2 <none> <none>
+    
+
+{% endhighlight %}
+
+> Now we can see the node pod is successully assinged to the kubernetes3 node after adding the label
 
 <!--kg-card-begin: hr-->
-<hr />
+* * *
 <!--kg-card-end: hr-->
-<h3 id="pod-affinityanti-affinity">Pod Affinity/Anti Affinity</h3>
+### Pod Affinity/Anti Affinity
 
-<p>We can also assing the pod to a specific node using the pod affinity and anti affinity rules.</p>
+We can also assing the pod to a specific node using the pod affinity and anti affinity rules.
 
-<h5 id="step-1-create-a-pod-with-pod-affinity">Step 1: Create a pod with pod affinity</h5>
+##### Step 1: Create a pod with pod affinity
 
-<p>Create a pod with pod affinity specs and match the lable using matchExpressions spec</p>
+Create a pod with pod affinity specs and match the lable using matchExpressions spec
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>vim pod_pod_affinity.yaml </code></pre></figure>
-<!--kg-card-begin: html-->
-<script src="https://gist.github.com/vigneshragupathy/a4048e59449210e28e4bf66971c8d56a.js"></script>
-<!--kg-card-end: html-->
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl create <span class="nt">-f</span> pod_pod_affinity.yaml 
-<span class="go">pod/nginx-pod-podaffinity created</span></code></pre></figure>
+{% highlight console %}
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl get pods
-<span class="go">NAME READY STATUS RESTARTS AGE
+vikki@kubernetes1:~$ vim pod_pod_affinity.yaml 
+
+{% endhighlight %}<!--kg-card-begin: html--><script src="https://gist.github.com/vigneshragupathy/a4048e59449210e28e4bf66971c8d56a.js"></script><!--kg-card-end: html-->{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl create -f pod_pod_affinity.yaml 
+pod/nginx-pod-podaffinity created
+
+{% endhighlight %}{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl get pods
+NAME READY STATUS RESTARTS AGE
 busybox 1/1 Running 4 5h36m
 nginx-pod-label 1/1 Running 0 49m
 nginx-pod-nodeaffinity 1/1 Running 0 18m
 nginx-pod-podaffinity 0/1 Pending 0 4s
 web-0 1/1 Running 2 5h10m
 web-1 1/1 Running 2 5h10m
-web-2 1/1 Running 2 5h11m</span></code></pre></figure>
+web-2 1/1 Running 2 5h11m
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl describe pods nginx-pod-podaffinity |grep Events: <span class="nt">-A</span> 5 
-<span class="go">Events:
+{% endhighlight %}{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl describe pods nginx-pod-podaffinity |grep Events: -A 5 
+Events:
     Type Reason Age From Message
     ---- ------ ---- ---- -------
-</span><span class="gp">    Warning FailedScheduling &lt;unknown&gt;</span><span class="w"> </span>default-scheduler 0/3 nodes are available: 1 node<span class="o">(</span>s<span class="o">)</span> had taints that the pod didn<span class="s1">'t tolerate, 2 node(s) didn'</span>t match pod affinity rules, 2 node<span class="o">(</span>s<span class="o">)</span> didn<span class="s1">'t match pod affinity/anti-affinity.
-</span><span class="gp">    Warning FailedScheduling &lt;unknown&gt;</span><span class="w"> </span><span class="s1">default-scheduler 0/3 nodes are available: 1 node(s) had taints that the pod didn'</span>t tolerate, 2 node<span class="o">(</span>s<span class="o">)</span> didn<span class="s1">'t match pod affinity rules, 2 node(s) didn'</span>t match pod affinity/anti-affinity.</code></pre></figure>
+    Warning FailedScheduling <unknown> default-scheduler 0/3 nodes are available: 1 node(s) had taints that the pod didn't tolerate, 2 node(s) didn't match pod affinity rules, 2 node(s) didn't match pod affinity/anti-affinity.
+    Warning FailedScheduling <unknown> default-scheduler 0/3 nodes are available: 1 node(s) had taints that the pod didn't tolerate, 2 node(s) didn't match pod affinity rules, 2 node(s) didn't match pod affinity/anti-affinity.
 
-<blockquote>
-  <p>Now the pod is failing because there is no pod running in any nodes that  has the match lables</p>
-</blockquote>
+{% endhighlight %}
 
-<p>Lets create a new pod with the label configued previously</p>
+> Now the pod is failing because there is no pod running in any nodes that &nbsp;has the match lables
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>vim pod_label_podaffinity.yaml</code></pre></figure>
-<!--kg-card-begin: html-->
-<script src="https://gist.github.com/vigneshragupathy/09965427e66db5bc14443f49f2ed2a9d.js"></script>
-<!--kg-card-end: html-->
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl apply <span class="nt">-f</span> pod_label_podaffinity.yaml 
-<span class="go">pod/nginx-pod-web-nginx-backend created</span></code></pre></figure>
+Lets create a new pod with the label configued previously
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl describe pods nginx-pod-podaffinity |grep Events: <span class="nt">-A</span> 5 
-<span class="go">Events:
+{% highlight console %}
+
+vikki@kubernetes1:~$ vim pod_label_podaffinity.yaml
+
+{% endhighlight %}<!--kg-card-begin: html--><script src="https://gist.github.com/vigneshragupathy/09965427e66db5bc14443f49f2ed2a9d.js"></script><!--kg-card-end: html-->{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl apply -f pod_label_podaffinity.yaml 
+pod/nginx-pod-web-nginx-backend created
+
+{% endhighlight %}{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl describe pods nginx-pod-podaffinity |grep Events: -A 5 
+Events:
     Type Reason Age From Message
     ---- ------ ---- ---- -------
-</span><span class="gp">    Warning FailedScheduling &lt;unknown&gt;</span><span class="w"> </span>default-scheduler 0/3 nodes are available: 1 node<span class="o">(</span>s<span class="o">)</span> had taints that the pod didn<span class="s1">'t tolerate, 2 node(s) didn'</span>t match pod affinity rules, 2 node<span class="o">(</span>s<span class="o">)</span> didn<span class="s1">'t match pod affinity/anti-affinity.
-</span><span class="gp">    Warning FailedScheduling &lt;unknown&gt;</span><span class="w"> </span><span class="s1">default-scheduler 0/3 nodes are available: 1 node(s) had taints that the pod didn'</span>t tolerate, 2 node<span class="o">(</span>s<span class="o">)</span> didn<span class="s1">'t match pod affinity rules, 2 node(s) didn'</span>t match pod affinity/anti-affinity.
-<span class="gp">    Normal Scheduled &lt;unknown&gt;</span><span class="w"> </span>default-scheduler Successfully assigned default/nginx-pod-podaffinity to kubernetes3</code></pre></figure>
+    Warning FailedScheduling <unknown> default-scheduler 0/3 nodes are available: 1 node(s) had taints that the pod didn't tolerate, 2 node(s) didn't match pod affinity rules, 2 node(s) didn't match pod affinity/anti-affinity.
+    Warning FailedScheduling <unknown> default-scheduler 0/3 nodes are available: 1 node(s) had taints that the pod didn't tolerate, 2 node(s) didn't match pod affinity rules, 2 node(s) didn't match pod affinity/anti-affinity.
+    Normal Scheduled <unknown> default-scheduler Successfully assigned default/nginx-pod-podaffinity to kubernetes3
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl get pods <span class="nt">-o</span> wide
-<span class="go">NAME READY STATUS RESTARTS AGE IP NODE NOMINATED NODE READINESS GATES
-</span><span class="gp">busybox 1/1 Running 4 5h39m 192.168.249.141 kubernetes2 &lt;none&gt;</span><span class="w"> </span>&lt;none&gt;
-<span class="gp">nginx-pod-label 1/1 Running 0 52m 192.168.80.195 kubernetes3 &lt;none&gt;</span><span class="w"> </span>&lt;none&gt;
-<span class="gp">nginx-pod-nodeaffinity 1/1 Running 0 21m 192.168.80.196 kubernetes3 &lt;none&gt;</span><span class="w"> </span>&lt;none&gt;
-<span class="gp">nginx-pod-podaffinity 1/1 Running 0 3m2s 192.168.80.197 kubernetes3 &lt;none&gt;</span><span class="w"> </span>&lt;none&gt;
-<span class="gp">nginx-pod-web-nginx-backend 1/1 Running 0 14s 192.168.80.198 kubernetes3 &lt;none&gt;</span><span class="w"> </span>&lt;none&gt;
-<span class="gp">web-0 1/1 Running 2 5h13m 192.168.249.139 kubernetes2 &lt;none&gt;</span><span class="w"> </span>&lt;none&gt;
-<span class="gp">web-1 1/1 Running 2 5h13m 192.168.249.140 kubernetes2 &lt;none&gt;</span><span class="w"> </span>&lt;none&gt;
-<span class="gp">web-2 1/1 Running 2 5h14m 192.168.249.138 kubernetes2 &lt;none&gt;</span><span class="w"> </span>&lt;none&gt;</code></pre></figure>
+{% endhighlight %}{% highlight console %}
 
-<blockquote>
-  <p>Now we can see only the pod with lable app: web-nginx-backend is created, the previous pod is also created in the same node</p>
-</blockquote>
+vikki@kubernetes1:~$ kubectl get pods -o wide
+NAME READY STATUS RESTARTS AGE IP NODE NOMINATED NODE READINESS GATES
+busybox 1/1 Running 4 5h39m 192.168.249.141 kubernetes2 <none> <none>
+nginx-pod-label 1/1 Running 0 52m 192.168.80.195 kubernetes3 <none> <none>
+nginx-pod-nodeaffinity 1/1 Running 0 21m 192.168.80.196 kubernetes3 <none> <none>
+nginx-pod-podaffinity 1/1 Running 0 3m2s 192.168.80.197 kubernetes3 <none> <none>
+nginx-pod-web-nginx-backend 1/1 Running 0 14s 192.168.80.198 kubernetes3 <none> <none>
+web-0 1/1 Running 2 5h13m 192.168.249.139 kubernetes2 <none> <none>
+web-1 1/1 Running 2 5h13m 192.168.249.140 kubernetes2 <none> <none>
+web-2 1/1 Running 2 5h14m 192.168.249.138 kubernetes2 <none> <none>
+
+{% endhighlight %}
+
+> Now we can see only the pod with lable app: web-nginx-backend is created, the previous pod is also created in the same node
 
 <!--kg-card-begin: hr-->
-<hr />
+* * *
 <!--kg-card-end: hr-->
-<h3 id="taints-and-tolerations">Taints and tolerations</h3>
+### Taints and tolerations
 
-<p>Node affinity is a property of pods that attracts them to a set of nodes. Taints are the opposite, they allow a node to repel a set of pods.</p>
+Node affinity is a property of pods that attracts them to a set of nodes. Taints are the opposite, they allow a node to repel a set of pods.
 
-<h5 id="step-1-create-a-label-to-node-and-assign-pod-using-nodeselector">Step 1: Create a label to node and assign pod using nodeSelector</h5>
+##### Step 1: Create a label to node and assign pod using nodeSelector
+{% highlight console %}
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl label nodes kubernetes4 <span class="nv">app</span><span class="o">=</span>highperformance
-<span class="go">node/kubernetes4 labeled
-</span><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl get nodes kubernetes4 <span class="nt">--show-labels</span> 
-<span class="go">NAME STATUS ROLES AGE VERSION LABELS
-</span><span class="gp">kubernetes4 Ready &lt;none&gt;</span><span class="w"> </span>2m55s v1.16.3 <span class="nv">app</span><span class="o">=</span>highperformance,beta.kubernetes.io/arch<span class="o">=</span>amd64,beta.kubernetes.io/os<span class="o">=</span>linux,kubernetes.io/arch<span class="o">=</span>amd64,kubernetes.io/hostname<span class="o">=</span>kubernetes4,kubernetes.io/os<span class="o">=</span>linux</code></pre></figure>
+vikki@kubernetes1:~$ kubectl label nodes kubernetes4 app=highperformance
+node/kubernetes4 labeled
+vikki@kubernetes1:~$ kubectl get nodes kubernetes4 --show-labels 
+NAME STATUS ROLES AGE VERSION LABELS
+kubernetes4 Ready <none> 2m55s v1.16.3 app=highperformance,beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=kubernetes4,kubernetes.io/os=linux
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">    vikki@kubernetes1:~$</span><span class="w"> </span>vim pod_label_1.yaml</code></pre></figure>
-<!--kg-card-begin: html-->
-<script src="https://gist.github.com/vigneshragupathy/fb98260bd5405feee85ca565b188933b.js"></script>
-<!--kg-card-end: html-->
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl create <span class="nt">-f</span> pod_label_1.yaml 
-<span class="go">pod/nginx-pod-taint created</span></code></pre></figure>
+{% endhighlight %}{% highlight console %}
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl get pod nginx-pod-taint <span class="nt">-o</span> wide
-<span class="go">NAME READY STATUS RESTARTS AGE IP NODE NOMINATED NODE READINESS GATES
-</span><span class="gp">nginx-pod-taint 1/1 Running 0 10m 192.168.48.129 kubernetes4 &lt;none&gt;</span><span class="w"> </span>&lt;none&gt;</code></pre></figure>
+    vikki@kubernetes1:~$ vim pod_label_1.yaml
 
-<blockquote>
-  <p>We can see the new pod nginx-pod-taint is created and assigned to kubernetes4 node</p>
-</blockquote>
+{% endhighlight %}<!--kg-card-begin: html--><script src="https://gist.github.com/vigneshragupathy/fb98260bd5405feee85ca565b188933b.js"></script><!--kg-card-end: html-->{% highlight console %}
 
-<h5 id="step-2-create-a-taint">Step 2: Create a taint</h5>
+vikki@kubernetes1:~$ kubectl create -f pod_label_1.yaml 
+pod/nginx-pod-taint created
 
-<p>Now lets create a taint “NoSchedule” and add to the kubernetes4 node.</p>
+{% endhighlight %}{% highlight console %}
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl taint nodes kubernetes4 <span class="nv">key1</span><span class="o">=</span>value1:NoSchedule
-<span class="go">node/kubernetes4 tainted
+vikki@kubernetes1:~$ kubectl get pod nginx-pod-taint -o wide
+NAME READY STATUS RESTARTS AGE IP NODE NOMINATED NODE READINESS GATES
+nginx-pod-taint 1/1 Running 0 10m 192.168.48.129 kubernetes4 <none> <none>
 
-</span><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl get nodes kubernetes4 <span class="nt">-o</span> yaml |grep <span class="nt">-i</span> taint <span class="nt">-A</span> 3
-<span class="go">    taints:
+{% endhighlight %}
+
+> We can see the new pod nginx-pod-taint is created and assigned to kubernetes4 node
+
+##### Step 2: Create a taint
+
+Now lets create a taint "NoSchedule" and add to the kubernetes4 node.
+
+{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl taint nodes kubernetes4 key1=value1:NoSchedule
+node/kubernetes4 tainted
+
+vikki@kubernetes1:~$ kubectl get nodes kubernetes4 -o yaml |grep -i taint -A 3
+    taints:
     - effect: NoSchedule
     key: key1
-    value: value1</span></code></pre></figure>
+    value: value1
 
-<h5 id="step-3-create-a-new-pod-and-try-assign-to-kubernetes4">Step 3: Create a new pod and try assign to kubernetes4</h5>
+{% endhighlight %}
+##### Step 3: Create a new pod and try assign to kubernetes4
 
-<p>Now create a new pod and use nodeSelector to assign to kubernetes4</p>
+Now create a new pod and use nodeSelector to assign to kubernetes4
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>vim pod_label_2.yaml</code></pre></figure>
-<!--kg-card-begin: html-->
-<script src="https://gist.github.com/vigneshragupathy/4da565b636ec481e4f6e5147b2419a93.js"></script>
-<!--kg-card-end: html-->
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl create <span class="nt">-f</span> pod_label_2.yaml 
-<span class="go">pod/nginx-pod-taint-2 created</span></code></pre></figure>
+{% highlight console %}
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl get pods nginx-pod-taint-2 <span class="nt">-o</span> wide
-<span class="go">NAME READY STATUS RESTARTS AGE IP NODE NOMINATED NODE READINESS GATES
-</span><span class="gp">nginx-pod-taint-2 0/1 Pending 0 7s &lt;none&gt;</span><span class="w"> </span>&lt;none&gt; &lt;none&gt; &lt;none&gt;</code></pre></figure>
+vikki@kubernetes1:~$ vim pod_label_2.yaml
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl describe pod nginx-pod-taint-2 |grep <span class="nt">-i</span> events: <span class="nt">-A</span> 5
-<span class="go">Events:
+{% endhighlight %}<!--kg-card-begin: html--><script src="https://gist.github.com/vigneshragupathy/4da565b636ec481e4f6e5147b2419a93.js"></script><!--kg-card-end: html-->{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl create -f pod_label_2.yaml 
+pod/nginx-pod-taint-2 created
+
+{% endhighlight %}{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl get pods nginx-pod-taint-2 -o wide
+NAME READY STATUS RESTARTS AGE IP NODE NOMINATED NODE READINESS GATES
+nginx-pod-taint-2 0/1 Pending 0 7s <none> <none> <none> <none>
+
+{% endhighlight %}{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl describe pod nginx-pod-taint-2 |grep -i events: -A 5
+Events:
     Type Reason Age From Message
     ---- ------ ---- ---- -------
-</span><span class="gp">    Warning FailedScheduling &lt;unknown&gt;</span><span class="w"> </span>default-scheduler 0/4 nodes are available: 1 node<span class="o">(</span>s<span class="o">)</span> had taints that the pod didn<span class="s1">'t tolerate, 3 node(s) didn'</span>t match node selector.
-<span class="gp">    Warning FailedScheduling &lt;unknown&gt;</span><span class="w"> </span>default-scheduler 0/4 nodes are available: 1 node<span class="o">(</span>s<span class="o">)</span> had taints that the pod didn<span class="s1">'t tolerate, 3 node(s) didn'</span>t match node selector.</code></pre></figure>
+    Warning FailedScheduling <unknown> default-scheduler 0/4 nodes are available: 1 node(s) had taints that the pod didn't tolerate, 3 node(s) didn't match node selector.
+    Warning FailedScheduling <unknown> default-scheduler 0/4 nodes are available: 1 node(s) had taints that the pod didn't tolerate, 3 node(s) didn't match node selector.
 
-<blockquote>
-  <p>We can see the pod creatation if failing due to the taints setting.</p>
-</blockquote>
+{% endhighlight %}
 
-<h5 id="step-4-update-the-pod-with-tolerations">Step 4: Update the pod with tolerations</h5>
+> We can see the pod creatation if failing due to the taints setting.
 
-<p>Now lets add toleration to the same pod for “NoSchedule” and apply the changes.</p>
+##### Step 4: Update the pod with tolerations
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>vim pod_label_3.yaml </code></pre></figure>
-<!--kg-card-begin: html-->
-<script src="https://gist.github.com/vigneshragupathy/5790929db238b9276d4961d3a91e6a29.js"></script>
-<!--kg-card-end: html-->
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl apply <span class="nt">-f</span> pod_label_3.yaml 
-<span class="go">Warning: kubectl apply should be used on resource created by either kubectl create --save-config or kubectl apply
-pod/nginx-pod-taint-2 configured</span></code></pre></figure>
+Now lets add toleration to the same pod for "NoSchedule" and apply the changes.
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl describe pod nginx-pod-taint-2 |grep <span class="nt">-i</span> events: <span class="nt">-A</span> 5
-<span class="go">Events:
+{% highlight console %}
+
+vikki@kubernetes1:~$ vim pod_label_3.yaml 
+
+{% endhighlight %}<!--kg-card-begin: html--><script src="https://gist.github.com/vigneshragupathy/5790929db238b9276d4961d3a91e6a29.js"></script><!--kg-card-end: html-->{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl apply -f pod_label_3.yaml 
+Warning: kubectl apply should be used on resource created by either kubectl create --save-config or kubectl apply
+pod/nginx-pod-taint-2 configured
+
+{% endhighlight %}{% highlight console %}
+
+vikki@kubernetes1:~$ kubectl describe pod nginx-pod-taint-2 |grep -i events: -A 5
+Events:
     Type Reason Age From Message
     ---- ------ ---- ---- -------
-</span><span class="gp">    Warning FailedScheduling &lt;unknown&gt;</span><span class="w"> </span>default-scheduler 0/4 nodes are available: 1 node<span class="o">(</span>s<span class="o">)</span> had taints that the pod didn<span class="s1">'t tolerate, 3 node(s) didn'</span>t match node selector.
-<span class="gp">    Warning FailedScheduling &lt;unknown&gt;</span><span class="w"> </span>default-scheduler 0/4 nodes are available: 1 node<span class="o">(</span>s<span class="o">)</span> had taints that the pod didn<span class="s1">'t tolerate, 3 node(s) didn'</span>t match node selector.
-<span class="gp">    Normal Scheduled &lt;unknown&gt;</span><span class="w"> </span>default-scheduler Successfully assigned default/nginx-pod-taint-2 to kubernetes4</code></pre></figure>
+    Warning FailedScheduling <unknown> default-scheduler 0/4 nodes are available: 1 node(s) had taints that the pod didn't tolerate, 3 node(s) didn't match node selector.
+    Warning FailedScheduling <unknown> default-scheduler 0/4 nodes are available: 1 node(s) had taints that the pod didn't tolerate, 3 node(s) didn't match node selector.
+    Normal Scheduled <unknown> default-scheduler Successfully assigned default/nginx-pod-taint-2 to kubernetes4
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">vikki@kubernetes1:~$</span><span class="w"> </span>kubectl get pod nginx-pod-taint-2 <span class="nt">-o</span> wide
-<span class="go">NAME READY STATUS RESTARTS AGE IP NODE NOMINATED NODE READINESS GATES
-</span><span class="gp">nginx-pod-taint-2 1/1 Running 0 11m 192.168.48.130 kubernetes4 &lt;none&gt;</span><span class="w"> </span>&lt;none&gt;</code></pre></figure>
+{% endhighlight %}{% highlight console %}
 
-<blockquote>
-  <p>Now we can see the pod changed from failed to success state and assinged to kubernetes4 node according to the nodeSelector.</p>
-</blockquote>]]></content><author><name>Vignesh Ragupathy</name></author><category term="kubernetes" /><category term="linux" /><category term="opensource" /><summary type="html"><![CDATA[We can assign the pod to node based on various methods. Lets discuss all the below methods in the post]]></summary></entry></feed>
+vikki@kubernetes1:~$ kubectl get pod nginx-pod-taint-2 -o wide
+NAME READY STATUS RESTARTS AGE IP NODE NOMINATED NODE READINESS GATES
+nginx-pod-taint-2 1/1 Running 0 11m 192.168.48.130 kubernetes4 <none> <none>
+
+{% endhighlight %}
+
+> Now we can see the pod changed from failed to success state and assinged to kubernetes4 node according to the nodeSelector.]]></content><author><name>Vignesh Ragupathy</name></author><category term="kubernetes" /><category term="linux" /><category term="opensource" /><summary type="html"><![CDATA[We can assign the pod to node based on various methods. Lets discuss all the below methods in the post]]></summary></entry></feed>
