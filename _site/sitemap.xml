@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
+<loc>http://0.0.0.0:4000/portfolio/portfolio-1/</loc>
+</url>
+<url>
 <loc>http://0.0.0.0:4000/glusterfs-ha-storage-with-raspberrypi/</loc>
 <lastmod>2017-10-01T10:30:00+00:00</lastmod>
 </url>
