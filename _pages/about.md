@@ -8,7 +8,7 @@ redirect_from:
 ---
 
 
-Hi, I’m Vignesh — a cloud engineer passionate about building scalable infrastructure, solving complex DevOps challenges, and automating everything with Terraform, Python, and Bash. I work extensively across AWS and Azure, often blending observability, security, and deployment best practices into real-world architectures.
+Hi, I’m Vignesh — a cloud engineer passionate about building scalable infrastructure, solving complex DevOps challenges, and orchestrating automation across stacks and scripts. I work extensively across AWS and Azure, often blending observability, security, and deployment best practices into real-world architectures.
 
 When I’m away from the terminal and toolchains, you’ll find me running, lifting weights, or exploring gadgets and photography. This blog is where I share technical insights, hands-on guides, and the occasional detour into the things I enjoy outside the terminal.
 
