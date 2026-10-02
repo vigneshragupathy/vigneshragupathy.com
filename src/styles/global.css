@@ -35,12 +35,28 @@ th, td { border: 1px solid var(--border); padding: 6px 10px; }
 blockquote { margin: 16px 0; padding: 4px 16px; border-left: 3px solid var(--accent); color: var(--muted); }
 
 header.site nav, main, footer.site { max-width: var(--max); margin: 0 auto; padding: 0 16px; }
-header.site { border-bottom: 1px solid var(--border); }
-header.site nav { display: flex; align-items: center; justify-content: space-between; height: 56px; }
+header.site { border-bottom: 1px solid var(--border); position: relative; }
+header.site nav { display: flex; align-items: center; height: 56px; }
 header.site nav a { text-decoration: none; color: var(--fg); }
-header.site nav .brand { font-weight: 700; }
+header.site nav .brand { font-weight: 700; margin-right: auto; }
+header.site nav .links { display: flex; align-items: center; }
 header.site nav .links a { margin-left: 16px; }
+header.site nav .tools { display: flex; align-items: center; gap: 8px; margin-left: 16px; }
 header.site .rail { display: none; }
+.burger { display: none; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0;
+  border: 1px solid var(--border); border-radius: var(--radius); background: var(--card-bg); color: var(--fg); cursor: pointer; }
+.burger .ico-close { display: none; }
+nav[data-open] .burger .ico-menu { display: none; }
+nav[data-open] .burger .ico-close { display: block; }
+@media (max-width: 700px) {
+  .burger { display: inline-flex; }
+  header.site nav .links { display: none; position: absolute; left: 0; right: 0; top: 100%; z-index: 40;
+    flex-direction: column; align-items: stretch; padding: 8px 16px 12px;
+    background: var(--card-bg); border-bottom: 1px solid var(--border); box-shadow: 0 12px 24px rgba(0,0,0,0.12); }
+  header.site nav[data-open] .links { display: flex; }
+  header.site nav .links a { margin: 0; padding: 10px 4px; border-top: 1px solid var(--border); font-size: 1.05rem; }
+  header.site nav .links a:first-child { border-top: 0; }
+}
 main { padding: 32px 16px 64px; }
 footer.site { padding: 24px 16px; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--border); }
 
@@ -56,7 +72,4 @@ html { color-scheme: light; }
 html[data-mode="dark"] { color-scheme: dark; }
 @media (max-width: 480px) {
   header.site nav .brand { font-size: 0.95rem; white-space: nowrap; }
-  header.site nav .links { display: flex; align-items: center; gap: 10px; font-size: 0.95rem; }
-  header.site nav .links a { margin-left: 0; }
-  header.site nav .tp { margin-left: 0; }
 }

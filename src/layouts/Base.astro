@@ -37,14 +37,20 @@ const recent = (await getCollection('posts', ({ data }) => !data.draft))
   </head>
   <body>
     <header class="site">
-      <nav>
+      <nav id="site-nav">
         <a href="/" class="brand">Vignesh Ragupathy</a>
-        <span class="links">
+        <div class="links" id="site-menu">
           <a href="/">Blog</a>
           <a href="/books">Books</a>
           <a href="/tags">Tags</a>
+        </div>
+        <div class="tools">
           <ThemePicker />
-        </span>
+          <button class="burger" id="burger" aria-label="Menu" aria-controls="site-menu" aria-expanded="false">
+            <svg class="ico-menu" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+            <svg class="ico-close" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+          </button>
+        </div>
       </nav>
       <aside class="rail">
         <h4>Recent</h4>
@@ -53,5 +59,17 @@ const recent = (await getCollection('posts', ({ data }) => !data.draft))
     </header>
     <main><slot /></main>
     <footer class="site">© 2026 Vignesh Ragupathy · Built with Astro</footer>
+    <script>
+      const nav = document.getElementById('site-nav')!;
+      const burger = document.getElementById('burger')!;
+      const setOpen = (open: boolean) => {
+        nav.toggleAttribute('data-open', open);
+        burger.setAttribute('aria-expanded', String(open));
+      };
+      burger.addEventListener('click', (e) => { e.stopPropagation(); setOpen(!nav.hasAttribute('data-open')); });
+      document.addEventListener('click', (e) => { if (!nav.contains(e.target as Node)) setOpen(false); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
+      matchMedia('(min-width: 701px)').addEventListener('change', (e) => { if (e.matches) setOpen(false); });
+    </script>
   </body>
 </html>

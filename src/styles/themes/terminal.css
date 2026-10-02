@@ -25,3 +25,4 @@
 [data-theme="terminal"] pre { border: 1px solid var(--border); }
 [data-theme="terminal"] .callout { border: 1px solid var(--accent); border-left-width: 4px; }
 [data-theme="terminal"] a:hover { background: var(--accent); color: var(--accent-fg); }
+[data-theme="terminal"] .burger, [data-theme="terminal"] .tp-btn { border-style: dashed; }
