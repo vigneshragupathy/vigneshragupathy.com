@@ -1,0 +1,324 @@
+---
+title: Istio Hands-on Part 8 - End-User Authentication with JWT
+description: Validate JWT tokens at the ingress gateway and allow only authenticated requests into the backend.
+date: '2026-11-01T00:50:00'
+tags:
+- kubernetes
+- observability
+cover: /images/2025/istio_part1_cover.webp
+coverAlt: Istio Part 8 cover
+coverHidden: true
+toc: false
+series: istio-hands-on
+part: 8
+---
+import Flow from '../../components/Flow.astro';
+
+## Objective
+
+Part 7 secured service-to-service calls with workload identity. This part adds **user identity** with JWT tokens. You will:
+
+- Validate JWT tokens with `RequestAuthentication`
+- Require a valid token with `AuthorizationPolicy`
+- See why in-mesh JWT validation does not work on Istio 1.27, and where to validate instead
+
+At the end, the backend accepts external requests only with a valid JWT.
+
+## Step 1: Prerequisites
+
+From Part 7 you have:
+
+- `frontend` and `backend` in the mesh
+- mTLS in `STRICT` mode
+- `backend` protected by `backend-allow-frontend`
+
+## Step 2: JWT in Istio
+
+A JWT (JSON Web Token) is a signed token with claims about the user. Istio can:
+
+- Check the signature against a public key set (JWKS)
+- Check claims such as `iss` (issuer) and `aud` (audience)
+- Copy claims into request headers for the application
+
+<Flow steps={['Client with JWT', 'Ingress gateway: validate', 'backend']} label="Istio validates the token before the request reaches the application" />
+
+## Step 3: Get a test token
+
+Istio publishes a demo token and its public keys.
+
+```bash
+ TOKEN=$(curl -s https://raw.githubusercontent.com/istio/istio/release-1.27/security/tools/jwt/samples/demo.jwt)
+echo $TOKEN
+```
+
+Decode the claims:
+
+```bash
+echo $TOKEN | cut -d "." -f2 | base64 -d 2>/dev/null | jq .
+```
+
+Expected output:
+
+```json
+{
+  "exp": 4685989700,
+  "foo": "bar",
+  "iat": 1532389700,
+  "iss": "testing@secure.istio.io",
+  "sub": "testing@secure.istio.io"
+}
+```
+
+## Step 4: First attempt, on the backend workload
+
+This is the approach from older Istio guides. It is here because it shows an important change in Istio 1.27.
+
+Apply a `RequestAuthentication` to the backend. It names the trusted issuer and where to fetch its keys.
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: security.istio.io/v1
+kind: RequestAuthentication
+metadata:
+  name: backend-jwt
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  jwtRules:
+  - issuer: "testing@secure.istio.io"
+    jwksUri: "https://raw.githubusercontent.com/istio/istio/release-1.27/security/tools/jwt/samples/jwks.json"
+EOF
+
+```
+
+Require a valid token:
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: backend-jwt-policy
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        requestPrincipals: ["testing@secure.istio.io/*"]
+EOF
+```
+
+Test without a token from the frontend:
+
+```bash
+kubectl exec deploy/frontend -- curl -s -o /dev/null -w "%{http_code}\n" http://backend
+```
+
+Expected: `403`. Actual:
+
+```txt
+200
+```
+
+### Why the request is allowed
+
+Since Istio 1.27, the JWT filter is attached only to Envoy listeners that receive external or non-mTLS traffic. In-mesh mTLS traffic skips the JWT filter. The frontend to backend call is in-mesh mTLS traffic, so no token check runs and the call returns `200`.
+
+This is by design. JWT protects the **entry** into the mesh. Inside the mesh, mTLS identity does the work.
+
+The fix: validate JWT at the ingress gateway.
+
+## Step 5: Expose the backend through the ingress gateway
+
+Create a `Gateway` and a `VirtualService` for host `backend.local`.
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: networking.istio.io/v1
+kind: Gateway
+metadata:
+  name: backend-gateway
+  namespace: default
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "backend.local"
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: backend-vs
+  namespace: default
+spec:
+  hosts:
+  - "backend.local"
+  gateways:
+  - backend-gateway
+  http:
+  - route:
+    - destination:
+        host: backend
+        port:
+          number: 80
+EOF
+```
+
+Use a specific hostname, not `*`. A wildcard host conflicts with other gateways on port 80, for example one with an HTTPS redirect.
+
+Add `backend.local` to `/etc/hosts`:
+
+```bash
+export INGRESS_HOST=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' istio-lab-control-plane)
+echo "$INGRESS_HOST backend.local" | sudo tee -a /etc/hosts
+```
+
+## Step 6: JWT policies on the gateway
+
+Apply the `RequestAuthentication` to the ingress gateway:
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: security.istio.io/v1
+kind: RequestAuthentication
+metadata:
+  name: ingress-jwt
+  namespace: istio-system
+spec:
+  selector:
+    matchLabels:
+      istio: ingressgateway
+  jwtRules:
+  - issuer: "testing@secure.istio.io"
+    jwksUri: "https://raw.githubusercontent.com/istio/istio/release-1.27/security/tools/jwt/samples/jwks.json"
+EOF
+```
+
+Replace the backend policy from Part 7. The new policy has two rules. Rules in one policy are joined with OR.
+
+- Rule 1 allows in-mesh traffic from `frontend-sa`.
+- Rule 2 allows traffic from the ingress gateway identity that carries a valid JWT.
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: backend-allow-frontend
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  action: ALLOW
+  rules:
+  # Allow from frontend service account (internal mesh traffic)
+  - from:
+    - source:
+        principals:
+        - cluster.local/ns/default/sa/frontend-sa
+  # Allow from ingress with valid JWT
+  - from:
+    - source:
+        principals:
+        - cluster.local/ns/istio-system/sa/istio-ingressgateway-service-account
+    - source:
+        requestPrincipals:
+        - testing@secure.istio.io/*
+EOF
+```
+
+Delete the Step 4 policy, or it adds a second ALLOW policy on the same workload. Multiple ALLOW policies on one workload are joined with AND.
+
+```bash
+kubectl delete authorizationpolicy backend-jwt-policy requestauthentication backend-jwt
+```
+
+## Step 7: Test
+
+Set the variables:
+
+```bash
+export INGRESS_PORT=$(kubectl -n istio-system get svc istio-ingressgateway -o jsonpath='{.spec.ports[?(@.port==80)].nodePort}')
+export INGRESS_HOST=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' istio-lab-control-plane)
+export TOKEN=$(curl -s https://raw.githubusercontent.com/istio/istio/release-1.27/security/tools/jwt/samples/demo.jwt)
+```
+
+Without a token:
+
+```bash
+curl -v http://backend.local:$INGRESS_PORT/
+```
+
+Expected output:
+
+```txt
+HTTP/1.1 403 Forbidden
+RBAC: access denied
+```
+
+With a token:
+
+```bash
+curl -H "Authorization: Bearer $TOKEN" http://backend.local:$INGRESS_PORT/
+```
+
+Expected output:
+
+```txt
+HTTP/1.1 200 OK
+Hello from Backend v1
+```
+
+In-mesh traffic, no token needed:
+
+```bash
+kubectl run test-internal --rm -i --restart=Never --image=curlimages/curl --overrides='
+{
+  "spec": {
+    "serviceAccountName": "frontend-sa",
+    "containers": [{
+      "name": "test-internal",
+      "image": "curlimages/curl",
+      "command": ["curl", "-s", "http://backend"]
+    }]
+  }
+}'
+```
+
+Expected output:
+
+```txt
+Hello from Backend v1
+pod "test-internal" deleted
+```
+
+## Troubleshooting
+
+**301 instead of 403 without a token.** Another gateway uses host `*` on port 80 with an HTTPS redirect. Use a specific hostname for each gateway.
+
+**403 with a valid token.** Check these three causes:
+
+1. Two ALLOW policies on the backend. All of them must match. Merge the rules into one policy.
+2. `RequestAuthentication` on both the gateway and the backend. Keep only the gateway one.
+3. The policy does not allow the gateway identity `cluster.local/ns/istio-system/sa/istio-ingressgateway-service-account`.
+
+## Summary
+
+- Added user identity with JWT
+- Validated tokens at the ingress gateway with `RequestAuthentication`
+- Allowed in-mesh identity and external JWT in one `AuthorizationPolicy`
+- Learned that in-mesh mTLS traffic skips the JWT filter on Istio 1.27
+
+Part 9 covers the ingress gateway in full: TLS termination and HTTPS redirect.

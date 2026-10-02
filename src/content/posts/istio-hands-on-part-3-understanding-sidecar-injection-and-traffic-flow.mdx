@@ -1,0 +1,247 @@
+---
+title: Istio Hands-on Part 3 - Understanding Sidecar Injection and Traffic Flow
+description: Deploy two services, inject Envoy sidecars, and follow a request through the mesh.
+date: '2025-11-08T00:50:00'
+tags:
+- kubernetes
+- observability
+cover: /images/2025/istio_part3.1_cover.webp
+coverAlt: Istio Part 3 cover
+coverHidden: true
+toc: false
+series: istio-hands-on
+part: 3
+---
+import Flow from '../../components/Flow.astro';
+
+## Objective
+
+This part covers the data plane: the sidecar proxy. You will:
+
+- Compare the two Istio deployment modes, sidecar and ambient
+- Enable sidecar injection for a namespace
+- Deploy a frontend and a backend
+- Confirm that each pod got a sidecar
+- Follow one request through both proxies
+- Read Envoy configuration and access logs
+
+![Istio Part 3](/images/2025/istio_part3.1_cover.webp)
+
+## Step 1: Deployment modes
+
+Istio has two modes.
+
+| Feature       | Sidecar mode | Ambient mode |
+| ------------- | ------------ | ------------ |
+| Architecture  | One Envoy container in each pod | One ztunnel proxy per node |
+| Overhead      | Higher, one proxy per pod | Lower, one proxy per node |
+| Layer support | Full L7: HTTP, gRPC, routing, retries, fault injection | L4 (TCP, TLS) by default |
+| mTLS          | Done by the sidecar in each pod | Done by ztunnel for the node |
+| Upgrades      | Pods restart | No pod restart |
+
+This series uses sidecar mode. Ambient mode gets its own post later.
+
+## Step 2: What a sidecar is
+
+A sidecar is an Envoy container that runs in the same pod as your application container. It receives all inbound and outbound traffic of the pod.
+
+The sidecar:
+
+- Routes traffic, retries failed calls, and injects faults when told to
+- Encrypts service-to-service calls with mTLS
+- Emits metrics, logs, and traces
+
+All sidecars together are the data plane. Istiod is the control plane. It sends configuration and certificates to each sidecar.
+
+## Step 3: Enable automatic injection
+
+Label the namespace:
+
+```bash
+kubectl label namespace default istio-injection=enabled
+```
+
+After this, a mutating webhook adds the Envoy sidecar to every new pod in the namespace.
+
+## Step 4: Deploy a sample application
+
+The application has two services. `frontend` calls `backend` every five seconds.
+
+### 4.1 Backend
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: hashicorp/http-echo
+        args: ["-text=Hello from Backend v1"]
+        ports:
+          - containerPort: 5678
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+spec:
+  selector:
+    app: backend
+  ports:
+    - port: 80
+      targetPort: 5678
+EOF
+```
+
+### 4.2 Frontend
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: curlimages/curl
+        command: ["sh", "-c"]
+        args: ["while true; do curl -s http://backend; sleep 5; done"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  selector:
+    app: frontend
+  ports:
+    - port: 80
+      targetPort: 80
+EOF
+```
+
+### 4.3 Confirm injection
+
+```bash
+kubectl get pods
+```
+
+Expected output:
+
+```txt
+NAME                       READY   STATUS    RESTARTS   AGE
+backend-684d96759f-p8psg   2/2     Running   0          35s
+frontend-b7674d6f8-jjc42   2/2     Running   0          26s
+```
+
+Each pod shows `2/2`: the application container and `istio-proxy`.
+
+Describe a pod to see the injection annotations:
+
+```bash
+kubectl describe pod $(kubectl get pods |grep backend |head -1 |awk '{print $1}')
+```
+
+Look for:
+
+```txt
+Annotations:
+  istio.io/rev: default
+  sidecar.istio.io/status: {"initContainers":["istio-init","istio-proxy"], ...}
+```
+
+The sidecar is in place.
+
+## Step 5: Follow one request
+
+When `frontend` calls `backend`, the request passes through two proxies.
+
+<Flow steps={['frontend', 'frontend Envoy', 'mTLS', 'backend Envoy', 'backend']} label="Request path from frontend to backend through both sidecars" />
+
+1. The frontend container sends an HTTP request to `backend`.
+2. The frontend Envoy intercepts the outbound call on port 15001.
+3. Envoy sends the request to the backend Envoy over mTLS.
+4. The backend Envoy checks the certificate, decrypts, and forwards to the backend container.
+5. The response takes the same path back.
+
+The diagram below shows both modes and the request path.
+
+<iframe src="/diagrams/istio-traffic-flow.html" class="diagram-frame" title="Istio sidecar deployment modes and traffic flow" loading="lazy"></iframe>
+
+Check the mTLS mode of the backend pod:
+
+```bash
+kubectl get pod $(kubectl get pods |grep backend |head -1 |awk '{print $1}') -o jsonpath='{.metadata.labels.security\.istio\.io/tlsMode}'
+```
+
+Expected output:
+
+```txt
+istio
+```
+
+Traffic between the two pods is encrypted and authenticated with Istio certificates.
+
+## Step 6: Read the Envoy configuration
+
+`istioctl` can show the live Envoy configuration of a pod.
+
+Routes:
+
+```bash
+istioctl proxy-config routes $(kubectl get pods |grep backend |head -1 |awk '{print $1}')
+```
+
+Listeners:
+
+```bash
+istioctl proxy-config listeners $(kubectl get pods |grep backend |head -1 |awk '{print $1}')
+```
+
+Sync status of all proxies:
+
+```bash
+istioctl proxy-status
+```
+
+Both `frontend` and `backend` show `SYNCED`. Their sidecars have the latest configuration from Istiod.
+
+## Step 7: Read the access logs
+
+```bash
+kubectl logs deploy/frontend -c istio-proxy --tail=10
+```
+
+Expected output:
+
+```txt
+[2025-11-06T12:28:43.548Z] "GET / HTTP/1.1" 200 - via_upstream - "-" 0 22 1 1 "-" "curl/8.17.0" "abccfcd4-8804-9de0-9cf8-86ac2937e85b" "backend" "10.244.0.12:5678" outbound|80||backend.default.svc.cluster.local 10.244.0.16:59050 10.96.245.140:80 10.244.0.16:33832 - default
+[2025-11-06T12:28:48.563Z] "GET / HTTP/1.1" 200 - via_upstream - "-" 0 22 1 1 "-" "curl/8.17.0" "fb8782e3-211b-9d94-a6de-f0f179dedcc3" "backend" "10.244.0.12:5678" outbound|80||backend.default.svc.cluster.local 10.244.0.16:59050 10.96.245.140:80 10.244.0.16:33842 - default
+[2025-11-06T12:28:53.578Z] "GET / HTTP/1.1" 200 - via_upstream - "-" 0 22 2 2 "-" "curl/8.17.0" "967db056-a4b4-9dde-a2b1-f730baf36b6b" "backend" "10.244.0.12:5678" outbound|80||backend.default.svc.cluster.local 10.244.0.16:58050 10.96.245.140:80 10.244.0.16:59848 - default
+```
+
+Each line is one request from frontend to backend, as seen by the frontend sidecar.
+
+The mesh works. Both services talk through Envoy. Part 4 uses that to control where traffic goes.

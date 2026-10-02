@@ -1,0 +1,240 @@
+---
+title: Istio Hands-on Part 7 - Security with mTLS and AuthorizationPolicies
+description: Enforce mutual TLS, give each workload its own identity, and allow only the frontend to call the backend.
+date: '2025-11-16T00:50:00'
+tags:
+- kubernetes
+- observability
+toc: false
+series: istio-hands-on
+part: 7
+---
+import Flow from '../../components/Flow.astro';
+
+## Objective
+
+Lock down service-to-service traffic. You will:
+
+- Enforce mutual TLS (mTLS) for the whole mesh
+- Give `frontend` and `backend` separate identities
+- Deny all traffic, then allow only `frontend` to call `backend`
+- Test an allowed call and a denied call
+
+At the end every request to the backend is encrypted and comes from a known identity.
+
+## Step 1: Confirm the setup
+
+You need:
+
+- Istio 1.27 or later
+- The `frontend` to `backend` application from Part 3
+- Sidecar injection enabled
+
+Check that the backend pod has a sidecar:
+
+```bash
+kubectl get pods -l app=backend -o jsonpath='{.items[*].spec.initContainers[*].name} {.items[*].spec.containers[*].name}'
+```
+
+The output includes `istio-proxy`.
+
+## Step 2: Enforce mTLS
+
+A `PeerAuthentication` in `istio-system` applies to the whole mesh. `STRICT` mode rejects plain-text connections.
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: default
+  namespace: istio-system
+spec:
+  mtls:
+    mode: STRICT
+EOF
+```
+
+Check:
+
+```bash
+kubectl get peerauthentication -A
+```
+
+Expected output:
+
+```txt
+NAMESPACE      NAME      MODE     AGE
+istio-system   default   STRICT   71m
+```
+
+Check one pod:
+
+```bash
+istioctl x describe pod  backend-xxxxxx-wntdp
+```
+
+Expected output:
+
+```txt
+Pod: backend-684d96759f-wntdp
+   Pod Revision: default
+   Pod Ports: 5678 (backend)
+--------------------
+Service: backend
+   Port:  80/auto-detect targets pod port 5678
+DestinationRule: backend for "backend"
+   WARNING POD DOES NOT MATCH ANY SUBSETS.  (Non matching subsets v1,v2)
+   Matching subsets:
+      (Non-matching subsets v1,v2)
+   No Traffic Policy
+--------------------
+Effective PeerAuthentication:
+   Workload mTLS mode: STRICT
+Applied PeerAuthentication:
+   default.istio-system
+```
+
+The subset warning comes from the Part 4 DestinationRule. It does not affect this part.
+
+## Step 3: Identities
+
+With mTLS on, Istio gives each workload a SPIFFE identity. The identity comes from the Kubernetes ServiceAccount of the pod:
+
+```txt
+spiffe://cluster.local/ns/default/sa/frontend-sa
+```
+
+Access policies match on this identity.
+
+By default all pods use the `default` ServiceAccount. Then `frontend` and `backend` have the same identity and Istio cannot tell them apart. Step 4 fixes that.
+
+## Step 4: One ServiceAccount per workload
+
+```bash
+kubectl create sa frontend-sa
+kubectl create sa backend-sa
+```
+
+Patch the deployments:
+
+```bash
+kubectl patch deploy frontend -p '{"spec":{"template":{"spec":{"serviceAccountName":"frontend-sa"}}}}'
+kubectl patch deploy backend -p '{"spec":{"template":{"spec":{"serviceAccountName":"backend-sa"}}}}'
+```
+
+Wait for the pods to restart:
+
+```bash
+kubectl get pods
+```
+
+Each workload now has its own identity.
+
+## Step 5: Deny all
+
+Start from a closed state. An `AuthorizationPolicy` with an empty spec denies all traffic in the namespace.
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: deny-all
+  namespace: default
+spec: {}
+EOF
+```
+
+## Step 6: Allow frontend to backend
+
+Allow only the `frontend-sa` identity to reach pods with label `app=backend`.
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: backend-allow-frontend
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        principals:
+        - cluster.local/ns/default/sa/frontend-sa
+EOF
+```
+
+## Step 7: Test
+
+<Flow steps={['frontend (frontend-sa)', 'backend Envoy', '200']} label="A call from the frontend identity is allowed" />
+<Flow steps={['test pod (default sa)', 'backend Envoy', '403']} label="A call from any other identity is denied" />
+
+From the frontend, allowed:
+
+```bash
+kubectl exec deploy/frontend -- curl -s -o /dev/null -w "%{http_code}\n" http://backend
+```
+
+Expected output:
+
+```txt
+200
+```
+
+From a new pod with the default ServiceAccount, denied:
+
+```bash
+kubectl run test --image=curlimages/curl -it --rm -- /bin/sh
+curl -s -o /dev/null -w "%{http_code}\n" http://backend
+```
+
+Expected output:
+
+```txt
+403
+```
+
+If the test pod gets `200`, check two things:
+
+- `frontend` and `backend` use different ServiceAccounts
+- The PeerAuthentication mode is `STRICT`, not `PERMISSIVE`
+
+## Step 8: Policy precedence
+
+A common surprise: the namespace-wide `deny-all` does not block the frontend. This is why:
+
+| Policy scope | Example | Behaviour |
+| ------------ | ------- | --------- |
+| Namespace-wide, `spec: {}` | `deny-all` | Applies only to workloads with no workload-specific policy |
+| Workload-specific, `selector: app=backend` | `backend-allow-frontend` | Takes precedence for that workload |
+
+When both exist, the workload-specific policy decides for the backend.
+
+## Step 9: See it in Kiali
+
+```bash
+kubectl port-forward svc/kiali -n istio-system 20001:20001
+```
+
+Open http://localhost:20001, select **Graph**, namespace `default`.
+
+- Lock icons on the edges show mTLS
+- Hover an edge to see allowed and denied requests
+- The **Istio Config** tab lists both AuthorizationPolicies
+
+![Kiali graph with mTLS lock icons](/images/2025/istio_mtls.webp)
+
+## Summary
+
+- Enforced mTLS for the mesh
+- Gave each workload its own ServiceAccount and identity
+- Applied a deny-all policy, then one allow rule
+- Learned how namespace and workload policies interact
+
+The mesh now follows zero-trust rules: encryption by default, identity-based access, explicit allow rules. Part 8 adds end-user identity with JWT.

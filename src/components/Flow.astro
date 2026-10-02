@@ -1,0 +1,13 @@
+---
+/** Linear flow: boxes joined by arrows. Wraps on narrow screens. */
+interface Props { steps: string[]; label?: string }
+const { steps, label } = Astro.props;
+---
+<div class="flow" role="img" aria-label={label ?? steps.join(' then ')}>
+  {steps.map((s, i) => (
+    <>
+      <span class="flow-node">{s}</span>
+      {i < steps.length - 1 && <span class="flow-arrow" aria-hidden="true">→</span>}
+    </>
+  ))}
+</div>

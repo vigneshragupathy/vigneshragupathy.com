@@ -1,0 +1,230 @@
+---
+title: Istio Hands-on Part 9 - Exposing Services Securely with Ingress Gateway
+description: Expose a service outside the cluster with TLS termination and an HTTP to HTTPS redirect.
+date: '2026-11-01T00:50:00'
+tags:
+- kubernetes
+- observability
+cover: /images/2025/istio_part1_cover.webp
+coverAlt: Istio Part 9 cover
+coverHidden: true
+toc: false
+series: istio-hands-on
+part: 9
+---
+import Flow from '../../components/Flow.astro';
+
+## Objective
+
+Make a service reachable from outside the cluster through the Istio ingress gateway. You will:
+
+- Replace the `frontend` with a web service that answers HTTP
+- Expose it with a `Gateway` and a `VirtualService`
+- Terminate TLS at the gateway with a self-signed certificate
+- Redirect HTTP to HTTPS
+- Optionally require client certificates
+
+<Flow steps={['Client', 'Ingress gateway :443, TLS ends here', 'frontend Envoy', 'frontend']} label="TLS terminates at the gateway, then mTLS carries the request inside the mesh" />
+
+## Step 1: Confirm the ingress gateway
+
+```bash
+kubectl get pods -n istio-system -l istio=ingressgateway
+```
+
+Expected output:
+
+```txt
+NAME                                    READY   STATUS    RESTARTS       AGE
+istio-ingressgateway-7d7f977654-spgkh   1/1     Running   4 (112m ago)   4d21h
+```
+
+Check the service:
+
+```bash
+kubectl get svc -n istio-system istio-ingressgateway
+```
+
+On kind the external IP stays `<pending>`. The NodePorts are what you use:
+
+```txt
+NAME                   TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)                                                                      AGE
+istio-ingressgateway   LoadBalancer   10.96.163.224   <pending>     15021:31608/TCP,80:30860/TCP,443:32111/TCP,31400:32139/TCP,15443:32682/TCP   4d21h
+```
+
+## Step 2: A frontend that answers requests
+
+Until now the `frontend` pod only ran a `curl` loop. Nothing listened for inbound requests, so the gateway returned `503 upstream connect error`. Replace it with an echo server.
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: hashicorp/http-echo
+        args:
+        - "-text=Hello from Frontend"
+        ports:
+        - containerPort: 5678
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  selector:
+    app: frontend
+  ports:
+  - port: 80
+    targetPort: 5678
+EOF
+```
+
+Check:
+
+```bash
+kubectl get pods -l app=frontend
+```
+
+The pod shows `2/2 Running`: the echo server and its sidecar.
+
+## Step 3: Create a self-signed certificate
+
+```bash
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout frontend.key -out frontend.crt \
+  -subj "/CN=frontend.local"
+
+kubectl create -n istio-system secret tls frontend-credential \
+  --key=frontend.key \
+  --cert=frontend.crt
+```
+
+The secret must be in `istio-system`, where the gateway pod runs.
+
+## Step 4: Gateway and VirtualService
+
+The `Gateway` opens two ports. Port 80 redirects to HTTPS. Port 443 terminates TLS with the secret from Step 3.
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: networking.istio.io/v1
+kind: Gateway
+metadata:
+  name: frontend-gateway
+  namespace: default
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+    tls:
+      httpsRedirect: true
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: frontend-credential
+    hosts:
+    - "frontend.local"
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: frontend-vs
+  namespace: default
+spec:
+  hosts:
+  - "frontend.local"
+  gateways:
+  - frontend-gateway
+  http:
+  - route:
+    - destination:
+        host: frontend
+        port:
+          number: 80
+EOF
+```
+
+## Step 5: Find the gateway address
+
+```bash
+export INGRESS_PORT=$(kubectl -n istio-system get svc istio-ingressgateway -o jsonpath='{.spec.ports[?(@.port==443)].nodePort}')
+export INGRESS_HOST=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' istio-lab-control-plane)
+echo "$INGRESS_HOST frontend.local" | sudo tee -a /etc/hosts
+```
+
+## Step 6: Test
+
+```bash
+curl -k https://frontend.local:$INGRESS_PORT
+```
+
+Expected output:
+
+```txt
+HTTP/2 200
+Hello from Frontend
+```
+
+`-k` skips certificate verification because the certificate is self-signed.
+
+A request to port 80 returns `301`. That is the HTTPS redirect from the Gateway.
+
+## Step 7: Mutual TLS at the gateway (optional)
+
+To require a client certificate, change the TLS mode:
+
+```yaml
+tls:
+  mode: MUTUAL
+  credentialName: frontend-credential
+  caCertificates: /etc/certs/ca-cert.pem
+```
+
+Then call with a client certificate:
+
+```bash
+curl --cert frontend.crt --key frontend.key -k https://frontend.local:$INGRESS_PORT
+```
+
+## Key terms
+
+| Term | Purpose |
+| ---- | ------- |
+| Ingress gateway | Entry point into the mesh |
+| `Gateway` | Ports and hosts to open on the gateway |
+| `VirtualService` | Routes gateway requests to a service |
+| TLS `SIMPLE` | Gateway terminates HTTPS |
+| TLS `MUTUAL` | Gateway also requires a client certificate |
+| `httpsRedirect` | Sends HTTP clients to HTTPS |
+
+## Summary
+
+- Replaced the frontend with a real HTTP endpoint
+- Exposed it through the ingress gateway
+- Terminated TLS with a self-signed certificate
+- Redirected HTTP to HTTPS
+
+In production the same gateway carries TLS, authentication, and routing for all external traffic. Part 10 moves to more than one cluster.

@@ -19,6 +19,8 @@ const posts = defineCollection({
     image: z.string().optional(),
     toc: z.boolean().default(true),
     comments: z.boolean().default(true),
+    series: z.string().optional(),
+    part: z.number().int().positive().optional(),
   }),
 });
 

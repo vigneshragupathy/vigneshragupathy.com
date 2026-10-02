@@ -1,0 +1,151 @@
+---
+title: Istio Hands-on Part 2 - Setting Up the Playground with Kind
+description: Create a kind cluster and install Istio with the demo profile.
+date: '2025-11-06T00:50:00'
+tags:
+- kubernetes
+- observability
+cover: /images/2025/istio_part2.1_cover.webp
+coverAlt: Istio Part 2 cover
+coverHidden: true
+toc: false
+series: istio-hands-on
+part: 2
+---
+
+## Objective
+
+Set up the local cluster used in the rest of the series. You will:
+
+1. Create a kind cluster. kind runs Kubernetes nodes as Docker containers.
+2. Install Istio with the demo profile.
+
+The result is small and easy to recreate.
+
+![Istio Part 2](/images/2025/istio_part2.1_cover.webp)
+
+## Prerequisites
+
+Install these tools first:
+
+| Tool    | Version (or higher) | Install link |
+| ------- | ------------------- | ------------ |
+| Docker  | 20.x                | [Docker Install Guide](https://docs.docker.com/get-docker/) |
+| kubectl | 1.25+               | [kubectl install](https://kubernetes.io/docs/tasks/tools/) |
+| kind    | 0.20+               | [kind install](https://kind.sigs.k8s.io/docs/user/quick-start/#installation) |
+
+## Step 1: Create a kind cluster
+
+The cluster is named `istio-lab`. Two host ports are mapped so that you can reach NodePort services later.
+
+```bash
+cat <<EOF > kind-istio-config.yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: istio-lab
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      - containerPort: 30000
+        hostPort: 30000
+      - containerPort: 30001
+        hostPort: 30001
+EOF
+```
+
+Create the cluster:
+
+```bash
+kind create cluster --config kind-istio-config.yaml
+```
+
+Check that it runs:
+
+```bash
+kubectl cluster-info
+kubectl get nodes
+```
+
+Expected output:
+
+```txt
+NAME                      STATUS   ROLES           AGE   VERSION
+istio-lab-control-plane   Ready    control-plane   48s   v1.33.1
+```
+
+## Step 2: Install Istio
+
+The demo profile installs:
+
+- Istiod, the control plane
+- An ingress gateway and an egress gateway
+- Settings that work with the telemetry add-ons (Prometheus, Kiali, Grafana, Jaeger)
+
+### 2.1 Download the Istio CLI
+
+```bash
+curl -L https://istio.io/downloadIstio | sh -
+cd istio-1.*
+export PATH=$PWD/bin:$PATH
+```
+
+Check the CLI:
+
+```bash
+istioctl version
+```
+
+Expected output:
+
+```txt
+Istio is not present in the cluster: no running Istio pods in namespace "istio-system"
+client version: 1.27.3
+```
+
+### 2.2 Install with the demo profile
+
+```bash
+istioctl install --set profile=demo -y
+```
+
+Expected output:
+
+```txt
+        |\
+        | \
+        |  \
+        |   \
+      /||    \
+     / ||     \
+    /  ||      \
+   /   ||       \
+  /    ||        \
+ /     ||         \
+/______||__________\
+____________________
+  \__       _____/
+     \_____/
+
+✔ Istio core installed ⛵️
+✔ Istiod installed 🧠
+✔ Egress gateways installed 🛫
+✔ Ingress gateways installed 🛬
+✔ Installation complete
+```
+
+Check the pods:
+
+```bash
+kubectl get pods -n istio-system
+```
+
+Expected output:
+
+```txt
+NAME                                    READY   STATUS    RESTARTS   AGE
+istio-egressgateway-5b6b664d8-cz8bl     1/1     Running   0          86s
+istio-ingressgateway-7d7f977654-lbt5f   1/1     Running   0          85s
+istiod-86db895df-lmpt8                  1/1     Running   0          112s
+```
+
+Istio is installed. No application runs in the mesh yet. Part 3 deploys two services and shows what the sidecar does with their traffic.

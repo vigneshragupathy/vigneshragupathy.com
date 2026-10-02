@@ -15,8 +15,8 @@
 [data-theme="brutal"] h1 { font-size: 2.6rem; font-weight: 800; letter-spacing: -0.03em; text-transform: uppercase; }
 [data-theme="brutal"] h2 { font-weight: 800; display: inline-block; background: var(--hl); color: #000; padding: 0 8px; border: 3px solid var(--ink); box-shadow: 5px 5px 0 var(--ink); }
 [data-theme="brutal"] a { color: var(--ink); text-decoration-thickness: 3px; text-underline-offset: 3px; }
-[data-theme="brutal"] pre { color: var(--hl); border: 3px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); }
-[data-theme="brutal"] pre code, [data-theme="brutal"] pre span { color: inherit !important; }
+[data-theme="brutal"] .expressive-code .frame, [data-theme="brutal"] pre:not(.expressive-code pre) { border: 3px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); border-radius: 0; }
+[data-theme="brutal"] .expressive-code .frame .header { border-bottom: 3px solid var(--ink); }
 [data-theme="brutal"] .tag { border: 2px solid var(--ink); border-radius: 0; color: var(--ink); background: var(--card-bg); font-weight: 700; text-transform: uppercase; }
 [data-theme="brutal"] ul.posts li { border: 3px solid var(--ink); background: var(--card-bg); padding: 16px; margin-bottom: 16px; box-shadow: 6px 6px 0 var(--ink); }
 [data-theme="brutal"] ul.posts li > a { font-size: 1.3rem; font-weight: 800; text-decoration: none; }
@@ -49,3 +49,8 @@
 [data-theme="brutal"] .book-cover { border: 3px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); border-radius: 0; }
 [data-theme="brutal"] .tag-list .tag, [data-theme="brutal"] .tag-cloud .tag { background: var(--card-bg); }
 [data-theme="brutal"] .prose details.lang-ta { border: 3px dashed var(--ink); }
+[data-theme="brutal"] .chart, [data-theme="brutal"] .stat { border: 3px solid var(--ink); border-radius: 0; box-shadow: 5px 5px 0 var(--ink); }
+[data-theme="brutal"] .chart-tip { border: 3px solid var(--ink); border-radius: 0; box-shadow: 4px 4px 0 var(--ink); }
+[data-theme="brutal"] .series-top, [data-theme="brutal"] .flow-node { border: 3px solid var(--ink); border-radius: 0; box-shadow: 4px 4px 0 var(--ink); }
+[data-theme="brutal"] .split-bar { border: 3px solid var(--ink); border-radius: 0; height: 30px; }
+[data-theme="brutal"] .diagram-frame { border: 3px solid var(--ink); border-radius: 0; box-shadow: 6px 6px 0 var(--ink); }

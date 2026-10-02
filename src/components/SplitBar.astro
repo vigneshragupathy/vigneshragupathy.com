@@ -1,0 +1,14 @@
+---
+/** Part-to-whole bar for a traffic split. Two to four segments, labelled. */
+interface Seg { label: string; value: number }
+interface Props { segments: Seg[]; title?: string }
+const { segments, title } = Astro.props;
+const total = segments.reduce((s, x) => s + x.value, 0) || 1;
+---
+<figure class="split">
+  {title && <figcaption>{title}</figcaption>}
+  <div class="split-bar" role="img" aria-label={segments.map((s) => `${s.label} ${Math.round((s.value / total) * 100)}%`).join(', ')}>
+    {segments.map((s, i) => <span class={`split-seg seg-${i}`} style={`flex-basis:${(s.value / total) * 100}%`}>{s.value > 0 && <span class="split-val">{Math.round((s.value / total) * 100)}%</span>}</span>)}
+  </div>
+  <div class="split-legend">{segments.map((s, i) => <span><i class={`split-swatch seg-${i}`}></i>{s.label}</span>)}</div>
+</figure>

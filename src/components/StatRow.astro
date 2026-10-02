@@ -1,0 +1,15 @@
+---
+/** A row of stat tiles. Use for a handful of headline numbers instead of a chart. */
+interface Stat { label: string; value: string; note?: string }
+interface Props { stats: Stat[] }
+const { stats } = Astro.props;
+---
+<div class="stats" role="list">
+  {stats.map((s) => (
+    <div class="stat" role="listitem">
+      <span class="stat-label">{s.label}</span>
+      <span class="stat-value">{s.value}</span>
+      {s.note && <span class="stat-note">{s.note}</span>}
+    </div>
+  ))}
+</div>

@@ -1,0 +1,78 @@
+---
+title: Istio Hands-on Part 1 - From Kubernetes to Service Mesh
+description: Why a service mesh, why Istio, and what this hands-on series covers.
+date: '2025-11-05T00:50:00'
+tags:
+- kubernetes
+- observability
+cover: /images/2025/istio_part1_cover.webp
+coverAlt: Istio Part 1 cover
+coverHidden: true
+toc: false
+series: istio-hands-on
+part: 1
+---
+import Flow from '../../components/Flow.astro';
+
+> The best way to learn is to do the work, then write it down.
+
+## Why this series
+
+Kubernetes is the standard way to run microservices. It handles deployment, scaling, and restarts. It does not handle how services talk to each other.
+
+As an application grows, three problems get hard:
+
+- **Observability.** Which service is slow? Which call failed?
+- **Traffic control.** How do you send 10% of traffic to a new version?
+- **Security.** How do you encrypt and authenticate every service-to-service call?
+
+A service mesh solves these three problems outside the application code. This series shows how, with Istio, by running the commands.
+
+I have run Istio in production for several years. Each post in this series covers one topic and has three parts:
+
+- Concept: what it is and why it exists
+- Hands-on: `kubectl`, YAML, and `istioctl` commands with real output
+- Lessons: what went wrong the first time
+
+If you prefer to run commands instead of reading theory, this series is for you.
+
+## What a service mesh is
+
+A service mesh is an infrastructure layer that controls how services communicate.
+
+Without a mesh, each service must implement retries, timeouts, TLS, and metrics itself. With a mesh, a proxy next to each service does that work. Istio uses Envoy as the proxy.
+
+<Flow steps={['Service A', 'Envoy proxy', 'Envoy proxy', 'Service B']} label="A request from service A goes through two Envoy proxies before it reaches service B" />
+
+The mesh gives you:
+
+- **Traffic management.** Routing rules, canary releases, fault injection.
+- **Observability.** Metrics, logs, and traces for every request.
+- **Security.** Mutual TLS, service identity, and access policies.
+
+## Why Istio
+
+Other meshes exist: Linkerd, Consul, Kuma. Istio has the most users and the most features. It integrates with Prometheus, Grafana, and Jaeger, which most teams already run.
+
+With Istio you can:
+
+- Shape traffic between services
+- See what happens on the network
+- Encrypt service-to-service calls with mTLS
+- Apply access policies per workload
+
+## What you need
+
+- Basic Kubernetes knowledge: pods, services, deployments
+- A local cluster. This series uses `kind`.
+- `kubectl` and `istioctl`. Part 2 shows the setup.
+
+## What you will be able to do
+
+At the end of the series you can:
+
+- Install and operate Istio
+- Explain what the sidecar does with each request
+- Apply mesh patterns to real workloads
+
+The full list of parts is at the end of this post. Part 2 sets up the cluster.

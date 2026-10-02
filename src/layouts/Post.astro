@@ -2,10 +2,11 @@
 import Base from './Base.astro';
 import Comments from '../components/Comments.astro';
 import Newsletter from '../components/Newsletter.astro';
+import SeriesNav from '../components/SeriesNav.astro';
 import { fmtLong, readingTime, type Post } from '../lib/content';
 interface Props { post: Post; older?: Post; newer?: Post }
 const { post, older, newer } = Astro.props;
-const { title, date, tags, description, cover, coverAlt, coverHidden, image, comments } = post.data;
+const { title, date, tags, description, cover, coverAlt, coverHidden, image, comments, series, part } = post.data;
 const ogImage = cover ?? image;
 ---
 <Base title={title} description={description ?? `${title} · ${fmtLong(date)}`} image={ogImage} type="article">
@@ -19,7 +20,9 @@ const ogImage = cover ?? image;
       </p>
       {cover && !coverHidden && <img class="cover" src={cover} alt={coverAlt ?? title} loading="eager" />}
     </header>
+    {series && part && <SeriesNav series={series} part={part} slug={post.id} mode="top" />}
     <div class="prose"><slot /></div>
+    {series && part && <SeriesNav series={series} part={part} slug={post.id} mode="bottom" />}
     <footer class="post-foot">
       {tags.length > 0 && (
         <ul class="tag-list" data-pagefind-ignore>

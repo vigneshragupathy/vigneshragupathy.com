@@ -1,51 +1,46 @@
 ---
 title: Istio Hands-on Part 4 - Traffic Management with VirtualService and DestinationRule
+description: Run two backend versions, split traffic between them, inject latency, and add retries.
 date: '2025-11-09T00:50:00'
 tags:
 - kubernetes
 - observability
 cover: /images/2025/istio_part4_cover.webp
-coverAlt: Istio Part4 Cover
+coverAlt: Istio Part 4 cover
 coverHidden: true
 toc: false
+series: istio-hands-on
+part: 4
 ---
+import SplitBar from '../../components/SplitBar.astro';
 
-[⬅ Back to Intro](../istio-hands-on-part-1-from-kubernetes-to-service-mesh) | [Next → Part 5 - Observability with Prometheus, Grafana, and Kiali](../istio-hands-on-part-5-observability-with-prometheus-grafana-and-kiali)
+## Objective
 
-> 💡 *This post is part of my [Istio Hands-on Series](../istio-hands-on-part-1-from-kubernetes-to-service-mesh) — a practical journey into Kubernetes Service Mesh. Each post builds on the previous one with hands-on labs, real command outputs, and clear explanations aimed at learning Istio by doing, not just reading.*
+This part uses two Istio resources:
 
-### Objective
+- `VirtualService` defines **how** traffic is routed.
+- `DestinationRule` defines **where** traffic can go.
 
-In this post, we’ll learn how to use **Istio’s traffic management features** — specifically:
+You will:
 
-- `VirtualService` (to define *how* traffic is routed)
-- `DestinationRule` (to define *where* traffic is routed)
-
-By the end, you’ll:
-
-- Deploy two versions of your backend service
+- Deploy two versions of the backend
 - Split traffic between them
-- Perform canary-style rollouts
-- Simulate faults and retries
+- Do a canary release
+- Inject latency and add retries
 
 ![Istio Part 4](/images/2025/istio_part4_cover.webp)
----
 
-### Step 1: Recap – Your Current Setup
+## Step 1: Current state
 
-You should already have:
+From Part 3 you have:
 
-- A **frontend** deployment that sends requests to `backend`
-- Istio **sidecar injection** enabled
-- `frontend → backend` communication working
+- A `frontend` deployment that calls `backend`
+- Sidecar injection enabled
+- Working `frontend` to `backend` traffic
 
-We’ll extend that setup to include a **second backend version** (`v2`).
+This part adds a second backend version, `v2`.
 
----
-
-### Step 2: Deploy Backend v1 and v2
-
-Let’s modify the existing backend deployment to include two versions.
+## Step 2: Deploy backend v1 and v2
 
 ```bash
 cat <<EOF | kubectl apply -f -
@@ -108,24 +103,22 @@ spec:
 EOF
 ```
 
-Verify:
+Check:
 
 ```bash
 kubectl get pods -l app=backend
 ```
 
-✅ You should see both versions running:
+Expected output:
 
-```bash
+```txt
 backend-v1-xxxxx   2/2   Running
 backend-v2-xxxxx   2/2   Running
 ```
 
----
+## Step 3: Add a DestinationRule
 
-### Step 3: Add a DestinationRule
-
-A **DestinationRule** defines *subsets* — logical groups of service versions (based on labels) that you can route traffic to.
+A DestinationRule defines subsets. A subset is a group of pods selected by label. Routing rules point at subsets.
 
 ```bash
 cat <<EOF | kubectl apply -f -
@@ -151,20 +144,18 @@ Check:
 kubectl get destinationrule
 ```
 
-✅ Output:
+Expected output:
 
-```bash
+```txt
 NAME      HOST      AGE
 backend   backend   9s
 ```
 
----
+## Step 4: Create a VirtualService
 
-### Step 4: Create a VirtualService
+Start with all traffic to `v1`.
 
-Now, let’s control how requests are routed between `v1` and `v2`.
-
-We’ll start with **100% traffic to v1** .
+<SplitBar title="Route weights" segments={[{ label: 'v1', value: 100 }, { label: 'v2', value: 0 }]} />
 
 ```bash
 cat <<EOF | kubectl apply -f -
@@ -188,29 +179,23 @@ spec:
 EOF
 ```
 
----
-
-### Step 5: Test Traffic Routing
-
-Run:
+## Step 5: Test the route
 
 ```bash
 kubectl exec deploy/frontend -- curl -s http://backend
 ```
 
-✅ You should see:
+Expected output:
 
-```bash
+```txt
 Hello from Backend v1
 ```
 
-Now let’s gradually shift some traffic to v2.
+## Step 6: Split traffic 80/20
 
----
+Move 20% of requests to `v2`.
 
-### Step 6: Split Traffic 80/20 Between v1 and v2
-
-Update your VirtualService:
+<SplitBar title="Route weights" segments={[{ label: 'v1', value: 80 }, { label: 'v2', value: 20 }]} />
 
 ```bash
 cat <<EOF | kubectl apply -f -
@@ -234,15 +219,15 @@ spec:
 EOF
 ```
 
-Run several requests:
+Send ten requests:
 
 ```bash
 for i in {1..10}; do kubectl exec deploy/frontend -- curl -s http://backend; done
 ```
 
-✅ Output (mixed):
+Expected output, mixed:
 
-```bash
+```txt
 Hello from Backend v2
 Hello from Backend v2
 Hello from Backend v1
@@ -251,13 +236,11 @@ Hello from Backend v1
 ...
 ```
 
-Congratulations 🎉 — you’ve just performed a **canary release** in Istio!
+This is a canary release. No application code changed.
 
----
+## Step 7: Inject latency
 
-### Step 7: Fault Injection (Simulating Latency)
-
-Let’s simulate a slow backend to see how Istio handles delays.
+Make half of the requests wait three seconds.
 
 ```bash
 cat <<EOF | kubectl apply -f -
@@ -282,15 +265,15 @@ spec:
 EOF
 ```
 
-Now test again:
+Test with timing:
 
 ```bash
 for i in {1..5}; do kubectl exec deploy/frontend -- time curl -s http://backend; done
 ```
 
-✅ You’ll notice roughly half the requests are delayed by ~3 seconds.
+About half of the requests take three seconds:
 
-```bash
+```txt
 Hello from Backend v1
 real	0m 3.01s
 user	0m 0.00s
@@ -319,11 +302,9 @@ Remove the fault rule:
 kubectl delete virtualservice backend
 ```
 
----
+## Step 8: Add retries
 
-### Step 8: Add Retry Logic
-
-Let’s add a retry policy so the frontend automatically retries failed calls.
+Tell Istio to retry failed calls up to three times, with a two-second limit per try.
 
 ```bash
 cat <<EOF | kubectl apply -f -
@@ -346,29 +327,12 @@ spec:
 EOF
 ```
 
-This tells Istio to retry up to 3 times if a connection fails.
+## Summary
 
----
+| Feature           | Resource | What it does |
+| ----------------- | -------- | ------------ |
+| Traffic splitting | `VirtualService` + `DestinationRule` | Route a share of requests to each version |
+| Fault injection   | `VirtualService` | Add delays or errors for testing |
+| Retries           | `VirtualService` | Retry failed calls |
 
-### Step 9: Summary
-
-You just learned how to **control and manipulate traffic** using Istio’s most powerful features:
-
-
-| Feature               | Resource                             | Description                               |
-| ----------------------- | -------------------------------------- | ------------------------------------------- |
-| **Traffic splitting** | `VirtualService` + `DestinationRule` | Gradually route traffic between versions  |
-| **Fault injection**   | `VirtualService`                     | Test failures or latency                  |
-| **Retries**           | `VirtualService`                     | Improve reliability on transient failures |
-
-You now have fine-grained control over **how** traffic flows between services — without changing any application code.
-
----
-
-### 🧵 Next Up
-
-[👉 **Istio Hands-on Part 5 – Observability with Prometheus, Grafana, and Kiali**](../istio-hands-on-part-5-observability-with-prometheus-grafana-and-kiali)
-
-We’ll explore metrics, traces, and service graphs to understand what’s happening inside your mesh.
-
-[⬅ Back to Intro](../istio-hands-on-part-1-from-kubernetes-to-service-mesh) | [Next → Part 5 - Observability with Prometheus, Grafana, and Kiali](../istio-hands-on-part-5-observability-with-prometheus-grafana-and-kiali)
+All of this is configuration in the mesh. The application does not change. Part 5 shows how to watch this traffic with metrics and graphs.

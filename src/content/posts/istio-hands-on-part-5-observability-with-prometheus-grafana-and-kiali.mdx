@@ -1,0 +1,178 @@
+---
+title: Istio Hands-on Part 5 - Observability with Prometheus, Grafana, and Kiali
+description: Install the Istio add-ons and see mesh traffic as metrics, dashboards, and a service graph.
+date: '2025-11-10T00:50:00'
+tags:
+- kubernetes
+- observability
+cover: /images/2025/istio_part5_cover.webp
+coverAlt: Istio Part 5 cover
+coverHidden: true
+toc: false
+series: istio-hands-on
+part: 5
+---
+import Flow from '../../components/Flow.astro';
+
+## Objective
+
+Install the Istio observability add-ons and use them:
+
+- **Prometheus** collects metrics
+- **Grafana** shows metrics on dashboards
+- **Kiali** draws the service graph
+- **Jaeger** stores traces (Part 6 covers tracing)
+
+At the end you have a live view of frontend to backend traffic.
+
+## Step 1: Install the add-ons
+
+Istio ships sample manifests for each tool.
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.27/samples/addons/prometheus.yaml
+kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.27/samples/addons/grafana.yaml
+kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.27/samples/addons/kiali.yaml
+kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.27/samples/addons/jaeger.yaml
+```
+
+Check the pods:
+
+```bash
+kubectl get pods -n istio-system
+```
+
+Expected output:
+
+```txt
+NAME                                    READY   STATUS    RESTARTS      AGE
+grafana-cdb9db549-45llc                 1/1     Running   0             102s
+istio-egressgateway-5b6b664d8-s7728     1/1     Running   1 (48m ago)   24h
+istio-ingressgateway-7d7f977654-spgkh   1/1     Running   1 (48m ago)   24h
+istiod-86db895df-j68p4                  1/1     Running   1 (48m ago)   24h
+jaeger-84b9c75d5f-s2pw6                 1/1     Running   0             100s
+kiali-56f54f58f9-x7h44                  1/1     Running   0             101s
+prometheus-7bf56b6bc-k6gxw              2/2     Running   0             103s
+```
+
+## Step 2: Metrics in Prometheus
+
+Forward the Prometheus port:
+
+```bash
+kubectl port-forward svc/prometheus -n istio-system 9090:9090
+```
+
+Open http://localhost:9090 and search for these metrics:
+
+- `istio_requests_total`: requests through the mesh
+- `istio_request_duration_seconds`: request latency
+- `istio_tcp_sent_bytes_total`: TCP bytes sent
+
+Query requests to the backend:
+
+```txt
+istio_requests_total{destination_service="backend.default.svc.cluster.local"}
+```
+
+The result shows requests from frontend to backend.
+
+![Prometheus query for istio_requests_total](/images/2025/istio_prometheus.webp)
+
+## Step 3: Dashboards in Grafana
+
+Forward the Grafana port:
+
+```bash
+kubectl port-forward svc/grafana -n istio-system 3000:3000
+```
+
+Open http://localhost:3000. Default login is `admin` / `admin`.
+
+Three dashboards come with the add-on:
+
+- Istio Mesh Dashboard
+- Istio Service Dashboard
+- Istio Workload Dashboard
+
+Look for:
+
+- Requests per second
+- Success rate
+- Latency percentiles: P50, P90, P99
+- CPU and memory per proxy
+
+The Istio Service Dashboard shows `v1` and `v2` as separate lines. Use it to check a canary release from Part 4.
+
+![Grafana Istio service dashboard](/images/2025/istio_grafana.webp)
+
+## Step 4: Service graph in Kiali
+
+Forward the Kiali port:
+
+```bash
+kubectl port-forward svc/kiali -n istio-system 20001:20001
+```
+
+Open http://localhost:20001. Default login is `admin` / `admin`.
+
+In the left menu select **Graph**, then namespace `default`. The graph shows:
+
+```txt
+frontend → backend
+```
+
+If the traffic split from Part 4 is active, the graph shows `v1` and `v2` with a line for each.
+
+![Kiali service graph](/images/2025/istio_kiali.webp)
+
+In Kiali you can:
+
+- Hover an edge to see request rate, error rate, and latency
+- Click a node to see inbound and outbound metrics
+- Filter by request type or protocol
+- Open the applied `VirtualService` and `DestinationRule` resources
+- See configuration warnings on graph edges
+
+## Step 5: Metrics from one sidecar (optional)
+
+Each Envoy sidecar serves its own Prometheus metrics on port 15020.
+
+```bash
+kubectl port-forward pod/backend-xxxxxx 15020:15020
+```
+
+Open http://localhost:15020/stats/prometheus to see the raw metrics of that pod.
+
+## Step 6: How the pieces connect
+
+<Flow steps={['frontend ↔ backend', 'Envoy sidecars', 'Prometheus', 'Grafana']} label="Sidecars emit metrics, Prometheus scrapes them, Grafana shows them" />
+
+| Component | Purpose |
+| --------- | ------- |
+| Envoy sidecar | Emits metrics, logs, and traces |
+| Prometheus | Scrapes and stores metrics |
+| Grafana | Draws dashboards from Prometheus |
+| Kiali | Draws the topology and shows Istio resources |
+| Jaeger | Stores and shows distributed traces |
+
+Kiali and Jaeger read from the same sidecar data. Kiali uses Prometheus for the graph. Jaeger receives spans directly from Envoy.
+
+## Step 7: Clean up (optional)
+
+Remove the add-ons:
+
+```bash
+kubectl delete -f https://raw.githubusercontent.com/istio/istio/release-1.27/samples/addons/
+```
+
+The mesh keeps working. Only the dashboards go away.
+
+## Summary
+
+- Installed Prometheus, Grafana, Kiali, and Jaeger
+- Queried mesh metrics in Prometheus
+- Read the built-in Grafana dashboards
+- Saw live traffic in the Kiali graph
+
+Part 6 covers traces: how one request is tracked across services.

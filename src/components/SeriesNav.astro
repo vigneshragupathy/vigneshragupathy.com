@@ -1,0 +1,35 @@
+---
+import { SERIES, seriesEntries } from '../lib/series';
+interface Props { series: string; part: number; slug: string; mode: 'top' | 'bottom' }
+const { series, part, slug, mode } = Astro.props;
+const meta = SERIES[series];
+const entries = await seriesEntries(series, slug);
+const published = entries.filter((e) => e.slug);
+const idx = published.findIndex((e) => e.slug === slug);
+const prev = idx > 0 ? published[idx - 1] : undefined;
+const next = idx >= 0 && idx < published.length - 1 ? published[idx + 1] : undefined;
+const total = entries.length;
+---
+{mode === 'top' ? (
+  <nav class="series-top" aria-label="Series navigation" data-pagefind-ignore>
+    <span class="series-name">{meta?.title ?? series}</span>
+    <span class="series-pos">Part {part} of {total}</span>
+    <span class="series-links">
+      {prev && <a href={`/${prev.slug}/`} title={prev.title}>‹ Part {prev.part}</a>}
+      {next ? <a href={`/${next.slug}/`} title={next.title}>Part {next.part} ›</a> : part < total && <span class="dim">Part {part + 1} soon</span>}
+    </span>
+  </nav>
+) : (
+  <nav class="series-bottom" aria-label="All parts in this series" data-pagefind-ignore>
+    <h2>{meta?.title ?? series} series</h2>
+    {meta?.blurb && <p class="meta">{meta.blurb}</p>}
+    <ol class="series-list">
+      {entries.map((e) => (
+        <li class:list={{ current: e.current, planned: !e.slug }}>
+          <span class="series-num">{e.part}</span>
+          {e.slug ? <a href={`/${e.slug}/`} aria-current={e.current ? 'page' : undefined}>{e.title}</a> : <span>{e.title} <em>coming soon</em></span>}
+        </li>
+      ))}
+    </ol>
+  </nav>
+)}
