@@ -35,7 +35,7 @@ th, td { border: 1px solid var(--border); padding: 6px 10px; }
 blockquote { margin: 16px 0; padding: 4px 16px; border-left: 3px solid var(--accent); color: var(--muted); }
 
 header.site nav, main, footer.site { max-width: var(--max); margin: 0 auto; padding: 0 16px; }
-header.site { border-bottom: 1px solid var(--border); position: relative; }
+header.site { border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 30; background: var(--bg); }
 header.site nav { display: flex; align-items: center; height: 56px; }
 header.site nav a { text-decoration: none; color: var(--fg); }
 header.site nav .brand { font-weight: 700; margin-right: auto; }

@@ -88,11 +88,14 @@ import { THEMES, THEME_IDS } from '../themes';
   document.addEventListener('click', (e) => {
     if (!menu.hidden && !menu.contains(e.target as Node)) { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); }
   });
+  const close = () => { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); };
   menu.addEventListener('click', (e) => {
     const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-val]');
     if (!b) return;
-    set(b.parentElement!.dataset.key!, b.dataset.val!);
+    const key = b.parentElement!.dataset.key!;
+    set(key, b.dataset.val!);
     apply();
+    if (key === 'theme') close();
   });
   mq.addEventListener('change', apply);
   apply();
