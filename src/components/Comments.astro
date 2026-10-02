@@ -1,0 +1,32 @@
+---
+import { SITE } from '../lib/content';
+interface Props { title: string }
+const { title } = Astro.props;
+const url = new URL(Astro.url.pathname, Astro.site).href;
+const identifier = Astro.url.pathname;
+---
+<section class="comments" id="comments">
+  <h2>Comments</h2>
+  <button class="btn" id="load-comments" type="button">Load comments</button>
+  <div id="disqus_thread"></div>
+</section>
+<script is:inline define:vars={{ shortname: SITE.disqus, url, identifier, title }}>
+  (function () {
+    var btn = document.getElementById('load-comments');
+    var loaded = false;
+    function load() {
+      if (loaded) return; loaded = true;
+      btn.remove();
+      window.disqus_config = function () { this.page.url = url; this.page.identifier = identifier; this.page.title = title; };
+      var s = document.createElement('script');
+      s.src = 'https://' + shortname + '.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      document.body.appendChild(s);
+    }
+    btn.addEventListener('click', load);
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (es) { if (es.some(function (e) { return e.isIntersecting; })) { load(); io.disconnect(); } }, { rootMargin: '600px' });
+      io.observe(document.getElementById('comments'));
+    }
+  })();
+</script>

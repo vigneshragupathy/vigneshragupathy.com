@@ -1,0 +1,26 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getBooks, groupByYear, fmtMonth } from '../../lib/content';
+const books = await getBooks();
+const years = groupByYear(books);
+---
+<Base title="Books" description="A log of books I have read, newest first.">
+  <div class="section-head"><h1>Books</h1><span class="meta">{books.length} books</span></div>
+  <p class="meta">A log of books I have read, newest first.</p>
+  {years.map(([year, bs]) => (
+    <section class="books-year">
+      <div class="books-year-head"><h2>{year}</h2><span class="meta">{bs.length} book{bs.length > 1 ? 's' : ''}</span></div>
+      <ol class="books-rail">
+        {bs.map((b) => (
+          <li>
+            <a class="books-item" href={`/books/${b.id}/`}>
+              <time datetime={b.data.date.toISOString().slice(0, 7)}>{fmtMonth(b.data.date)}</time>
+              <span><span class="books-item-title">{b.data.title}</span>{b.data.author && <span class="books-item-author"> · {b.data.author}</span>}</span>
+              <span class="books-item-go" aria-hidden="true">→</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </section>
+  ))}
+</Base>

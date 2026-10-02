@@ -2,7 +2,7 @@
   --ink: #000000; --paper: #fffdf5; --hl: #ffe600;
   --bg: var(--paper); --fg: var(--ink); --muted: #333333; --accent: var(--ink); --accent-fg: var(--hl);
   --border: var(--ink); --code-bg: var(--ink); --card-bg: #ffffff; --radius: 0px; --max: 760px;
-  --font: "Inter", system-ui, sans-serif; --font-head: var(--font);
+  --font: "Inter", "Noto Sans Tamil", system-ui, sans-serif; --font-head: var(--font);
 }
 :root[data-theme="brutal"][data-mode="dark"] {
   --ink: #ffffff; --paper: #111111; --muted: #bbbbbb; --card-bg: #1a1a1a; --code-bg: #000000; --accent-fg: #000000;
@@ -33,3 +33,19 @@
 @media (max-width: 600px) {
   [data-theme="brutal"] h1 { font-size: 2rem; }
 }
+[data-theme="brutal"] .btn { border: 3px solid var(--ink); background: var(--hl); color: #000; box-shadow: 4px 4px 0 var(--ink); border-radius: 0; }
+[data-theme="brutal"] .btn:hover { opacity: 1; transform: translate(-1px,-1px); box-shadow: 5px 5px 0 var(--ink); }
+[data-theme="brutal"] .about .avatar { border: 3px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); border-radius: 0; }
+[data-theme="brutal"] ul.posts li { border: 3px solid var(--ink); background: var(--card-bg); padding: 0 16px; margin-bottom: 16px; box-shadow: 6px 6px 0 var(--ink); }
+[data-theme="brutal"] ul.posts li:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--ink); }
+[data-theme="brutal"] ul.posts .post-title { color: var(--ink); }
+[data-theme="brutal"] ul.posts .thumb, [data-theme="brutal"] .post-head .cover, [data-theme="brutal"] .prose img { border: 3px solid var(--ink); border-radius: 0; }
+[data-theme="brutal"] .blog-list li { border-bottom: 2px solid var(--ink); }
+[data-theme="brutal"] .year h2 { color: var(--ink); background: var(--hl); display: inline-block; padding: 0 8px; border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); font-size: 1.1rem; }
+[data-theme="brutal"] .pager a, [data-theme="brutal"] .newsletter { border: 3px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); border-radius: 0; }
+[data-theme="brutal"] .newsletter-form input[type="email"] { border: 3px solid var(--ink); border-radius: 0; }
+[data-theme="brutal"] .books-rail { border-left: 3px solid var(--ink); }
+[data-theme="brutal"] .books-rail li::before { border: 3px solid var(--ink); border-radius: 0; background: var(--hl); left: -31px; }
+[data-theme="brutal"] .book-cover { border: 3px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); border-radius: 0; }
+[data-theme="brutal"] .tag-list .tag, [data-theme="brutal"] .tag-cloud .tag { background: var(--card-bg); }
+[data-theme="brutal"] .prose details.lang-ta { border: 3px dashed var(--ink); }

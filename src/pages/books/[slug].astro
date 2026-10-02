@@ -1,0 +1,37 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import BookCover from '../../components/BookCover.astro';
+import { getBooks, fmtMonthYear } from '../../lib/content';
+
+export async function getStaticPaths() {
+  const books = await getBooks();
+  return books.map((book, i) => ({ params: { slug: book.id }, props: { book, newer: books[i - 1], older: books[i + 1] } }));
+}
+const { book, newer, older } = Astro.props;
+const { title, author, subtitle, link, date, summary, description } = book.data;
+const { Content } = await render(book);
+const hasNotes = (book.body ?? '').trim().length > 0;
+---
+<Base title={title} description={description ?? summary ?? `${title} by ${author}`} type="article">
+  <article class="book" data-pagefind-body>
+    <a class="back" href="/books/">← All books</a>
+    <header class="book-hero">
+      <BookCover book={book} />
+      <div>
+        <div class="eyebrow">Read · <time datetime={date.toISOString().slice(0, 7)}>{fmtMonthYear(date)}</time></div>
+        <h1 class="book-title">{title}</h1>
+        {author && <div class="book-author">{author}</div>}
+        {subtitle && <p class="book-subtitle">{subtitle}</p>}
+        {link && <a class="btn" href={link} target="_blank" rel="noopener">View on Amazon ↗</a>}
+      </div>
+    </header>
+    {hasNotes && <section class="book-notes"><h2>My notes</h2><div class="prose"><Content /></div></section>}
+  </article>
+  {(newer || older) && (
+    <nav class="pager" aria-label="Book navigation">
+      {older ? <a class="pager-older" href={`/books/${older.id}/`}><small>« Older</small><span>{older.data.title}</span></a> : <span />}
+      {newer ? <a class="pager-newer" href={`/books/${newer.id}/`}><small>Newer »</small><span>{newer.data.title}</span></a> : <span />}
+    </nav>
+  )}
+</Base>

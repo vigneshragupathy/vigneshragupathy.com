@@ -1,5 +1,26 @@
 ---
 import Base from '../layouts/Base.astro';
 import PostList from '../components/PostList.astro';
+import { getPosts, SITE } from '../lib/content';
+const posts = await getPosts();
+const latest = posts.slice(0, 8);
 ---
-<Base title="Vignesh Ragupathy"><PostList /></Base>
+<Base>
+  <section class="about">
+    <img class="avatar" src="/images/cover/profile2.webp" alt="Vignesh Ragupathy" width="150" height="150" />
+    <div>
+      <h1>About Me</h1>
+      <p>Hi, I'm Vignesh, a cloud engineer passionate about scalable infrastructure, DevOps problem-solving, and end-to-end automation. I work extensively across AWS and Azure, often blending observability, security, and deployment best practices into real-world architectures.</p>
+      <p>Outside of the terminal, I enjoy running, lifting weights, and spending time exploring gadgets and photography. This blog is where I share technical insights, hands-on guides, and the occasional detour into the things I enjoy outside the terminal.</p>
+      <p class="about-links">
+        <a href={SITE.social.linkedin} target="_blank" rel="noopener">LinkedIn</a>
+        <a href={SITE.social.github} target="_blank" rel="noopener">GitHub</a>
+        <a href="/index.xml">RSS</a>
+      </p>
+    </div>
+  </section>
+  <section>
+    <div class="section-head"><h2>Latest posts</h2><a href="/blog/">All posts →</a></div>
+    <PostList posts={latest} />
+  </section>
+</Base>

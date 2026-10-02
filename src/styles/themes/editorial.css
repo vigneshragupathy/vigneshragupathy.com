@@ -1,7 +1,7 @@
 :root[data-theme="editorial"] {
   --bg: #faf6ef; --fg: #2b2622; --muted: #7a6f66; --accent: #9a3412; --accent-fg: #faf6ef;
   --border: #e3d9c8; --code-bg: #f1ebe0; --card-bg: #fffdf8; --radius: 2px; --max: 680px;
-  --font: "Lora", Georgia, serif; --font-head: "Playfair Display", Georgia, serif;
+  --font: "Lora", "Noto Sans Tamil", Georgia, serif; --font-head: "Playfair Display", Georgia, serif;
 }
 [data-theme="editorial"] body { font-size: 18px; line-height: 1.75; }
 [data-theme="editorial"] header.site { border-bottom: 3px double var(--border); }
@@ -29,3 +29,6 @@
   --bg: #1c1917; --fg: #e7e0d6; --muted: #a39a8f; --accent: #e08a5a; --accent-fg: #1c1917;
   --border: #3b342e; --code-bg: #292320; --card-bg: #221e1b;
 }
+[data-theme="editorial"] ul.posts .post-title { font-family: var(--font-head); font-size: 1.35rem; color: var(--fg); }
+[data-theme="editorial"] .book-title, [data-theme="editorial"] .year h2 { font-family: var(--font-head); }
+[data-theme="editorial"] .btn { border-radius: 999px; }

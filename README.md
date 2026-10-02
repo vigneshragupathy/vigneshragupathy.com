@@ -13,6 +13,13 @@ npm run build      # static output in dist/
 npm run preview    # serve dist/
 ```
 
+## Content
+
+- Posts live at `/<slug>/` (same URLs as the old Hugo site). Slug = file name in `src/content/posts/`.
+- Drafts (`draft: true`) and future-dated posts are excluded from the build, like Hugo.
+- Books live at `/books/<slug>/`, listed as a year timeline on `/books/`.
+- `scripts/migrate-hugo.py <hugo repo>` regenerates posts, books and `public/images` from the Hugo repo. Run it only if you change content there; otherwise edit files here directly.
+
 ## Layout
 
 - `src/content/posts/` — posts (`.md` or `.mdx`). Frontmatter schema in `src/content.config.ts`.
@@ -21,6 +28,8 @@ npm run preview    # serve dist/
 - `src/styles/global.css` — shared rules and the default `paper` theme tokens.
 - `src/styles/themes/` — one file per theme, scoped by `data-theme`; light and dark token sets each.
 - `src/themes.ts` — theme registry used by the picker.
+- `src/lib/content.ts` — collection queries, date helpers, site constants (GA, Disqus, social).
+- Search is Pagefind, indexed after `astro build` (see the `build` script). Comments are Disqus, loaded lazily.
 
 ## Deploy
 

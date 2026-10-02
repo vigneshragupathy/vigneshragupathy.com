@@ -1,0 +1,18 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Search" description="Search posts and books.">
+  <h1>Search</h1>
+  <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+  <div id="search"></div>
+  <p class="meta" id="search-note" hidden>Search index is generated at build time. Run <code>npm run build</code> and <code>npm run preview</code> to try it locally.</p>
+  <script is:inline>
+    (function () {
+      var s = document.createElement('script');
+      s.src = '/pagefind/pagefind-ui.js';
+      s.onload = function () { new PagefindUI({ element: '#search', showSubResults: true, showImages: false, autofocus: true }); };
+      s.onerror = function () { document.getElementById('search-note').hidden = false; };
+      document.head.appendChild(s);
+    })();
+  </script>
+</Base>

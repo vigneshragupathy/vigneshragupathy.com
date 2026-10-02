@@ -1,7 +1,7 @@
 :root[data-theme="terminal"] {
   --bg: #0b0f0c; --fg: #c9d1c8; --muted: #7a857b; --accent: #3fb950; --accent-fg: #0b0f0c;
   --border: #243026; --code-bg: #111713; --card-bg: #111713; --radius: 2px;
-  --font: "JetBrains Mono", ui-monospace, monospace; --font-head: var(--font); --font-mono: var(--font);
+  --font: "JetBrains Mono", "Noto Sans Tamil", ui-monospace, monospace; --font-head: var(--font); --font-mono: var(--font);
 }
 [data-theme="terminal"] body { font-size: 15px; }
 [data-theme="terminal"] header.site { border-bottom: 1px dashed var(--border); }
@@ -21,3 +21,6 @@
 [data-theme="terminal"] .callout { border: 1px solid var(--accent); border-left-width: 4px; }
 [data-theme="terminal"] a:hover { background: var(--accent); color: var(--accent-fg); }
 [data-theme="terminal"] .burger, [data-theme="terminal"] .tp-btn { border-style: dashed; }
+[data-theme="terminal"] ul.posts .post-title::before { content: "> "; }
+[data-theme="terminal"] .blog-list a::before { content: "$ "; color: var(--muted); }
+[data-theme="terminal"] .btn { border-radius: 0; }

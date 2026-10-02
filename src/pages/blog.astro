@@ -1,0 +1,19 @@
+---
+import Base from '../layouts/Base.astro';
+import { getPosts, groupByYear, fmtShort } from '../lib/content';
+const posts = await getPosts();
+const years = groupByYear(posts);
+---
+<Base title="Blog" description="All posts, newest first.">
+  <div class="section-head"><h1>Blog</h1><span class="meta">{posts.length} posts · <a href="/index.xml">RSS</a></span></div>
+  {years.map(([year, ps]) => (
+    <section class="year">
+      <h2>{year}</h2>
+      <ul class="blog-list">
+        {ps.map((p) => (
+          <li><time datetime={p.data.date.toISOString()}>{fmtShort(p.data.date)}</time><a href={`/${p.id}/`}>{p.data.title}</a></li>
+        ))}
+      </ul>
+    </section>
+  ))}
+</Base>

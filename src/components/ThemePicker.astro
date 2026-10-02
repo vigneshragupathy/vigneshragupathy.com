@@ -46,7 +46,6 @@ import { THEMES, THEME_IDS } from '../themes';
   [data-theme-dot="terminal"] { background: linear-gradient(135deg, #0b0f0c 50%, #3fb950 50%); }
   [data-theme-dot="editorial"] { background: linear-gradient(135deg, #faf6ef 50%, #9a3412 50%); }
   [data-theme-dot="brutal"] { background: linear-gradient(135deg, #ffe600 50%, #000 50%); }
-  [data-theme-dot="sidebar"] { background: linear-gradient(135deg, #f5f5f7 50%, #2563eb 50%); }
 </style>
 
 <script>
@@ -59,9 +58,11 @@ import { THEMES, THEME_IDS } from '../themes';
   const set = (k: string, v: string) => { try { localStorage.setItem(k, v); } catch {} };
 
   const DARK_ONLY = new Set(['terminal']);
+  const THEME_LIST = [...menu.querySelectorAll<HTMLButtonElement>('.tp-list button')].map((b) => b.dataset.val!);
 
   function apply() {
-    const theme = get('theme', 'brutal');
+    let theme = get('theme', 'brutal');
+    if (!THEME_LIST.includes(theme)) theme = 'brutal';
     const mode = get('mode', 'light');
     const locked = DARK_ONLY.has(theme);
     root.dataset.theme = theme;
