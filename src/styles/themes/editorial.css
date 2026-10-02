@@ -1,0 +1,31 @@
+:root[data-theme="editorial"] {
+  --bg: #faf6ef; --fg: #2b2622; --muted: #7a6f66; --accent: #9a3412; --accent-fg: #faf6ef;
+  --border: #e3d9c8; --code-bg: #f1ebe0; --card-bg: #fffdf8; --radius: 2px; --max: 680px;
+  --font: "Lora", Georgia, serif; --font-head: "Playfair Display", Georgia, serif;
+}
+[data-theme="editorial"] body { font-size: 18px; line-height: 1.75; }
+[data-theme="editorial"] header.site { border-bottom: 3px double var(--border); }
+[data-theme="editorial"] header.site nav { height: 72px; }
+[data-theme="editorial"] header.site nav .brand { font-family: var(--font-head); font-size: 1.4rem; font-weight: 900; }
+[data-theme="editorial"] header.site nav .links a { font-variant: small-caps; letter-spacing: 0.06em; }
+[data-theme="editorial"] h1 { font-size: 2.6rem; font-weight: 900; letter-spacing: -0.01em; }
+[data-theme="editorial"] h2 { font-size: 1.7rem; margin-top: 2.2rem; }
+[data-theme="editorial"] .post-head { text-align: center; margin-bottom: 2rem; }
+[data-theme="editorial"] .post-head::after { content: "❦"; display: block; color: var(--accent); margin-top: 1rem; }
+[data-theme="editorial"] .prose > p:first-of-type::first-letter {
+  float: left; font-family: var(--font-head); font-size: 3.6rem; line-height: 0.85; padding: 6px 8px 0 0; color: var(--accent);
+}
+[data-theme="editorial"] .meta time { font-style: italic; }
+[data-theme="editorial"] .tag { border: 0; padding: 0; margin-left: 10px; font-variant: small-caps; letter-spacing: 0.08em; font-size: 0.85rem; }
+[data-theme="editorial"] .tag::before { content: "· "; }
+[data-theme="editorial"] ul.posts li > a { font-family: var(--font-head); font-size: 1.5rem; color: var(--fg); }
+[data-theme="editorial"] ul.posts li > a:hover { color: var(--accent); }
+[data-theme="editorial"] .intro h1 { font-size: 3rem; }
+[data-theme="editorial"] .intro p { font-style: italic; }
+[data-theme="editorial"] blockquote { font-style: italic; font-size: 1.1em; border-left: 0; text-align: center; }
+[data-theme="editorial"] .callout { background: var(--card-bg); border: 1px solid var(--border); border-left: 4px solid var(--accent); }
+
+:root[data-theme="editorial"][data-mode="dark"] {
+  --bg: #1c1917; --fg: #e7e0d6; --muted: #a39a8f; --accent: #e08a5a; --accent-fg: #1c1917;
+  --border: #3b342e; --code-bg: #292320; --card-bg: #221e1b;
+}

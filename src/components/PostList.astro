@@ -1,0 +1,23 @@
+---
+import { getCollection } from 'astro:content';
+interface Props { prefix?: string }
+const { prefix = '' } = Astro.props;
+const posts = (await getCollection('posts', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+<section class="intro">
+  <h1>Hi, I'm Vignesh.</h1>
+  <p>Platform engineer. I write about Kubernetes, Istio, home labs, books, and the occasional road trip.</p>
+</section>
+<ul class="posts">
+  {posts.map((p) => (
+    <li>
+      <a href={`${prefix}/posts/${p.id}/`}>{p.data.title}</a>
+      <div class="meta">
+        <time>{p.data.date.toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' })}</time>
+        {p.data.tags.map((t) => <span class="tag">{t}</span>)}
+      </div>
+      {p.data.description && <p class="desc">{p.data.description}</p>}
+    </li>
+  ))}
+</ul>

@@ -1,0 +1,57 @@
+---
+import '../styles/global.css';
+import '../styles/themes/terminal.css';
+import '../styles/themes/editorial.css';
+import '../styles/themes/brutal.css';
+import '../styles/themes/sidebar.css';
+import ThemePicker from '../components/ThemePicker.astro';
+import { getCollection } from 'astro:content';
+
+interface Props { title: string; description?: string }
+const { title, description = 'Vignesh Ragupathy' } = Astro.props;
+const recent = (await getCollection('posts', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()).slice(0, 6);
+---
+<html lang="en" data-theme="paper" data-mode="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <link rel="icon" href="/favicon.svg" />
+    <script is:inline>
+      // Runs before first paint: restore saved theme/mode so there is no flash.
+      (function () {
+        try {
+          var d = document.documentElement;
+          var t = localStorage.getItem('theme'); if (t) d.dataset.theme = t;
+          var m = localStorage.getItem('mode') || 'auto';
+          var dark = m === 'dark' || (m === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
+          d.dataset.mode = dark ? 'dark' : 'light';
+        } catch (e) {}
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header class="site">
+      <nav>
+        <a href="/" class="brand">Vignesh Ragupathy</a>
+        <span class="links">
+          <a href="/">Blog</a>
+          <a href="/books">Books</a>
+          <a href="/tags">Tags</a>
+          <ThemePicker />
+        </span>
+      </nav>
+      <aside class="rail">
+        <h4>Recent</h4>
+        <ul>{recent.map((p) => <li><a href={`/posts/${p.id}/`}>{p.data.title}</a></li>)}</ul>
+      </aside>
+    </header>
+    <main><slot /></main>
+    <footer class="site">© 2026 Vignesh Ragupathy · Built with Astro</footer>
+  </body>
+</html>
