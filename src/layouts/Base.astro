@@ -12,7 +12,7 @@ const fullTitle = title ? `${title} · ${SITE.title}` : SITE.title;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = image ? new URL(image, Astro.site).href : undefined;
 ---
-<html lang="en" data-theme="brutal" data-mode="light">
+<html lang="en" data-theme="editorial" data-mode="light">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -35,8 +35,8 @@ const ogImage = image ? new URL(image, Astro.site).href : undefined;
       (function () {
         try {
           var d = document.documentElement;
-          var t = localStorage.getItem('theme') || 'brutal';
-          if (['paper','terminal','editorial','brutal'].indexOf(t) < 0) t = 'brutal';
+          var t = localStorage.getItem('theme') || 'editorial';
+          if (['paper','terminal','editorial','brutal'].indexOf(t) < 0) t = 'editorial';
           d.dataset.theme = t;
           var m = localStorage.getItem('mode') || 'light';
           var dark = t === 'terminal' || m === 'dark' || (m === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);

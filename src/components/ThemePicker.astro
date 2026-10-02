@@ -61,8 +61,8 @@ import { THEMES, THEME_IDS } from '../themes';
   const THEME_LIST = [...menu.querySelectorAll<HTMLButtonElement>('.tp-list button')].map((b) => b.dataset.val!);
 
   function apply() {
-    let theme = get('theme', 'brutal');
-    if (!THEME_LIST.includes(theme)) theme = 'brutal';
+    let theme = get('theme', 'editorial');
+    if (!THEME_LIST.includes(theme)) theme = 'editorial';
     const mode = get('mode', 'light');
     const locked = DARK_ONLY.has(theme);
     root.dataset.theme = theme;
