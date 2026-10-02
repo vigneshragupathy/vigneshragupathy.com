@@ -2,7 +2,7 @@
 
 Personal site, built with [Astro](https://astro.build). Markdown/MDX content, React islands for interactive bits, five switchable themes with light/dark mode.
 
-Currently deployed to <https://astro.vigneshragupathy.com> while the Hugo site is migrated. The previous Jekyll site lives on the `jekyll-legacy` branch (tag `jekyll-final`).
+Deployed to <https://vigneshragupathy.com>. The previous Jekyll site lives on the `jekyll-legacy` branch (tag `jekyll-final`).
 
 ## Develop
 

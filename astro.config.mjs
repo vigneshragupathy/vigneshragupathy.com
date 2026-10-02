@@ -8,7 +8,7 @@ import expressiveCode from 'astro-expressive-code';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://astro.vigneshragupathy.com',
+  site: 'https://vigneshragupathy.com',
   integrations: [
     react(),
     expressiveCode({
@@ -36,6 +36,7 @@ export default defineConfig({
   redirects: {
     '/posts': '/blog',
     '/archives': '/blog',
+    '/sitemap.xml': '/sitemap-index.xml',
   },
   markdown: {
     shikiConfig: { themes: { light: 'github-light', dark: 'github-dark' } },
