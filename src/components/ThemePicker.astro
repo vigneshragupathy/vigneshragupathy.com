@@ -34,6 +34,8 @@ import { THEMES, THEME_IDS } from '../themes';
   .tp-seg button, .tp-list button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; text-align: left; }
   .tp-seg button { flex: 1; padding: 6px 0; text-align: center; border-right: 1px solid var(--border); }
   .tp-seg button:last-child { border-right: 0; }
+  .tp-seg button:disabled { cursor: not-allowed; opacity: 0.45; }
+  .tp-seg button:disabled[aria-pressed="true"] { opacity: 1; }
   .tp-seg button[aria-pressed="true"], .tp-list button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
   .tp-list { display: flex; flex-direction: column; gap: 2px; }
   .tp-list button { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: calc(var(--radius) / 2); }
@@ -56,15 +58,24 @@ import { THEMES, THEME_IDS } from '../themes';
   const get = (k: string, d: string) => { try { return localStorage.getItem(k) || d; } catch { return d; } };
   const set = (k: string, v: string) => { try { localStorage.setItem(k, v); } catch {} };
 
+  const DARK_ONLY = new Set(['terminal']);
+
   function apply() {
-    const theme = get('theme', 'paper');
-    const mode = get('mode', 'auto');
+    const theme = get('theme', 'brutal');
+    const mode = get('mode', 'light');
+    const locked = DARK_ONLY.has(theme);
     root.dataset.theme = theme;
-    root.dataset.mode = mode === 'auto' ? (mq.matches ? 'dark' : 'light') : mode;
+    root.dataset.mode = locked ? 'dark' : mode === 'auto' ? (mq.matches ? 'dark' : 'light') : mode;
     menu.querySelectorAll<HTMLButtonElement>('[data-key] button').forEach((b) => {
       const key = b.parentElement!.dataset.key;
-      b.setAttribute('aria-pressed', String(b.dataset.val === (key === 'mode' ? mode : theme)));
+      if (key === 'mode') {
+        b.disabled = locked;
+        b.setAttribute('aria-pressed', String(locked ? b.dataset.val === 'dark' : b.dataset.val === mode));
+      } else {
+        b.setAttribute('aria-pressed', String(b.dataset.val === theme));
+      }
     });
+    menu.querySelector('.tp-seg')!.setAttribute('title', locked ? 'This theme is dark only' : '');
   }
 
   btn.addEventListener('click', (e) => {
