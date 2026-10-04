@@ -13,6 +13,17 @@ npm run build      # static output in dist/
 npm run preview    # serve dist/
 ```
 
+Or run it in the background and manage it:
+
+```bash
+scripts/blog.sh start            # astro dev, hot reload
+scripts/blog.sh start preview    # build, then serve dist/
+scripts/blog.sh status
+scripts/blog.sh logs -f
+scripts/blog.sh restart
+scripts/blog.sh stop
+```
+
 ## Content
 
 - Posts live at `/<slug>/` (same URLs as the old Hugo site). Slug = file name in `src/content/posts/`.
