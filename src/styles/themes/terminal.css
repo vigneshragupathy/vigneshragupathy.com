@@ -24,3 +24,20 @@
 [data-theme="terminal"] ul.posts .post-title::before { content: "> "; }
 [data-theme="terminal"] .blog-list a::before { content: "$ "; color: var(--muted); }
 [data-theme="terminal"] .btn { border-radius: 0; }
+[data-theme="terminal"] .newsletter { padding: 24px; border: 1px dashed var(--border); border-radius: 0; background: var(--card-bg); text-align: left; }
+[data-theme="terminal"] .newsletter::before, [data-theme="terminal"] .newsletter-icon { display: none; }
+[data-theme="terminal"] .newsletter-kicker { font-size: 0.85rem; font-weight: 400; letter-spacing: 0; text-transform: lowercase; color: var(--muted); }
+[data-theme="terminal"] .newsletter-kicker::before { content: "$ cat "; }
+[data-theme="terminal"] .newsletter-kicker::after { content: ".md"; }
+[data-theme="terminal"] .newsletter h2 { font-size: 1.2rem; }
+[data-theme="terminal"] .newsletter-lead { margin-left: 0; max-width: 60ch; }
+[data-theme="terminal"] .newsletter-field { max-width: 480px; margin: 0; padding: 0; border: 1px dashed var(--border); border-radius: 0; }
+[data-theme="terminal"] .newsletter-field:focus-within { border-style: solid; box-shadow: none; }
+[data-theme="terminal"] .newsletter-field input { padding: 9px 12px; }
+[data-theme="terminal"] .newsletter-field .btn { border-radius: 0; border-width: 0 0 0 1px; border-color: var(--border); }
+[data-theme="terminal"] .newsletter-field .btn::before { content: "> "; }
+@media (max-width: 480px) {
+  [data-theme="terminal"] .newsletter-field { border: 0; }
+  [data-theme="terminal"] .newsletter-field input { border: 1px dashed var(--border); border-radius: 0; }
+  [data-theme="terminal"] .newsletter-field .btn { border: 1px solid var(--accent); }
+}

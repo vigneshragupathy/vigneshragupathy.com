@@ -43,7 +43,22 @@
 [data-theme="brutal"] .blog-list li { border-bottom: 2px solid var(--ink); }
 [data-theme="brutal"] .year h2 { color: var(--ink); background: var(--hl); display: inline-block; padding: 0 8px; border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); font-size: 1.1rem; }
 [data-theme="brutal"] .pager a, [data-theme="brutal"] .newsletter { border: 3px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); border-radius: 0; }
-[data-theme="brutal"] .newsletter-form input[type="email"] { border: 3px solid var(--ink); border-radius: 0; }
+[data-theme="brutal"] .newsletter { padding: 36px 24px 26px; background: var(--card-bg); }
+[data-theme="brutal"] .newsletter::before { height: 12px; background: var(--hl); border-bottom: 3px solid var(--ink); }
+[data-theme="brutal"] .newsletter-icon { border: 3px solid var(--ink); border-radius: 0; background: var(--hl); color: #000; box-shadow: 4px 4px 0 var(--ink); }
+[data-theme="brutal"] .newsletter-kicker { color: var(--ink); font-weight: 800; }
+[data-theme="brutal"] .newsletter h2 { margin: 0 0 14px; }
+[data-theme="brutal"] .newsletter-field { padding: 0; border: 3px solid var(--ink); border-radius: 0; background: var(--bg); box-shadow: 4px 4px 0 var(--ink); }
+[data-theme="brutal"] .newsletter-field:focus-within { border-color: var(--ink); box-shadow: 4px 4px 0 var(--ink); background: var(--card-bg); }
+[data-theme="brutal"] .newsletter-field input { padding: 10px 14px; font-weight: 600; }
+[data-theme="brutal"] .newsletter-field .btn { border-width: 0 0 0 3px; border-radius: 0; box-shadow: none; text-transform: uppercase; letter-spacing: 0.04em; }
+[data-theme="brutal"] .newsletter-field .btn:hover { transform: none; box-shadow: none; background: var(--ink); color: var(--hl); }
+@media (max-width: 480px) {
+  [data-theme="brutal"] .newsletter-field { border: 0; box-shadow: none; background: none; }
+  [data-theme="brutal"] .newsletter-field:focus-within { box-shadow: none; background: none; }
+  [data-theme="brutal"] .newsletter-field input { border: 3px solid var(--ink); border-radius: 0; background: var(--bg); }
+  [data-theme="brutal"] .newsletter-field .btn { border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); }
+}
 [data-theme="brutal"] .books-rail { border-left: 3px solid var(--ink); }
 [data-theme="brutal"] .books-rail li::before { border: 3px solid var(--ink); border-radius: 0; background: var(--hl); left: -31px; }
 [data-theme="brutal"] .book-cover { border: 3px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); border-radius: 0; }

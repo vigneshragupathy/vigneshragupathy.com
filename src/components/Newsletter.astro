@@ -1,10 +1,20 @@
-<section class="newsletter" data-pagefind-ignore>
-  <h2>Subscribe</h2>
-  <p>New posts by email. No spam, unsubscribe anytime.</p>
+<section class="newsletter" data-pagefind-ignore aria-labelledby="newsletter-title">
+  <div class="newsletter-icon" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="m3 7 9 6 9-6" />
+    </svg>
+  </div>
+  <p class="newsletter-kicker">Newsletter</p>
+  <h2 id="newsletter-title">New posts, straight to your inbox</h2>
+  <p class="newsletter-lead">One email whenever something new goes up. No spam, unsubscribe anytime.</p>
   <form action="https://vigneshragupathy.us11.list-manage.com/subscribe/post?u=ef367315f0a7fd5195b2a0aeb&amp;id=a24c6b3b3a&amp;f_id=00c5ffe0f0" method="post" target="_blank" class="newsletter-form">
     <label for="mce-EMAIL" class="sr-only">Email address</label>
-    <input type="email" name="EMAIL" id="mce-EMAIL" placeholder="Email address" required />
+    <div class="newsletter-field">
+      <input type="email" name="EMAIL" id="mce-EMAIL" placeholder="you@example.com" autocomplete="email" required />
+      <button type="submit" class="btn">Subscribe</button>
+    </div>
     <div style="position:absolute;left:-5000px" aria-hidden="true"><input type="text" name="b_ef367315f0a7fd5195b2a0aeb_a24c6b3b3a" tabindex="-1" value="" /></div>
-    <button type="submit" class="btn">Subscribe</button>
   </form>
+  <p class="newsletter-fine">Delivered via Mailchimp. Your address is never shared.</p>
 </section>

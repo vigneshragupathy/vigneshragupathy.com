@@ -32,3 +32,9 @@
 [data-theme="editorial"] ul.posts .post-title { font-family: var(--font-head); font-size: 1.35rem; color: var(--fg); }
 [data-theme="editorial"] .book-title, [data-theme="editorial"] .year h2 { font-family: var(--font-head); }
 [data-theme="editorial"] .btn { border-radius: 999px; }
+[data-theme="editorial"] .newsletter { padding: 36px 32px 30px; background: var(--card-bg); outline: 3px double var(--border); outline-offset: -8px; }
+[data-theme="editorial"] .newsletter::before, [data-theme="editorial"] .newsletter-icon { display: none; }
+[data-theme="editorial"] .newsletter-kicker { font-variant: small-caps; text-transform: none; letter-spacing: 0.2em; font-size: 1rem; }
+[data-theme="editorial"] .newsletter-kicker::before { content: "\2766"; display: block; margin-bottom: 6px; font-size: 1.4rem; letter-spacing: 0; }
+[data-theme="editorial"] .newsletter h2 { margin: 0 0 8px; font-size: 1.9rem; font-weight: 900; }
+[data-theme="editorial"] .newsletter-lead { font-style: italic; }
