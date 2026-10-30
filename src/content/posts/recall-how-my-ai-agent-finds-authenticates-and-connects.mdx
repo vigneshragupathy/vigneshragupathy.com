@@ -175,8 +175,6 @@ Two entries, a production cluster and the VM everything else is reached through:
   secrets: [vm-sudo]                              # id from secrets.yaml, injected on exec
 ```
 
-`requires` points at another entry whose own proof command must pass first. `secrets` holds ids only; the values stay in the vault and are injected when the entry is executed.
-
 The agent searches it the same way it searches notes. When a query names something in the inventory, the matching entry is pinned to the top of the results as an access block:
 
 ```text
