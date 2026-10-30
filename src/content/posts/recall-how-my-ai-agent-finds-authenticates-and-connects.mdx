@@ -22,10 +22,10 @@ import RecallArchitecture from '../../components/diagrams/RecallArchitecture.ast
 import RecallSecretFlow from '../../components/diagrams/RecallSecretFlow.astro';
 
 <Callout title="TL;DR">
-I built a small local tool, recall, so the AI agent I use for ops work can search years of my notes, use my credentials without ever seeing a value, and know how to reach every cluster, host and account I work with. One process, exposed as a CLI and an MCP server, fed by plain files. Search was the easy part. The pieces that changed how the agent behaves are a vault that hands out commands instead of values, an inventory that knows what needs the VPN, and a read-only check that says what has expired. The repository stays private; the design is here to copy.
+Recall is a small local tool that gives my AI agent what it was missing: memory of my notes, credentials it can use, and a map of how to reach every system I work with. This post walks through the design, so you can build your own.
 </Callout>
 
-I use an AI agent in the terminal for most of my ops related work. Writing code is only part of it. The same agent digs through old incidents to find a root cause, checks a cluster, fixes a broken deployment, drafts the ticket afterwards. It is good at the work itself, and surprisingly weak at a few things that have nothing to do with the work.
+I use an AI agent in the terminal for most of my infrastructure work. Writing code is only part of it. The same agent digs through old incidents to find a root cause, checks a cluster, fixes a broken deployment, drafts the ticket afterwards. It is good at the work itself, and surprisingly weak at a few things that have nothing to do with the work.
 
 What I have learned over the past year is that <mark>small tools built for the agent, around my own way of working, improve its output more than any prompt or model upgrade.</mark> An agent with the right tool answers in one step; without it, it guesses, asks, or wanders. This post is about one such tool.
 
@@ -91,6 +91,8 @@ This was the constraint I cared most about. The agent has to authenticate, and i
 I did look at the usual answers first. A password manager CLI gives the agent the value, which is the one thing I wanted to avoid. A full secrets server is a lot of machinery for one person, and still ends with a token in the agent's hands. What I actually needed was narrow: a place to keep credentials that an agent can search by description, and a way to run a command with one of them without ever seeing it. That is small enough to build, and building it meant the rules could be enforced in code rather than in instructions. The vault's internals, how values are stored, how the parts of a multi-value secret are handled, how access is logged, deserve their own post, and I will write that separately.
 
 Secrets live in plain YAML files that I edit by hand, one file today and a few, split by service, as the set grows. Each entry has an id, the service it belongs to, the environment, a username, an example of how to use it, free-text notes, and the value. A sync command encrypts the values into the database and indexes only the metadata. The agent can search for "token for Jira" and find the right id without the value ever being embedded or sent anywhere.
+
+The values are encrypted in the database, but the YAML file itself is plain text for now. It stays private to me, and encrypting it later would not change the format or the sync.
 
 An entry looks like this:
 
@@ -227,7 +229,7 @@ That sweep surfaced two more things. `az account set` is global state, so verify
 
 ## If you build your own
 
-Put the rules where the agent reads them. The tool is half of it. The other half is a few lines in the agent's instructions file: search before you grep, credentials come from recall and never from files or prompts, look up access before you reach a system, a 403 without VPN is not a bad token. Without those lines the agent uses the tool when it feels like it.
+Put the rules where the agent reads them. The tool is only half of it; without a few lines in the agent's instructions file, it uses the tool when it feels like it.
 
 This is the block in my `CLAUDE.md`, trimmed to the parts that carry the rules:
 
