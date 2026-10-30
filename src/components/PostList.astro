@@ -7,7 +7,7 @@ const { posts, showCover = true } = Astro.props;
   {posts.map((p) => (
     <li>
       <a class="post-link" href={`/${p.id}/`}>
-        {showCover && p.data.cover && <img class="thumb" src={p.data.cover} alt="" loading="lazy" />}
+        {showCover && (p.data.image ?? p.data.cover) && <img class="thumb" src={p.data.image ?? p.data.cover} alt="" loading="lazy" />}
         <span class="post-link-text">
           <span class="post-title">{p.data.title}</span>
           <span class="meta"><time datetime={p.data.date.toISOString()}>{fmtShort(p.data.date)}</time>

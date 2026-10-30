@@ -259,3 +259,26 @@ a.books-item:hover .books-item-go { opacity: 1; }
 .split-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; background: var(--accent); vertical-align: middle; }
 .split-swatch.seg-1 { opacity: 0.55; } .split-swatch.seg-2 { opacity: 0.35; } .split-swatch.seg-3 { opacity: 0.2; }
 .diagram-frame { width: 100%; height: 450px; border: 1px solid var(--border); border-radius: var(--radius); background: #fff; }
+
+/* ---------- inline SVG diagrams (src/components/diagrams) ---------- */
+.diagram { margin: 24px 0; }
+.diagram svg { width: 100%; height: auto; display: block; font-family: var(--font); }
+.diagram figcaption { margin-top: 8px; font-size: 0.85rem; color: var(--muted); text-align: center; }
+.diagram .d-head { font-size: 12px; font-weight: 600; fill: var(--muted); text-anchor: middle; letter-spacing: 0.04em; text-transform: uppercase; }
+.diagram .d-box rect { fill: var(--card-bg); stroke: var(--border); stroke-width: 1.2; }
+.diagram .d-box.d-accent rect { stroke: var(--accent); stroke-width: 1.6; }
+.diagram .d-box.d-dashed rect { stroke-dasharray: 4 3; }
+.diagram .d-title { font-size: 13.5px; font-weight: 600; fill: var(--fg); text-anchor: middle; }
+.diagram .d-sub { font-size: 11.5px; fill: var(--muted); text-anchor: middle; }
+.diagram .d-frame { fill: var(--code-bg); stroke: var(--border); stroke-width: 1; }
+.diagram .d-arrow line { stroke: var(--muted); stroke-width: 1.4; }
+.diagram .d-lane line { stroke: var(--border); stroke-width: 1; stroke-dasharray: 3 4; }
+.diagram .d-boundary { fill: var(--accent); fill-opacity: 0.06; stroke: var(--accent); stroke-width: 1.2; stroke-dasharray: 6 4; }
+.diagram .d-boundary-label { font-size: 11.5px; font-style: italic; fill: var(--accent); text-anchor: middle; }
+.diagram .d-step text.d-left { text-anchor: start; }
+.diagram .d-step text { font-size: 12.5px; fill: var(--fg); text-anchor: middle; font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--bg); stroke-width: 5px; stroke-linejoin: round; }
+.diagram.term img { width: 100%; height: auto; display: block; border-radius: var(--radius); border: 1px solid var(--border); }
+
+/* ---------- inline highlight: <mark>…</mark> in posts ---------- */
+mark, .prose mark { background: color-mix(in srgb, var(--accent) 22%, transparent); color: inherit; padding: 0.05em 0.3em; border-radius: 3px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+html[data-mode="dark"] mark, html[data-mode="dark"] .prose mark { background: color-mix(in srgb, var(--accent) 32%, transparent); }

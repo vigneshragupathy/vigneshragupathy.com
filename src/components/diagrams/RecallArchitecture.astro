@@ -1,0 +1,93 @@
+---
+/** Three-column architecture: what goes in, the recall process in the middle, who talks to it. Themed via CSS tokens. */
+interface Props { label?: string }
+const { label = 'recall architecture' } = Astro.props;
+---
+<figure class="diagram">
+  <svg viewBox="0 0 760 330" role="img" aria-label={label} xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="ra-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--muted)" />
+      </marker>
+    </defs>
+
+    <!-- column headings -->
+    <text x="90" y="22" class="d-head">Inputs you own</text>
+    <text x="380" y="22" class="d-head">recall</text>
+    <text x="650" y="22" class="d-head">Who asks</text>
+
+    <!-- inputs -->
+    <g class="d-box">
+      <rect x="20" y="40" width="160" height="46" rx="6" />
+      <text x="100" y="59" class="d-title">Notes</text>
+      <text x="100" y="76" class="d-sub">markdown, pdf, html</text>
+    </g>
+    <g class="d-box">
+      <rect x="20" y="98" width="160" height="46" rx="6" />
+      <text x="100" y="117" class="d-title">Code repos</text>
+      <text x="100" y="134" class="d-sub">.gitignore honoured</text>
+    </g>
+    <g class="d-box d-accent">
+      <rect x="20" y="166" width="160" height="46" rx="6" />
+      <text x="100" y="185" class="d-title">secrets.yaml</text>
+      <text x="100" y="202" class="d-sub">one file, plain text, mine</text>
+    </g>
+    <g class="d-box d-accent">
+      <rect x="20" y="224" width="160" height="46" rx="6" />
+      <text x="100" y="243" class="d-title">inventory.yaml</text>
+      <text x="100" y="260" class="d-sub">clusters, hosts, accounts</text>
+    </g>
+
+    <!-- recall core -->
+    <rect x="240" y="36" width="280" height="250" rx="10" class="d-frame" />
+    <g class="d-box">
+      <rect x="260" y="52" width="240" height="60" rx="6" />
+      <text x="380" y="72" class="d-title">Index</text>
+      <text x="380" y="89" class="d-sub">BM25 (FTS5) + vectors (sqlite-vec)</text>
+      <text x="380" y="104" class="d-sub">one SQLite file</text>
+    </g>
+    <g class="d-box">
+      <rect x="260" y="124" width="240" height="60" rx="6" />
+      <text x="380" y="144" class="d-title">Vault</text>
+      <text x="380" y="161" class="d-sub">values encrypted at rest</text>
+      <text x="380" y="176" class="d-sub">only metadata is searchable</text>
+    </g>
+    <g class="d-box">
+      <rect x="260" y="196" width="240" height="60" rx="6" />
+      <text x="380" y="216" class="d-title">Inventory + verify</text>
+      <text x="380" y="233" class="d-sub">how to reach things, prerequisites,</text>
+      <text x="380" y="248" class="d-sub">read-only health checks</text>
+    </g>
+    <text x="380" y="276" class="d-sub">CLI · MCP server · systemd timers</text>
+
+    <!-- consumers -->
+    <g class="d-box d-accent">
+      <rect x="570" y="96" width="160" height="54" rx="6" />
+      <text x="650" y="117" class="d-title">AI agent</text>
+      <text x="650" y="134" class="d-sub">MCP tools, 14 of them</text>
+    </g>
+    <g class="d-box">
+      <rect x="570" y="170" width="160" height="54" rx="6" />
+      <text x="650" y="191" class="d-title">Me</text>
+      <text x="650" y="208" class="d-sub">terminal, same commands</text>
+    </g>
+
+    <!-- external -->
+    <g class="d-box d-dashed">
+      <rect x="260" y="298" width="240" height="26" rx="6" />
+      <text x="380" y="315" class="d-sub">embedding API, used only at index time</text>
+    </g>
+
+    <!-- arrows -->
+    <g class="d-arrow" marker-end="url(#ra-arrow)">
+      <line x1="180" y1="63" x2="258" y2="78" />
+      <line x1="180" y1="121" x2="258" y2="88" />
+      <line x1="180" y1="189" x2="258" y2="154" />
+      <line x1="180" y1="247" x2="258" y2="226" />
+      <line x1="522" y1="123" x2="568" y2="123" />
+      <line x1="522" y1="197" x2="568" y2="197" />
+      <line x1="380" y1="288" x2="380" y2="296" />
+    </g>
+  </svg>
+  <figcaption>{label}</figcaption>
+</figure>
